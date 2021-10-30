@@ -1,2 +1,6 @@
 __pycache__*
 \.idea
+test-results
+.vscode
+.tox
+.coverage
