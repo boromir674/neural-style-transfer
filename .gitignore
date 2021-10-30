@@ -4,3 +4,7 @@ test-results
 .vscode
 .tox
 .coverage
+node_modules
+package\.json
+package-lock\.json
+*egg-info
