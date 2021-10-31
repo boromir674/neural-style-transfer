@@ -12,14 +12,9 @@ def compute_cost():
 # def activations():
 
 
-def test_content_cost_computation(compute_cost):
-    tf.compat.v1.reset_default_graph()
-    # tf.reset_default_graph()
-
-    with tf.compat.v1.Session() as test:
-        tf.compat.v1.set_random_seed(2)
+def test_content_cost_computation(session, compute_cost):
+    with session(2) as test:
         a_C = tf.compat.v1.random_normal([1, 4, 4, 3], mean=1, stddev=4)
         a_G = tf.compat.v1.random_normal([1, 4, 4, 3], mean=1, stddev=4)
         J_content = compute_cost(a_C, a_G)
         assert abs(J_content.eval() - 7.0738883) < 1e-5
-        # assert round(J_content.eval(), 8) == 7.0738883

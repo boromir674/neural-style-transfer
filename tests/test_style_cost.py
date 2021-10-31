@@ -8,12 +8,10 @@ def style_cost():
     return NSTLayerStyleCostComputer.compute
 
 
-def test_style_cost_computation(style_cost):
-    
-    tf.compat.v1.reset_default_graph()
+def test_style_cost_computation(session, style_cost):
 
-    with tf.compat.v1.Session() as test:
-        tf.compat.v1.set_random_seed(1)
+    with session(1) as test:
+
         a_S = tf.compat.v1.random_normal([1, 4, 4, 3], mean=1, stddev=4)
         a_G = tf.compat.v1.random_normal([1, 4, 4, 3], mean=1, stddev=4)
         J_style_layer = style_cost(a_S, a_G)

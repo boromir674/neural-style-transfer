@@ -37,21 +37,8 @@ def test_layers_selection(layers_selection, valid_nst_layers_list, invalid_nst_l
     with pytest.raises(ValueError):
         layers_selection.layers = invalid_nst_layers_list
 
-
-@pytest.fixture
-def invalid_style_layers():
-    return [[
-        ('conv1_1', 0.2),
-        ('conv2_1', 0.3),
-        ('conv3_1', 0.2),
-        ('conv4_1', 0.2),
-        ('conv5_1', 0.2),
-    ],
-    [
-        ('conv1_1', 0.2),
-        ('conv1_1', 0.2),
-        ('conv2_1', 0.6),
-    ]]
+    assert layers_selection[1] == valid_nst_layers_list[1]
+    assert dict(layers_selection) == {layer.id: layer for layer in valid_nst_layers_list}
 
 
 @pytest.fixture(params=[

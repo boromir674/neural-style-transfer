@@ -8,11 +8,9 @@ def gram_matrix():
     return gram_matrix
 
 
-def test_gram_matrix_computation(gram_matrix):
-    tf.compat.v1.reset_default_graph()
+def test_gram_matrix_computation(gram_matrix, session):
 
-    with tf.compat.v1.Session() as test:
-        tf.compat.v1.set_random_seed(1)
+    with session(1) as test:
         A = tf.compat.v1.random_normal([3, 2*1], mean=1, stddev=4)
         GA = gram_matrix(A)
         assert str(GA.eval()) == \

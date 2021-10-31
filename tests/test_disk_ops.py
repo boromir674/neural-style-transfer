@@ -20,9 +20,13 @@ def test_save_operation(image_id, expected_size, disk, images_to_save, tmpdir):
     assert os.path.getsize(target_file) == expected_size
 
 
-@pytest.mark.parametrize('image_name, expected_shape', [
-    ('wikipedia-logo.png', (1058, 1058)),
+@pytest.mark.parametrize('image_name, expected_shape, expected_item_size', [
+    ('wikipedia-logo.png', (1058, 1058), 1),
 ])
-def test_load_operation(image_name, expected_shape, test_image, disk):
+def test_load_operation(image_name, expected_shape, expected_item_size, test_image, disk):
+    from functools import reduce
     image = disk.load_image(test_image(image_name))
-    assert image.shape == (1058, 1058)
+    assert image.shape == expected_shape
+    assert image.size == reduce(lambda i, j: i * j, expected_shape)
+    assert image.itemsize == expected_item_size  # in Bytes
+    assert image.nbytes == expected_item_size * image.size
