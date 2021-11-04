@@ -10,7 +10,7 @@ class NSTStyleLayer:
     def validate_wight(self, attribute, value):
         if value <= 0 or 1 <= value:
             raise ValueError(f'Coefficient must be a number between 0 and 1. Given {value}')
-
+    neurons = attr.ib(default=None)
 
 def validate_layers(layers):
     if abs(weights_sum := sum(coefs := [layer.coefficient for layer in layers]) - 1) > 1e-6:

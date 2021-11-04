@@ -28,48 +28,26 @@ class LearningAlgorithm(IterativeAlgorithm):
         raise NotImplementedError
 
 
-
-
 @attr.s
 class NSTAlgorithm(IterativeAlgorithm):
-    
+    parameters = attr.ib()
+    image_config = attr.ib()
 
+    def run(self, *args, **kwargs) -> None:
+        return super().run(*args, **kwargs)
+
+
+from .style_layer_selector import NSTLayersSelection
 
 
 @attr.s
 class AlogirthmParameters:
+    # TODO remove content and style images and output_path
+    # retain only algorithm parameters (variables governing how the algo will behave)
+    # from the algo input (runtime objects that are the INPUT to the algo)
+    content_image = attr.ib()
+    style_image = attr.ib()
+    cv_model = attr.ib()
+    style_layers = attr.ib(converter=NSTLayersSelection.from_tuples)
     termination_condition = attr.ib()
-    
-
-
-class TerminationCondition:
-
-    def satisfied(self, progress) -> bool:
-        raise NotImplementedError
-
-
-class MaxIterations(TerminationCondition):
-    max_iterations: int = attr.ib()
-
-    def satisfied(self, progress) -> bool:
-        return self.max_iterations <= progress.iterations
-
-
-class Convergence(TerminationCondition):
-    min_improvement: float = attr.ib()
-
-    def satisfied(self, progress) -> bool:
-        return progress.last_improvement < self.min_improvement
-
-
-class TimeLimit(TerminationCondition):
-    time_limit: float = attr.ib()
-
-    def satisfied(self, progress) -> bool:
-        return self.time_limit < progress.time
-
-
-
-@attr.s
-class Progress:
-    data = attr.ib()
+    output_path = attr.ib()

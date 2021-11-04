@@ -1,8 +1,10 @@
 import imageio
 from numpy.typing import NDArray
 
+from .disk_interface import DiskInterface
 
-class Disk:
+
+class Disk(DiskInterface):
     """Save or load images to and from the disk."""
     
     @staticmethod
@@ -14,7 +16,6 @@ class Disk:
             file_path (str): the path (on the disk) of the file
         """
         imageio.imsave(file_path, image, format=format)
-        # scipy.misc.imsave(file_path, image)
 
     @staticmethod
     def load_image(file_path: str) -> NDArray:

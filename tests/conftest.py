@@ -51,3 +51,24 @@ def session():
             # Exception handling here
             self.tf_session.__exit__(type, value, traceback)
     return MySession  
+
+
+@pytest.fixture
+def default_image_processing_config():
+    from neural_style_transfer.image import ImageProcessingConfig
+    return ImageProcessingConfig.from_image_dimensions()
+
+
+@pytest.fixture
+def image_factory():
+    """Production Image Factory.
+    
+    Exposes the 'from_disk(file_path, preprocess=True)'.
+
+    Returns:
+        ImageFactory: an instance of the ImageFactory class
+    """
+    from neural_style_transfer.image import ImageFactory
+    from neural_style_transfer.disk_operations import Disk
+    return ImageFactory(Disk.load_image)
+

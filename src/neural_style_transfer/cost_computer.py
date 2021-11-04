@@ -124,43 +124,46 @@ class NSTLayerStyleCostComputer(metaclass=GramMatrixComputer):
         return J_style_layer
 
 
-# class NSTStyleCostComputer:
+class NSTStyleCostComputer:
+    style_layer_cost = NSTLayerStyleCostComputer.compute
 
-#     @classmethod
-#     def compute(cls, tf_session, model_layers):
-#         """
-#         Computes the overall style cost from several chosen layers
+    @classmethod
+    def compute(cls, tf_session, model_layers):
+        """
+        Computes the overall style cost from several chosen layers
         
-#         Args:
-#             tf_session ():
-#             model_layers -- our tensorflow model
-#         STYLE_LAYERS -- A python list containing:
-#                             - the names of the layers we would like to extract style from
-#                             - a coefficient for each of them
+        Args:
+            tf_session (tf.compat.v1.INteractiveSession): the active interactive tf session
+            model_layers () -- our image model (probably pretrained on large dataset)
+            STYLE_LAYERS -- A python list containing:
+                            - the names of the layers we would like to extract style from
+                            - a coefficient for each of them
         
-#         Returns: 
-#             (tensor): J_style - tensor representing a scalar value, style cost defined above by equation (2)
-#         """
-#         # initialize the overall style cost
-#         J_style = 0
+        Returns: 
+            (tensor): J_style - tensor representing a scalar value, style cost defined above by equation (2)
+        """
+        # initialize the overall style cost
+        J_style = 0
 
-#         for layer_name, coeff in STYLE_LAYERS:
+        # for layer_name, coeff in STYLE_LAYERS:
+        for style_layer_id, nst_style_layer in model_layers:
 
-#             # Select the output tensor of the currently selected layer
-#             out = model[layer_name]
+            # Select the output tensor of the currently selected layer
+            out = nst_style_layer.neurons
+            # out = model[layer_name]
 
-#             # Set a_S to be the hidden layer activation from the layer we have selected, by running the session on out
-#             a_S = sess.run(out)
+            # Set a_S to be the hidden layer activation from the layer we have selected, by running the session on out
+            a_S = tf_session.run(out)
 
-#             # Set a_G to be the hidden layer activation from same layer. Here, a_G references model[layer_name] 
-#             # and isn't evaluated yet. Later in the code, we'll assign the image G as the model input, so that
-#             # when we run the session, this will be the activations drawn from the appropriate layer, with G as input.
-#             a_G = out
+            # Set a_G to be the hidden layer activation from same layer. Here, a_G references model[layer_name] 
+            # and isn't evaluated yet. Later in the code, we'll assign the image G as the model input, so that
+            # when we run the session, this will be the activations drawn from the appropriate layer, with G as input.
+            a_G = out
             
-#             # Compute style_cost for the current layer
-#             J_style_layer = compute_layer_style_cost(a_S, a_G)
+            # Compute style_cost for the current layer
+            J_style_layer = cls.style_layer_cost(a_S, a_G)
 
-#             # Add coeff * J_style_layer of this layer to overall style cost
-#             J_style += coeff * J_style_layer
+            # Add coeff * J_style_layer of this layer to overall style cost
+            J_style += nst_style_layer.coefficient * J_style_layer
 
-#         return J_style
+        return J_style
