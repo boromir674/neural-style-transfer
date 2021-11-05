@@ -158,12 +158,12 @@ workflows:
       #     filters:
       #       tags:
       #         only: /.*/
-      # - send-coverage-to-codecov:
-      #     requires:
-      #       - build_n_test
-      #     filters:
-      #       tags:
-      #         only: /.*/
+      - send-coverage-to-codecov:
+          requires:
+            - build_n_test
+          filters:
+            tags:
+              only: /.*/
       # - visualize_dependency_graphs:
       #     filters:
       #       branches:
