@@ -1,0 +1,192 @@
+version: 2.1
+
+executors:
+  py38-docker-image:
+    docker:
+      - image: circleci/python:3.8.9
+  java15-docker-image:
+    docker:
+      - image: cimg/openjdk:15.0.1
+  ubuntu-1604-vm:
+    machine:
+      image: ubuntu-1604:201903-01
+
+jobs:
+  build_n_test:
+    executor: py38-docker-image
+    steps:
+      - run: pwd
+      - checkout
+      - run: python --version
+      - run:
+          name: Equip machine with latest pip & wheel
+          command: python -m pip install -U pip wheel
+      - run:
+          name: Equip machine with tox automation tool
+          command: python -m pip install --user tox
+      - run:
+          name: Run unittests & measure code coverage
+          command: |
+            python -m tox -e clean
+            python -m tox -e py38-cov
+      - store_test_results:  # Upload test results for display in Test Summary: https://circleci.com/docs/2.0/collect-test-data/
+          path: test-results
+      - store_artifacts:
+          path: test-results
+      # currently the 'test-results' path (define above) must match the TEST_RESULTS_DIR env variable found in circleci web site
+      - store_artifacts:
+          path: .coverage
+      - run:
+          name: Manually install the python py package
+          command: python -m pip install py
+      - run:
+          name: Transform test results into 2 formats; html & xml
+          command: python -m tox -e format-report -vv
+      - store_artifacts:
+          path: coverage.xml
+      - store_artifacts:
+          path: htmlcov
+          destination: htmlcov
+      # Persist the specified paths (eg .coverage and tox.ini) into the workspace for use in proceeding job.
+      - persist_to_workspace:
+          # Must be an absolute path, or relative path from working_directory. This is a directory on the container which is
+          # taken to be the root directory of the workspace.
+          root: .
+          # Must be relative path from root
+          paths:
+            - coverage.xml
+            - .coverage
+            - tox.ini
+            - .git
+
+  send-coverage-to-codacy:
+    executor: java15-docker-image
+    steps:
+      - attach_workspace:
+          at: .
+      - run: curl --version
+      - run: java --version
+      - run:
+          name: Send test data to codacy.com server
+          command: |
+            sudo apt-get install jq
+            curl -LSs "$(curl -LSs https://api.github.com/repos/codacy/codacy-coverage-reporter/releases/latest | jq -r '.assets | map({name, browser_download_url} | select(.name | endswith(".jar"))) | .[0].browser_download_url')" -o codacy-coverage-reporter-assembly.jar
+            java -jar codacy-coverage-reporter-assembly.jar report -l Python -r coverage.xml
+
+  send-coverage-to-codecov:
+    executor: ubuntu-1604-vm
+    steps:
+      - attach_workspace:
+          at: .
+      - run:
+          name: Download script that can upload to codecov.io
+          command: curl -s https://codecov.io/bash > .codecov
+      - run:
+          name: Grant execution permissions to the script
+          command: chmod +x .codecov
+      - run:
+          name: Upload the code coverage measurements to codecov.io, resulted from running the test suite (unit tests)
+          command: ./.codecov
+
+  deploy-to-staging:
+    executor: py38-docker-image
+    steps:
+      - checkout
+      - run:
+          name: Install the 'tox' automation tool
+          command: python -m pip install --user tox
+      - run:
+          name: Check code to comply with best practices of Python packaging ecosystem (pypi, pip, etc)
+          command: tox -e check -vv
+      - run:
+          name: Build the code and create .tar.gz and .whl files
+          command: tox -e build -vv
+      - run:
+          name: Deploy package (source distro & wheel) to 'testpypi' (index) server
+          command: |
+            export NEURAL_STYLE_TRANSFER_RELEASE_VERSION=$(python scripts/parse_package_version.py)
+            tox -e deploy -vv
+
+  integration-test:
+    executor: py38-docker-image
+    steps:
+      - checkout
+      - run:
+          name: Run the automated integration test script
+          command: |
+            chmod +x scripts/integration-test.sh
+            scripts/integration-test.sh $(python scripts/parse_package_version.py)
+
+  visualize_dependency_graphs:
+    executor: py38-docker-image
+    environment:
+      NEURAL_STYLE_TRANSFER_DEPS_GRAPHS: dependencies-graphs
+    steps:
+      - checkout
+      - run: sudo apt-get update -y
+      - run: python -m pip install -U pip
+      - run:
+          name: Install the dot binary included in the graphviz package/distribution
+          command: sudo apt-get install graphviz
+      - run:
+          name: Install tox automation tool
+          command: python -m pip install --user tox
+      - run:
+          name: Visualize dependency graphs as .svg files
+          command: tox -e graphs -vv
+      - store_artifacts:
+          path: dependencies-graphs
+          destination: dep-graphs
+      - run:
+          name: Visualize uml diagrams as .svg files
+          command: tox -vv -e uml -- svg
+      - store_artifacts:
+          path: uml-diagrams
+          destination: uml-diagrams
+
+workflows:
+  version: 2
+  build_accept:
+    jobs:
+      - build_n_test:
+          filters:
+            tags:
+              only: /.*/  # runs for all branches and all tags
+      # - send-coverage-to-codacy:
+      #     requires:
+      #       - build_n_test
+      #     filters:
+      #       tags:
+      #         only: /.*/
+      # - send-coverage-to-codecov:
+      #     requires:
+      #       - build_n_test
+      #     filters:
+      #       tags:
+      #         only: /.*/
+      # - visualize_dependency_graphs:
+      #     filters:
+      #       branches:
+      #         only:
+      #           - master
+      #           - dev
+      #           - release-staging
+      # - build-documentation:
+      #     filters:
+      #       branches:
+      #         only:
+      #           - master
+      #           - dev
+      #           - release-staging
+      # - deploy-to-staging:
+      #     requires:
+      #       - build_n_test
+      #     filters:
+      #       branches:
+      #         only: release-staging
+      # - integration-test:
+      #     requires:
+      #       - deploy-to-staging
+      #     filters:
+      #       branches:
+      #         only: release-staging
