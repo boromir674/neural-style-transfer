@@ -25,7 +25,9 @@ class AbstractTerminationConditionAdapter(ABC):
         return instance
 
     def __init__(self, *args, **kwargs):
+        # TODO move all code in __new__
         self.update = MethodType(type(self)._update_callback(type(self).adapter_type), self)
+        # setattr(self, attribute.name, types.MethodType(method, self))
 
     @classmethod
     def _update_callback(cls, type: str):
@@ -46,11 +48,6 @@ class AbstractTerminationConditionAdapter(ABC):
  
 # Define Metaclass
 class TerminationConditionAdapterType(type):
-
-    # def __init__(cls, *args, **kwargs):
-    #     # termination_condition_adapter_class = super().__new__('TerminationConditionAdapter', ()) # , *args, **kwargs)
-    #     cls.adapter_type = args[0]
-        # return termination_condition_adapter_class
 
     def __new__(mcs, *args, **kwargs):
         # termination_condition_adapter_class = super().__new__(mcs, 'TerminationConditionAdapter', (AbstractTerminationConditionAdapter,), {})

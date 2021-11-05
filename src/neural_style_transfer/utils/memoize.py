@@ -1,8 +1,15 @@
 """Implementation of the object pool"""
+from typing import Dict, Generic, TypeVar, Any
 import types
 import attr
 
+
 __all__ = ['ObjectsPool']
+
+
+# Define objects to use for type annotation and (static) type checking with mypy
+
+T = TypeVar('T')
 
 
 def _validate_build_hash_callback(self, attribute, build_hash_callback):
@@ -12,7 +19,7 @@ def _validate_build_hash_callback(self, attribute, build_hash_callback):
 
 
 @attr.s
-class ObjectsPool:
+class ObjectsPool(Generic[T]):
     """Class of objects that are able to return a reference to an object upon request.
 
     Whenever an object is requested, it is checked whether it exists in the pool.
@@ -24,15 +31,15 @@ class ObjectsPool:
         objects (dict): the data structure representing the object pool
     """
     @staticmethod
-    def __build_hash(*args, **kwargs):
+    def __build_hash(*args: Any, **kwargs: Any) -> int:
         r"""Construct a hash out of the input \*args and \*\*kwargs."""
         return hash('-'.join([str(_) for _ in args] + [f'{key}={str(value)}' for key, value in kwargs.items()]))
 
     constructor = attr.ib()
     _build_hash = attr.ib(validator=_validate_build_hash_callback)
-    _objects = attr.ib(default={})
+    _objects: Dict[int, T] = attr.ib(default={})
 
-    def get_object(self, *args, **kwargs):
+    def get_object(self, *args: Any, **kwargs: Any) -> T:
         r"""Request an object from the pool.
 
         Get or create an object given the input parameters. Existence in the pool is done using the

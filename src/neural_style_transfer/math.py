@@ -1,7 +1,13 @@
+from typing import Union
+from numpy.typing import NDArray
 import tensorflow as tf
 
 
-def gram_matrix(A):
+# Define type alias
+VolumeType = Union[NDArray, tf.python.framework.ops.Tensor]
+
+
+def gram_matrix(A: VolumeType) -> VolumeType:
     """Compute the Gram matrix of input 2D matrix A.
 
     In Linear Algebra the Gram matrix G of a set of vectors (u_1, u_2, .. , u_n)
@@ -19,4 +25,4 @@ def gram_matrix(A):
     Returns:
         (tf.tensor): Gram matrix of A, of shape (n_C, n_C)
     """
-    return tf.matmul(A, tf.transpose(A))    
+    return tf.matmul(A, tf.transpose(A))

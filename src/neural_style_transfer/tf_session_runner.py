@@ -1,4 +1,5 @@
 
+from typing import List
 import tensorflow as tf
 
 from neural_style_transfer.utils.proxy import RealSubject, Proxy
@@ -15,7 +16,7 @@ class TensorflowSessionRunnerSubject(RealSubject):
 class TensorflowSessionRunner(Proxy):
     def __init__(self, real_subject) -> None:
         super().__init__(real_subject)
-        self.args_history = []
+        self.args_history: List[str] = []
 
     def request(self, *args, **kwargs):
         self.args_history.append(f"ARGS: [{', '.join((str(_) for _ in args))}], KWARGS: [{', '.join((f'{k}={v}' for k, v in kwargs.items()))}]")

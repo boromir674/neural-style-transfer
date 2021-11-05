@@ -49,7 +49,6 @@ class SubclassRegistry(type):
         {'child': 'ChildClass'}
     """
     def __new__(mcs, *args, **kwargs):
-        print('D-H', 'mcs:', mcs, 'type:', type(mcs),' args:', *args, 'kwargs:', **kwargs)
         class_object = super().__new__(mcs, *args, **kwargs)
         class_object.subclasses = {}
         return class_object
@@ -65,6 +64,7 @@ class SubclassRegistry(type):
 
         Raises:
             ValueError: In case the given identifier is unknown to the parent class
+            InstantiationError: In case the runtime args and kwargs do not match the constructor signature 
 
         Returns:
             object: the instance of the registered subclass

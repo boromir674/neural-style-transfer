@@ -15,6 +15,7 @@ from .termination_condition_interface import TerminationConditionInterface
 class TerminationFactory(metaclass=SubclassRegistry):
     pass
 
+
 @attr.s
 @TerminationFactory.register_as_subclass('max-iterations')
 class MaxIterations(TerminationConditionInterface[int]):
