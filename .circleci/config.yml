@@ -28,7 +28,7 @@ jobs:
           name: Run unittests & measure code coverage
           command: |
             python -m tox -e clean
-            python -m tox -e py38-cov
+            python -m tox -e py38
       - store_test_results:  # Upload test results for display in Test Summary: https://circleci.com/docs/2.0/collect-test-data/
           path: test-results
       - store_artifacts:
