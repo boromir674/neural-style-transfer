@@ -15,10 +15,9 @@ This Python package runs a Neural Style Tranfer algorithm on input `content` and
     :stub-columns: 1
 
     * - tests
-      - | |circleci|
-        | |codecov|
-        | |scrutinizer_code_quality|
-        | |code_intelligence|
+      - | |circleci| |codecov|
+
+
     * - code quality
       - |code_climate| |codacy|
 
@@ -98,6 +97,11 @@ Citation
     :alt: Codecov
       :target: https://codecov.io/gh/boromir674/neural-style-transfer
     
+
+.. |codacy| image:: https://app.codacy.com/project/badge/Grade/07b27ac547a94708aefc5e845d2b6d01
+    :alt: Codacy
+    :target: https://www.codacy.com/gh/boromir674/neural-style-transfer/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=boromir674/neural-style-transfer&amp;utm_campaign=Badge_Grade
+
 
 .. |travis| image:: https://travis-ci.org/boromir674/topic-modeling-toolkit.svg?branch=dev
     :alt: Travis-CI Build Status
