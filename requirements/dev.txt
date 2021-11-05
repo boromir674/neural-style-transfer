@@ -42,7 +42,6 @@ tensorflow-estimator==2.2.0
 termcolor==1.1.0
 toml==0.10.2
 tomli==1.2.2
-UNKNOWN @ file:///data/repos/neural-style-transfer/.tox/.tmp/package/1/UNKNOWN-0.0.0.tar.gz
 urllib3==1.26.7
 Werkzeug==2.0.2
 wrapt==1.13.3
