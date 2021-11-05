@@ -15,15 +15,15 @@ This Python package runs a Neural Style Tranfer algorithm on input `content` and
     :stub-columns: 1
 
     * - tests
-      - | |travis|
-        | |coverage|
+      - | |circleci|
+        | |codecov|
         | |scrutinizer_code_quality|
         | |code_intelligence|
-    * - package
-      - |version| |python_versions|
+    * - code quality
+      - |code_climate| |codacy|
 
 
-========
+
 Overview
 ========
 
@@ -89,6 +89,15 @@ Citation
 
 
 
+.. |circleci|  image:: https://img.shields.io/circleci/build/github/boromir674/neural-style-transfer/dev?logo=circleci
+    :alt: CircleCI
+    :target: https://circleci.com/gh/boromir674/neural-style-transfer/tree/dev
+
+
+.. |codecov| image:: https://codecov.io/gh/boromir674/neural-style-transfer/branch/dev/graph/badge.svg?token=3POTVNU0L4
+    :alt: Codecov
+      :target: https://codecov.io/gh/boromir674/neural-style-transfer
+    
 
 .. |travis| image:: https://travis-ci.org/boromir674/topic-modeling-toolkit.svg?branch=dev
     :alt: Travis-CI Build Status
