@@ -19,7 +19,7 @@ This Python package runs a Neural Style Tranfer algorithm on input `content` and
 
 
     * - code quality
-      - |code_climate| |codacy|
+      - |code_climate| |maintainability| |codacy| |scrutinizer|
 
 
 
@@ -103,13 +103,21 @@ Citation
     :target: https://www.codacy.com/gh/boromir674/neural-style-transfer/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=boromir674/neural-style-transfer&amp;utm_campaign=Badge_Grade
 
 
-.. |travis| image:: https://travis-ci.org/boromir674/topic-modeling-toolkit.svg?branch=dev
-    :alt: Travis-CI Build Status
-    :target: https://travis-ci.org/boromir674/topic-modeling-toolkit
+.. |code_climate| image:: https://api.codeclimate.com/v1/badges/2ea98633f88b75e87d1a/maintainability
+   :alt: Maintainability
+   :target: https://codeclimate.com/github/boromir674/neural-style-transfer/maintainability
 
-.. |coverage| image:: https://img.shields.io/codecov/c/github/boromir674/topic-modeling-toolkit/dev?style=flat-square
-    :alt: Coverage Status
-    :target: https://codecov.io/gh/boromir674/topic-modeling-toolkit/branch/dev
+
+.. |maintainability| image:: https://img.shields.io/codeclimate/tech-debt/boromir674/neural-style-transfer?logo=CodeClimate
+    :alt: Technical Debt
+    :target: https://codeclimate.com/github/boromir674/neural-style-transfer/maintainability
+
+
+.. |scrutinizer| image:: https://img.shields.io/scrutinizer/quality/g/boromir674/neural-style-transfer/master?logo=scrutinizer-ci
+    :alt: Scrutinizer code quality
+    :target: https://scrutinizer-ci.com/g/boromir674/neural-style-transfer/?branch=master
+
+
 
 .. |scrutinizer_code_quality| image:: https://scrutinizer-ci.com/g/boromir674/topic-modeling-toolkit/badges/quality-score.png?b=dev
     :alt: Code Quality
