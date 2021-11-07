@@ -19,7 +19,7 @@ This Python package runs a Neural Style Tranfer algorithm on input `content` and
 
 
     * - code quality
-      - |code_climate| |maintainability| |codacy| |scrutinizer|
+      - |better_code_hub| |code_climate| |maintainability| |codacy| |scrutinizer|
 
 
 
@@ -37,14 +37,12 @@ Key features of the package:
 * Persisting of generated images
 
 
-.. _BigARTM: https://github.com/bigartm
-
 
 Installation
 ------------
 | The Neural Style Transfer - CLI heavely depends on Tensorflow (tf) and therefor it is crucial that tf is installed correctly in your Python environment.
 
-Sample commands to isntall NST CLI using `bash`
+Sample commands to install NST CLI using `bash`
 
 ::
 
@@ -67,10 +65,6 @@ Sample commands to isntall NST CLI using `bash`
     ln -s $PWD/env/bin/neural-style-transfer ~/.local/bin/neural-style-transfer
 
 
-| either by following the instructions `here <https://bigartm.readthedocs.io/en/stable/installation/index.html>`_ or by using
-| the 'build_artm.sh' script provided. For example, for python3 you can use the following
-
-
 Usage
 -----
 A sample example is below.
@@ -79,13 +73,6 @@ A sample example is below.
 ::
 
     neural-style-transfer tests/data/canoe_water.jpg van-gogh.jpg
-
-
-Citation
---------
-
-1. Vorontsov, K. and Potapenko, A. (2015). `Additive regularization of topic models <http://machinelearning.ru/wiki/images/4/47/Voron14mlj.pdf>`_. Machine Learning, 101(1):303–323.
-
 
 
 .. |circleci|  image:: https://img.shields.io/circleci/build/github/boromir674/neural-style-transfer/dev?logo=circleci
@@ -97,6 +84,11 @@ Citation
     :alt: Codecov
       :target: https://codecov.io/gh/boromir674/neural-style-transfer
     
+
+.. |better_code_hub| image:: https://bettercodehub.com/edge/badge/boromir674/neural-style-transfer?branch=master
+    :alt: Better Code Hub
+    :target: https://bettercodehub.com/
+
 
 .. |codacy| image:: https://app.codacy.com/project/badge/Grade/07b27ac547a94708aefc5e845d2b6d01
     :alt: Codacy
