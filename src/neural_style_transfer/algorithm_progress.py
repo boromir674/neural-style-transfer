@@ -16,7 +16,7 @@ class NSTAlgorithmProgress:
 
     def _set(self, key, value):
         self.tracked_metrics[key] = [value]
-    
+
     def _append(self, key, value):
         self.tracked_metrics[key].append(value)
 
@@ -35,11 +35,11 @@ class NSTAlgorithmProgress:
     @property
     def cost_improvement(self):
         """Difference of loss function between the last 2 measurements.
-        
+
         Positive value indicates that the loss went down and that the learning
         process moved towards the (local) minimum (in terms of minimizing the
         loss/cost function).
-        
+
         So roughly, positive values indicate improvement [moving towards (local)
         minimum] and negative indicate moving away from minimum.
 

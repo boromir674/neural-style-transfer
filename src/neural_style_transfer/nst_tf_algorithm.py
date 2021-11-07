@@ -6,7 +6,7 @@ from time import time
 
 from .tf_session_runner import TensorflowSessionRunner
 from .model_loader import load_vgg_model
-from .cost_computer import NSTCostComputer, NSTContentCostComputer, NSTLayerStyleCostComputer, NSTStyleCostComputer
+from .cost_computer import NSTCostComputer, NSTContentCostComputer, NSTStyleCostComputer
 from neural_style_transfer.utils.notification import Subject
 
 
@@ -14,11 +14,18 @@ from neural_style_transfer.utils.notification import Subject
 class NSTAlgorithmRunner:
     nst_algorithm = attr.ib()
     session_runner = attr.ib()
+    image_model = attr.ib()
     apply_noise = attr.ib()
     optimization = attr.ib(default=attr.Factory(lambda: Optimization()))
-    nn_builder = attr.ib(init=False, default=None)
-    nn_cost_builder = attr.ib(init=False, default=None)
-    
+    nn_builder = attr.ib(init=False, default=attr.Factory(lambda self: NeuralNetBuilder(
+        self.image_model, self.session_runner.session
+    ), takes_self=True))
+    nn_cost_builder = attr.ib(init=False, default=attr.Factory(lambda: CostBuilder(
+        NSTCostComputer.compute,
+        NSTContentCostComputer.compute,
+        NSTStyleCostComputer.compute,
+    )))
+
     # broadcast facilities to notify observers/listeners
     progress_subject = attr.ib(init=False, default=attr.Factory(Subject))
     peristance_subject = attr.ib(init=False, default=attr.Factory(Subject))
@@ -41,17 +48,9 @@ class NSTAlgorithmRunner:
         )
 
         print(' --- Building Computations ---')
-        self.nn_builder = NeuralNetBuilder(self.image_model, self.session_runner.session)
-        self.nn_builder.assign_input(c_image.matrix)
-        self.nn_builder.set_output('conv4_2')
-        self.nn_builder.setup_activations()
 
-        # initialize cost builder (todo hide this code)
-        self.nn_cost_builder = CostBuilder(
-            NSTCostComputer.compute,
-            NSTContentCostComputer.compute,
-            NSTStyleCostComputer.compute,
-        )
+        # indicate content_image and the output layer of the Neural Network
+        self.nn_builder.build_activations(c_image.matrix, 'conv4_2')
 
         self.nn_cost_builder.build_content_cost(
             self.nn_builder.a_C,
@@ -60,12 +59,12 @@ class NSTAlgorithmRunner:
 
         self.nn_builder.assign_input(s_image.matrix)
         
-        # TODO obviously encapsulate the below code elsewhere
         # manually set the neurons attribute for each NSTStyleLayer
         # using the loaded cv model (which is a dict of layers)
         # the NSTStyleLayer ids attribute to query the dict
         for style_layer_id, nst_style_layer in self.nst_algorithm.parameters.style_layers:
             nst_style_layer.neurons = self.image_model[style_layer_id]
+        # TODO obviously encapsulate the above code elsewhere
 
         self.nn_cost_builder.build_style_cost(
             self.session_runner.session,
@@ -93,7 +92,7 @@ class NSTAlgorithmRunner:
         print(self.nn_cost_builder.style_cost)
 
         self.time_started = time()
-        
+
         # Iterate
         print(' --- Running Iterative Algorithm ---')
         i = 0
@@ -191,13 +190,18 @@ class NeuralNetBuilder:
 
     def assign_input(self, image):
         # Assign the content image to be the input of the VGG model.  
-        self.session.run(self.model['input'].assign(image))
-    
-    def set_output(self, model_layer_id: str):
-        # Select the output tensor of layer conv4_2
+        self.session.run(self.model['input'].assign(image))    
+
+    def build_activations(self, content_image, model_layer_id: str):
+        self.assign_input(content_image)
+        self._set_output(model_layer_id)
+        self._setup_activations()
+
+    def _set_output(self, model_layer_id: str):
+        # Select the output tensor of a Neural Network layer
         self.output_neurons = self.model[model_layer_id]
 
-    def setup_activations(self):
+    def _setup_activations(self):
         # Set a_C to be the hidden layer activation from the layer we have selected
         self.a_C = self.session.run(self.output_neurons)
 

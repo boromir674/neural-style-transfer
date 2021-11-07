@@ -1,5 +1,4 @@
 from abc import ABC
-import attr
 from typing import Callable, Protocol, Dict, Any
 from types import MethodType
 from neural_style_transfer.termination_condition.termination_condition_interface import TerminationConditionInterface

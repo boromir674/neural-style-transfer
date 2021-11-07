@@ -1,5 +1,4 @@
 import os
-import os
 import pytest
 
 
@@ -22,4 +21,4 @@ def load_model(default_image_processing_config):
 @pytest.mark.xfail(not os.path.isfile(os.path.join(my_dir, '..', IMAGE_MODEL_FILE_NAME)),
     reason="No file found to load the pretrained image (cv) model.")
 def test_pretrained_model(load_model, production_image_model):
-    pretrained_model = load_model(production_image_model)
+    _ = load_model(production_image_model)

@@ -6,7 +6,7 @@ T = TypeVar('T')
 
 class TerminationConditionInterface(ABC, Generic[T]):
     """A condition that evaluates to True or False.
-    
+
     If True it should indicate that something should now terminate.
     """
     @abstractmethod
@@ -19,4 +19,4 @@ class TerminationConditionInterface(ABC, Generic[T]):
         Returns:
             bool: True if the termination condition is satisfied, else False
         """
-        ...
+        raise NotImplementedError

@@ -1,5 +1,4 @@
-from abc import ABC
-from typing import List, TypeVar, Generic, Type
+from typing import List, Type
 import attr
 
 from neural_style_transfer.utils.subclass_registry import SubclassRegistry
@@ -38,15 +37,11 @@ class TimeLimit(TerminationConditionInterface[float]):
     time_limit: float = attr.ib()
 
     def satisfied(self, duration: float) -> bool:
-        return self.time_limit < duration
+        return self.time_limit <= duration
 
 
 class TerminationConditionFacility:
     class_registry: SubclassRegistry = TerminationFactory
-
-    @classmethod
-    def classes(cls) -> List[Type[TerminationConditionInterface]]:
-        return sorted(cls.class_registry.subclasses.values())
 
     @classmethod
     def create(cls, termination_condition_type: str, *args, **kwargs) -> TerminationConditionInterface:

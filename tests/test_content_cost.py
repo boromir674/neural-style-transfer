@@ -13,7 +13,7 @@ def compute_cost():
 
 
 def test_content_cost_computation(session, compute_cost):
-    with session(2) as test:
+    with session(2) as _test:
         a_C = tf.compat.v1.random_normal([1, 4, 4, 3], mean=1, stddev=4)
         a_G = tf.compat.v1.random_normal([1, 4, 4, 3], mean=1, stddev=4)
         J_content = compute_cost(a_C, a_G)

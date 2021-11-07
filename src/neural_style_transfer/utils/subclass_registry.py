@@ -64,7 +64,7 @@ class SubclassRegistry(type):
 
         Raises:
             ValueError: In case the given identifier is unknown to the parent class
-            InstantiationError: In case the runtime args and kwargs do not match the constructor signature 
+            InstantiationError: In case the runtime args and kwargs do not match the constructor signature
 
         Returns:
             object: the instance of the registered subclass

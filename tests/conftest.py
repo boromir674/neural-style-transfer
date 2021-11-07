@@ -72,3 +72,33 @@ def image_factory():
     from neural_style_transfer.disk_operations import Disk
     return ImageFactory(Disk.load_image)
 
+
+@pytest.fixture
+def termination_condition_module():
+    from neural_style_transfer.termination_condition.termination_condition import TerminationConditionFacility, \
+        TerminationConditionInterface, MaxIterations, TimeLimit, Convergence
+
+    # all tests require that the Facility already contains some implementations of TerminationCondition
+    assert TerminationConditionFacility.class_registry.subclasses == {
+        'max-iterations': MaxIterations,
+        'time-limit': TimeLimit,
+        'convergence': Convergence,
+    }
+    return type('M', (), {
+        'facility': TerminationConditionFacility,
+        'interface': TerminationConditionInterface,
+    })
+
+
+@pytest.fixture
+def termination_condition(termination_condition_module):
+    def create_termination_condition(term_cond_type: str, *args, **kwargs) -> termination_condition_module.interface:
+        return termination_condition_module.facility.create(term_cond_type, *args, **kwargs)
+    return create_termination_condition
+ 
+
+@pytest.fixture
+def subscribe():
+    def _subscribe(broadcaster, listeners):
+        broadcaster.add(*listeners)
+    return _subscribe
