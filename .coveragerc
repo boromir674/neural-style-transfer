@@ -9,3 +9,4 @@ precision = 2
 omit = *migrations*
 exclude_lines =
     raise NotImplementedError
+    raise NotImplemented

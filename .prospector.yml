@@ -23,6 +23,7 @@ pyflakes:
   disable:
     - F403
     - F810
+    - F841
 
 pyroma:
   run: true
