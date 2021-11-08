@@ -1,4 +1,3 @@
-from typing import List, Type
 import attr
 
 from neural_style_transfer.utils.subclass_registry import SubclassRegistry
