@@ -31,21 +31,15 @@ class NSTAlgorithmRunner:
     peristance_subject = attr.ib(init=False, default=attr.Factory(Subject))
 
     @classmethod
-    def default(cls, nst_algorithm, apply_noise):
+    def default(cls, nst_algorithm, image_model, apply_noise):
         session_runner = TensorflowSessionRunner.with_default_graph_reset()
-        return NSTAlgorithmRunner(nst_algorithm, session_runner, apply_noise)
+        return NSTAlgorithmRunner(nst_algorithm, session_runner, image_model, apply_noise)
 
     def run(self):
         ## Prepare ##
         c_image = self.nst_algorithm.parameters.content_image
         s_image = self.nst_algorithm.parameters.style_image
         noisy_content_image_matrix = self.apply_noise(self.nst_algorithm.parameters.content_image.matrix)
-
-        print(' --- Loading CV Image Model ---')
-        self.image_model = load_vgg_model(
-            self.nst_algorithm.parameters.cv_model,
-            self.nst_algorithm.image_config,
-        )
 
         print(' --- Building Computations ---')
 

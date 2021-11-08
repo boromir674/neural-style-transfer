@@ -10,7 +10,7 @@ from .image import ImageFactory, ImageProcessingConfig
 from .algorithm_progress import NSTAlgorithmProgress
 from .termination_condition.termination_condition import TerminationConditionFacility
 from .termination_condition_adapter import TerminationConditionAdapterFactory
-
+from  .model_loader import load_vgg_model
 
 
 @click.command()
@@ -36,8 +36,9 @@ def cli(content_image, style_image, interactive, location):
     # for now we have hardcoded the config to receive 300 x 400 images with 3 color channels
     image_process_config = ImageProcessingConfig.from_image_dimensions()
     
-    termination_condition = TerminationConditionFacility.create(TERMINATION_CONDITION, 100)
+    termination_condition = TerminationConditionFacility.create(TERMINATION_CONDITION, 1000)
     termination_condition_adapter = TerminationConditionAdapterFactory.create(TERMINATION_CONDITION, termination_condition)
+    print(f' -- Termination Condition: {termination_condition}')
 
     algorithm_parameters = AlogirthmParameters(
         image_factory.from_disk(content_image),
@@ -50,7 +51,13 @@ def cli(content_image, style_image, interactive, location):
 
     algorithm = NSTAlgorithm(algorithm_parameters, image_process_config)
 
-    algorithm_runner = NSTAlgorithmRunner.default(algorithm, image_factory.image_processor.noisy)
+    print(' --- Loading CV Image Model ---')
+    image_model = load_vgg_model(
+        algorithm_parameters.cv_model,
+        image_process_config,
+    )
+
+    algorithm_runner = NSTAlgorithmRunner.default(algorithm, image_model, image_factory.image_processor.noisy)
 
     algorithm_progress = NSTAlgorithmProgress({})
     styling_observer = StylingObserver(Disk.save_image)
