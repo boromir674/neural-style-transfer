@@ -1,0 +1,4 @@
+recursive-include tests/data *.png
+recursive-include tests/data *.jpg
+recursive-include src/stubs *.pyi
+recursive-include tests *.py
