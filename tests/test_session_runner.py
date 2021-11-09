@@ -7,7 +7,7 @@ def prod_session_runner():
     
     Uses an Interactive Session.
     """
-    from neural_style_transfer.tf_session_runner import TensorflowSessionRunner
+    from artificial_artwork.tf_session_runner import TensorflowSessionRunner
     return TensorflowSessionRunner.with_default_graph_reset()
 
 

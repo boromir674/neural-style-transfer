@@ -25,8 +25,8 @@ def test_image_processing_config_methods(default_image_processing_config):
 ], scope='function')
 def data(request, test_image):
     import numpy as np
-    from neural_style_transfer.image import ImageProcessor, ImageProcessingConfig, ImageFactory, ConfigMeansShapeMissmatchError
-    from neural_style_transfer.disk_operations import Disk
+    from artificial_artwork.image import ImageProcessor, ImageProcessingConfig, ImageFactory, ConfigMeansShapeMissmatchError
+    from artificial_artwork.disk_operations import Disk
     dummy_means = [100 + i * 10 for i in range(request.param[3])]
     return type('WrongConfigurationScenarioData', (), {
         'image_factory': ImageFactory(Disk.load_image, ImageProcessor(ImageProcessingConfig(

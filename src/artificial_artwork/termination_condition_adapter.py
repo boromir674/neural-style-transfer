@@ -1,9 +1,10 @@
 from abc import ABC
 from typing import Callable, Protocol, Dict, Any
 from types import MethodType
-from neural_style_transfer.termination_condition.termination_condition_interface import TerminationConditionInterface
+from .termination_condition.termination_condition_interface import TerminationConditionInterface
 
-from neural_style_transfer.utils.memoize import ObjectsPool
+from .utils.memoize import ObjectsPool
+
 
 class MetricsCapable(Protocol):
     metrics: Dict[str, Any]

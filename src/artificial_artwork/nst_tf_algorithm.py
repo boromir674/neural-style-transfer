@@ -7,7 +7,7 @@ from time import time
 from .tf_session_runner import TensorflowSessionRunner
 from .model_loader import load_vgg_model
 from .cost_computer import NSTCostComputer, NSTContentCostComputer, NSTStyleCostComputer
-from neural_style_transfer.utils.notification import Subject
+from .utils.notification import Subject
 
 
 @attr.s

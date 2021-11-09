@@ -1,6 +1,6 @@
 [run]
 source =
-    neural_style_transfer
+    artificial_artwork
     tests
 
 [report]

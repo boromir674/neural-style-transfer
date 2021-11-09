@@ -3,13 +3,13 @@ import pytest
 
 @pytest.fixture
 def subject():
-    from neural_style_transfer.utils.notification import Subject
+    from artificial_artwork.utils.notification import Subject
     return Subject
 
 
 @pytest.fixture
 def observer():
-    from neural_style_transfer.utils.notification import Observer
+    from artificial_artwork.utils.notification import Observer
     return Observer
 
 

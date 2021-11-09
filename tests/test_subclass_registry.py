@@ -3,7 +3,7 @@ import pytest
 
 @pytest.fixture
 def subclass_registry_module():
-    from neural_style_transfer.utils.subclass_registry import SubclassRegistry, InstantiationError
+    from artificial_artwork.utils.subclass_registry import SubclassRegistry, InstantiationError
     return type('M', (), {
         'SubclassRegistry': SubclassRegistry,
         'InstantiationError': InstantiationError,

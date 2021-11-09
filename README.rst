@@ -42,7 +42,7 @@ Installation
 ------------
 | The Neural Style Transfer - CLI heavely depends on Tensorflow (tf) and therefor it is crucial that tf is installed correctly in your Python environment.
 
-Sample commands to install NST CLI using `bash`
+Sample commands to install NST CLI using a terminal:
 
 ::
 
@@ -64,15 +64,30 @@ Sample commands to install NST CLI using `bash`
     # Assuming ~/.local/bin is in your PATH
     ln -s $PWD/env/bin/neural-style-transfer ~/.local/bin/neural-style-transfer
 
+    # Deactivate environment since the symbolic link is available in "global scope" by now
+    deactivate
+
 
 Usage
 -----
-A sample example is below.
+Assuming you have installed using a symbolic link in your PATH (as shown above), or if you are still
+operating withing your virtual environment,
+then a sample example of using the cli program would be:
 
 
 ::
 
-    neural-style-transfer tests/data/canoe_water.jpg van-gogh.jpg
+    neural-style-transfer tests/data/canoe_water.jpg tests/data/./tests/data/blue-red-w400-h300.jpg
+
+Note we are using as 'content' and 'style' images jpg files included in the distribution (artificial-artwork package).
+We are using a photo of a canoe on water and an abstract painting with prevalence of blue and red color shades.
+
+Also note that to demonstrate quicker, both images have been already resized to just 400 pixels of width and 300 of height each.
+
+
+::
+
+    xdg-open 
 
 
 .. |circleci|  image:: https://img.shields.io/circleci/build/github/boromir674/neural-style-transfer/master?logo=circleci

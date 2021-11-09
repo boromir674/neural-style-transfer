@@ -4,7 +4,7 @@ import tensorflow as tf
 
 @pytest.fixture
 def style_cost():
-    from neural_style_transfer.cost_computer import NSTLayerStyleCostComputer
+    from artificial_artwork.cost_computer import NSTLayerStyleCostComputer
     return NSTLayerStyleCostComputer.compute
 
 

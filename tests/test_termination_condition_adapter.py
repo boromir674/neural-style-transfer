@@ -2,7 +2,7 @@ import pytest
 
 @pytest.fixture
 def termination_condition_adapter(termination_condition):
-    from neural_style_transfer.termination_condition_adapter import TerminationConditionAdapterFactory
+    from artificial_artwork.termination_condition_adapter import TerminationConditionAdapterFactory
     termination_condition_instance = termination_condition('max-iterations', 4)
     return TerminationConditionAdapterFactory.create('max-iterations', termination_condition_instance)
 
@@ -33,7 +33,7 @@ def broadcaster_class():
 
 @pytest.fixture
 def test_objects(broadcaster_class, termination_condition_adapter):
-    from neural_style_transfer.utils.notification import Subject
+    from artificial_artwork.utils.notification import Subject
     return type('O', (), {
         'broadcaster': broadcaster_class(Subject(), lambda: termination_condition_adapter.satisfied),
         'adapter': termination_condition_adapter

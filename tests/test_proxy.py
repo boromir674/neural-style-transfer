@@ -2,7 +2,7 @@ import pytest
 
 @pytest.fixture
 def proxy_module():
-    from neural_style_transfer.utils import proxy
+    from artificial_artwork.utils import proxy
     return proxy
 
 

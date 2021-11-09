@@ -1,6 +1,6 @@
 import attr
 
-from neural_style_transfer.utils.subclass_registry import SubclassRegistry
+from artificial_artwork.utils.subclass_registry import SubclassRegistry
 from .termination_condition_interface import TerminationConditionInterface
 
 # TODO: learn how to use the Abstract class implementing a generic interface

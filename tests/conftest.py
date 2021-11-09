@@ -18,7 +18,7 @@ def test_image(test_suite):
 
 @pytest.fixture
 def disk():
-    from neural_style_transfer.disk_operations import Disk
+    from artificial_artwork.disk_operations import Disk
     return Disk
 
 
@@ -55,7 +55,7 @@ def session():
 
 @pytest.fixture
 def default_image_processing_config():
-    from neural_style_transfer.image import ImageProcessingConfig
+    from artificial_artwork.image import ImageProcessingConfig
     return ImageProcessingConfig.from_image_dimensions()
 
 
@@ -68,14 +68,14 @@ def image_factory():
     Returns:
         ImageFactory: an instance of the ImageFactory class
     """
-    from neural_style_transfer.image import ImageFactory
-    from neural_style_transfer.disk_operations import Disk
+    from artificial_artwork.image import ImageFactory
+    from artificial_artwork.disk_operations import Disk
     return ImageFactory(Disk.load_image)
 
 
 @pytest.fixture
 def termination_condition_module():
-    from neural_style_transfer.termination_condition.termination_condition import TerminationConditionFacility, \
+    from artificial_artwork.termination_condition.termination_condition import TerminationConditionFacility, \
         TerminationConditionInterface, MaxIterations, TimeLimit, Convergence
 
     # all tests require that the Facility already contains some implementations of TerminationCondition

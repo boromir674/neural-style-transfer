@@ -2,7 +2,7 @@ import pytest
 
 @pytest.fixture
 def total_cost():
-    from neural_style_transfer.cost_computer import NSTCostComputer
+    from artificial_artwork.cost_computer import NSTCostComputer
     return NSTCostComputer.compute
 
 

@@ -14,7 +14,7 @@ def production_image_model():
 
 @pytest.fixture
 def load_model(default_image_processing_config):
-    from neural_style_transfer.model_loader import load_vgg_model
+    from artificial_artwork.model_loader import load_vgg_model
     return lambda model_path: load_vgg_model(model_path, default_image_processing_config)
 
 

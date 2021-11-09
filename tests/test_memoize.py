@@ -3,7 +3,7 @@ import pytest
 
 @pytest.fixture
 def simple_memoize():
-    from neural_style_transfer.utils.memoize import ObjectsPool
+    from artificial_artwork.utils.memoize import ObjectsPool
     import attr
     @attr.s
     class TestClass:
