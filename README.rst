@@ -75,12 +75,12 @@ A sample example is below.
     neural-style-transfer tests/data/canoe_water.jpg van-gogh.jpg
 
 
-.. |circleci|  image:: https://img.shields.io/circleci/build/github/boromir674/neural-style-transfer/dev?logo=circleci
+.. |circleci|  image:: https://img.shields.io/circleci/build/github/boromir674/neural-style-transfer/master?logo=circleci
     :alt: CircleCI
-    :target: https://circleci.com/gh/boromir674/neural-style-transfer/tree/dev
+    :target: https://circleci.com/gh/boromir674/neural-style-transfer/tree/master
 
 
-.. |codecov| image:: https://codecov.io/gh/boromir674/neural-style-transfer/branch/dev/graph/badge.svg?token=3POTVNU0L4
+.. |codecov| image:: https://codecov.io/gh/boromir674/neural-style-transfer/branch/master/graph/badge.svg?token=3POTVNU0L4
     :alt: Codecov
       :target: https://codecov.io/gh/boromir674/neural-style-transfer
     
