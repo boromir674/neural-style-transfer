@@ -51,13 +51,7 @@ def cli(content_image, style_image, interactive, location):
 
     algorithm = NSTAlgorithm(algorithm_parameters, image_process_config)
 
-    print(' --- Loading CV Image Model ---')
-    image_model = load_vgg_model(
-        algorithm_parameters.cv_model,
-        image_process_config,
-    )
-
-    algorithm_runner = NSTAlgorithmRunner.default(algorithm, image_model, image_factory.image_processor.noisy)
+    algorithm_runner = NSTAlgorithmRunner.default(algorithm, image_factory.image_processor.noisy)
 
     algorithm_progress = NSTAlgorithmProgress({})
     styling_observer = StylingObserver(Disk.save_image)

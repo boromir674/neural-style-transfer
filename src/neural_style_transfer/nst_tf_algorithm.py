@@ -14,37 +14,58 @@ from neural_style_transfer.utils.notification import Subject
 class NSTAlgorithmRunner:
     nst_algorithm = attr.ib()
     session_runner = attr.ib()
-    image_model = attr.ib()
     apply_noise = attr.ib()
     optimization = attr.ib(default=attr.Factory(lambda: Optimization()))
-    nn_builder = attr.ib(init=False, default=attr.Factory(lambda self: NeuralNetBuilder(
-        self.image_model, self.session_runner.session
-    ), takes_self=True))
-    nn_cost_builder = attr.ib(init=False, default=attr.Factory(lambda: CostBuilder(
-        NSTCostComputer.compute,
-        NSTContentCostComputer.compute,
-        NSTStyleCostComputer.compute,
-    )))
+
+    nn_builder = attr.ib(init=False, default=None)
+    nn_cost_builder = attr.ib(init=False, default=None)
+
+    # nn_builder = attr.ib(init=False, default=attr.Factory(lambda self: NeuralNetBuilder(
+    #     self.image_model, self.session_runner.session
+    # ), takes_self=True))
+    # nn_cost_builder = attr.ib(init=False, default=attr.Factory(lambda: CostBuilder(
+    #     NSTCostComputer.compute,
+    #     NSTContentCostComputer.compute,
+    #     NSTStyleCostComputer.compute,
+    # )))
 
     # broadcast facilities to notify observers/listeners
     progress_subject = attr.ib(init=False, default=attr.Factory(Subject))
     peristance_subject = attr.ib(init=False, default=attr.Factory(Subject))
 
     @classmethod
-    def default(cls, nst_algorithm, image_model, apply_noise):
+    def default(cls, nst_algorithm, apply_noise):
         session_runner = TensorflowSessionRunner.with_default_graph_reset()
-        return NSTAlgorithmRunner(nst_algorithm, session_runner, image_model, apply_noise)
+        return NSTAlgorithmRunner(nst_algorithm, session_runner, apply_noise)
 
     def run(self):
         ## Prepare ##
         c_image = self.nst_algorithm.parameters.content_image
         s_image = self.nst_algorithm.parameters.style_image
+        
+        print(' --- Loading CV Image Model ---')
+        image_model = load_vgg_model(
+            self.nst_algorithm.parameters.cv_model,
+            self.nst_algorithm.image_config,
+        )
+
         noisy_content_image_matrix = self.apply_noise(self.nst_algorithm.parameters.content_image.matrix)
 
         print(' --- Building Computations ---')
 
+        self.nn_builder = NeuralNetBuilder(
+            image_model,
+            self.session_runner.session
+        )
+
         # indicate content_image and the output layer of the Neural Network
         self.nn_builder.build_activations(c_image.matrix, 'conv4_2')
+
+        self.nn_cost_builder = CostBuilder(
+            NSTCostComputer.compute,
+            NSTContentCostComputer.compute,
+            NSTStyleCostComputer.compute,
+        )
 
         self.nn_cost_builder.build_content_cost(
             self.nn_builder.a_C,
@@ -57,7 +78,7 @@ class NSTAlgorithmRunner:
         # using the loaded cv model (which is a dict of layers)
         # the NSTStyleLayer ids attribute to query the dict
         for style_layer_id, nst_style_layer in self.nst_algorithm.parameters.style_layers:
-            nst_style_layer.neurons = self.image_model[style_layer_id]
+            nst_style_layer.neurons = image_model[style_layer_id]
         # TODO obviously encapsulate the above code elsewhere
 
         self.nn_cost_builder.build_style_cost(
@@ -79,20 +100,16 @@ class NSTAlgorithmRunner:
         self.session_runner.run(tf.compat.v1.global_variables_initializer())
 
         # Run the noisy input image (initial generated image) through the model
-        self.session_runner.run(self.image_model['input'].assign(input_image))
-
-        print(self.nn_cost_builder.cost)
-        print(self.nn_cost_builder.content_cost)
-        print(self.nn_cost_builder.style_cost)
-
-        self.time_started = time()
+        self.session_runner.run(image_model['input'].assign(input_image))
 
         # Iterate
         print(' --- Running Iterative Algorithm ---')
+
         i = 0
+        self.time_started = time()
 
         while not self.nst_algorithm.parameters.termination_condition.satisfied:
-            generated_image = self.iterate()
+            generated_image = self.iterate(image_model)
             progress = self._progress(generated_image, completed_iterations=i+1)
             if i % 20 == 0:
                 self._notify_persistance(progress)
@@ -123,12 +140,12 @@ class NSTAlgorithmRunner:
         print(' --- Finished Learning Algorithm :) ---')
 
 
-    def iterate(self):
+    def iterate(self, image_model):
         # Run the session on the train_step to minimize the total cost
         self.session_runner.run([self.optimization.train_step])
                     
         # Compute the generated image by running the session on the current model['input']
-        generated_image = self.session_runner.run(self.image_model['input'])
+        generated_image = self.session_runner.run(image_model['input'])
         return generated_image
 
     def _progress(self, generated_image, completed_iterations: int) -> Dict:
