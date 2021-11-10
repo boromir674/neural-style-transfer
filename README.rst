@@ -70,24 +70,51 @@ Sample commands to install NST CLI using a terminal:
 
 Usage
 -----
-Assuming you have installed using a symbolic link in your PATH (as shown above), or if you are still
-operating withing your virtual environment,
-then a sample example of using the cli program would be:
 
+Download the Vgg-Verydeep-19 pretrained `model` from https://mega.nz/file/i5xDWI4Y.
+
+Exctract the model (weights and layer architecture).
+
+For example use `tar -xvf imagenet-vgg-verydeep-19.tar` to extract in the current directory.
+
+Indicate to the program where to find the model:
 
 ::
 
-    neural-style-transfer tests/data/canoe_water.jpg tests/data/./tests/data/blue-red-w400-h300.jpg
+    export AA_VGG_19=$PWD/imagenet-vgg-verydeep-19.mat
+
+We have included one 'content' and one 'style' image in the source repository, to facilitate testing.
+You can use these images to quickly try running the program.
+
+For example, you can get the code with `git clone git@github.com:boromir674/neural-style-transfer.git`,
+then `cd neural-style-transfer`.
+
+Assuming you have installed using a symbolic link in your PATH (as shown above), or if you are still
+operating withing your virtual environment, then you can create artificial artwork with the following command.
+
+The algorithm will apply the style to the content iteratively.
+It will iterate 100 times. 
+
+::
+
+    # Create a directory where to store the artificial artwork
+    mkdir nst_output
+
+    # Run a Neural Style Algorithm for 100 iterations and store output to nst_output directory
+    neural-style-transfer tests/data/canoe_water.jpg tests/data/blue-red-w400-h300.jpg --location nst_output
+
 
 Note we are using as 'content' and 'style' images jpg files included in the distribution (artificial-artwork package).
 We are using a photo of a canoe on water and an abstract painting with prevalence of blue and red color shades.
 
 Also note that to demonstrate quicker, both images have been already resized to just 400 pixels of width and 300 of height each.
 
+Navigating to `nst_output` you can find multiple image files generated from running the algorithm. Each file corresponds to the
+image generated on a different iteration while running the algorithm. The bigger the iteration the more "style" has been applied.
 
-::
+Check out your artificial artwork!
 
-    xdg-open 
+
 
 
 .. |circleci|  image:: https://img.shields.io/circleci/build/github/boromir674/neural-style-transfer/master?logo=circleci

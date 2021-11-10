@@ -10,7 +10,25 @@ from .image import ImageFactory, ImageProcessingConfig
 from .algorithm_progress import NSTAlgorithmProgress
 from .termination_condition.termination_condition import TerminationConditionFacility
 from .termination_condition_adapter import TerminationConditionAdapterFactory
-from  .model_loader import load_vgg_model
+
+
+def get_vgg_verydeep_19_model():
+    try:
+        return os.environ['AA_VGG_19']
+    except KeyError:
+        file_path = os.path.join(os.getcwd(), 'imagenet-vgg-verydeep-19.mat')
+        if os.path.exists(file_path):
+            return file_path
+        file_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'imagenet-vgg-verydeep-19.mat')
+        if os.path.exists(file_path):
+            return file_path
+    raise NoImageModelSpesifiedError('No pretrained image model found. '
+        'Please download it and set the AA_VGG_19 environment variable with the'
+        'path where ou stored the model (*.mat file), to indicate to wher to '
+        'locate and load it')
+
+
+class NoImageModelSpesifiedError(Exception): pass
 
 
 @click.command()
@@ -18,11 +36,10 @@ from  .model_loader import load_vgg_model
 @click.argument('style_image')
 @click.option('--interactive', '-i', type=bool, default=True)
 @click.option('--iterations', '-it', type=int, default=100)
-@click.option('--location', '-l', type=str, default='nst_output')
+@click.option('--location', '-l', type=str, default='.')
 def cli(content_image, style_image, interactive, iterations, location):
 
-    # my_dir = os.path.dirname(os.path.realpath(__file__))
-    IMAGE_MODEL_PATH = os.path.join('/', 'data', 'repos', 'neural-style-transfer', 'imagenet-vgg-verydeep-19.mat')
+    IMAGE_MODEL_PATH = get_vgg_verydeep_19_model()
     TERMINATION_CONDITION = 'max-iterations'
     STYLE_LAYERS = [
         ('conv1_1', 0.2),
