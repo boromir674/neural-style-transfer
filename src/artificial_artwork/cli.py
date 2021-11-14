@@ -7,28 +7,8 @@ from .styling_observer import StylingObserver
 from .algorithm import NSTAlgorithm, AlogirthmParameters
 from .nst_tf_algorithm import NSTAlgorithmRunner
 from .image import ImageFactory, ImageProcessingConfig
-from .algorithm_progress import NSTAlgorithmProgress
 from .termination_condition.termination_condition import TerminationConditionFacility
 from .termination_condition_adapter import TerminationConditionAdapterFactory
-
-
-def get_vgg_verydeep_19_model():
-    try:
-        return os.environ['AA_VGG_19']
-    except KeyError:
-        file_path = os.path.join(os.getcwd(), 'imagenet-vgg-verydeep-19.mat')
-        if os.path.exists(file_path):
-            return file_path
-        file_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'imagenet-vgg-verydeep-19.mat')
-        if os.path.exists(file_path):
-            return file_path
-    raise NoImageModelSpesifiedError('No pretrained image model found. '
-        'Please download it and set the AA_VGG_19 environment variable with the'
-        'path where ou stored the model (*.mat file), to indicate to wher to '
-        'locate and load it')
-
-
-class NoImageModelSpesifiedError(Exception): pass
 
 
 @click.command()
@@ -39,7 +19,7 @@ class NoImageModelSpesifiedError(Exception): pass
 @click.option('--location', '-l', type=str, default='.')
 def cli(content_image, style_image, interactive, iterations, location):
 
-    IMAGE_MODEL_PATH = get_vgg_verydeep_19_model()
+    # IMAGE_MODEL_PATH = get_vgg_verydeep_19_model()
     TERMINATION_CONDITION = 'max-iterations'
     STYLE_LAYERS = [
         ('conv1_1', 0.2),
@@ -61,7 +41,6 @@ def cli(content_image, style_image, interactive, iterations, location):
     algorithm_parameters = AlogirthmParameters(
         image_factory.from_disk(content_image),
         image_factory.from_disk(style_image),
-        IMAGE_MODEL_PATH,
         STYLE_LAYERS,
         termination_condition_adapter,
         location,
@@ -71,11 +50,11 @@ def cli(content_image, style_image, interactive, iterations, location):
 
     algorithm_runner = NSTAlgorithmRunner.default(algorithm, image_factory.image_processor.noisy)
 
-    algorithm_progress = NSTAlgorithmProgress({})
+    # algorithm_progress = NSTAlgorithmProgress({})
     styling_observer = StylingObserver(Disk.save_image)
     
     algorithm_runner.progress_subject.add(
-        algorithm_progress,
+        # algorithm_progress,
         termination_condition_adapter,
     )
     algorithm_runner.peristance_subject.add(

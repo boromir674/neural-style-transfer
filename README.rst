@@ -1,6 +1,11 @@
 Neural Style Transfer - CLI
 ===========================
 
+Create artificial artwork by transfering the appearance of one image (eg a famous painting) to another
+user-supplied image (eg your favourite photograph).
+
+Uses a Neural Style Transfer algorithm to transfer the appearance, which you can run though a CLI program.
+
 `Neural Style Tranfer` (NST) is an algorithm that applies the `style` of an image to the `contents` of another and produces a `generated` image.
 The idea is to find out how someone, with the `painting style` shown in one image, would depict the `contents` shown in another image.
 
@@ -17,6 +22,8 @@ This Python package runs a Neural Style Tranfer algorithm on input `content` and
     * - tests
       - | |circleci| |codecov|
 
+    * - package
+      - | |pypi| |wheel| |py_versions| |commits_since|
 
     * - code quality
       - |better_code_hub| |code_climate| |maintainability| |codacy| |scrutinizer|
@@ -124,8 +131,27 @@ Check out your artificial artwork!
 
 .. |codecov| image:: https://codecov.io/gh/boromir674/neural-style-transfer/branch/master/graph/badge.svg?token=3POTVNU0L4
     :alt: Codecov
-      :target: https://codecov.io/gh/boromir674/neural-style-transfer
+    :target: https://codecov.io/gh/boromir674/neural-style-transfer
     
+
+
+.. |pypi| image:: https://img.shields.io/pypi/v/artificial-artwork?color=blue&label=pypi&logo=pypi&logoColor=%23849ed9
+    :alt: PyPI
+    :target: https://pypi.org/project/artificial-artwork/
+
+.. |wheel| image:: https://img.shields.io/pypi/wheel/artificial-artwork?logo=python&logoColor=%23849ed9
+    :alt: PyPI - Wheel
+    :target: https://pypi.org/project/artificial-artwork
+
+.. |py_versions| image:: https://img.shields.io/pypi/pyversions/artificial-artwork?color=blue&logo=python&logoColor=%23849ed9
+    :alt: PyPI - Python Version
+    :target: https://pypi.org/project/artificial-artwork
+
+.. |commits_since| image:: https://img.shields.io/github/commits-since/boromir674/neural-style-transfer/v0.5/master?color=blue&logo=Github
+    :alt: GitHub commits since tagged version (branch)
+    :target: https://github.com/boromir674/neural-style-transfer/compare/v0.5..master
+
+
 
 .. |better_code_hub| image:: https://bettercodehub.com/edge/badge/boromir674/neural-style-transfer?branch=master
     :alt: Better Code Hub

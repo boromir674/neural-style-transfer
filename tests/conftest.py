@@ -102,3 +102,28 @@ def subscribe():
     def _subscribe(broadcaster, listeners):
         broadcaster.add(*listeners)
     return _subscribe
+
+
+
+@pytest.fixture
+def broadcaster_class():
+    class TestSubject:
+        def __init__(self, subject, done_callback):
+            self.subject = subject
+            self.done = done_callback
+
+        def iterate(self):
+            i = 0
+            while not self.done():
+                # do something in the current iteration
+                print('Iteration with index', i)
+
+                # notify when we have completed i+1 iterations
+                self.subject.state = type('Subject', (), {
+                    'metrics': {'iterations': i + 1},  # we have completed i+1 iterations
+                }) 
+                self.subject.notify()
+                i += 1
+            return i
+
+    return TestSubject
