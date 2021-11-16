@@ -2,7 +2,7 @@
 
 import os
 import re
-from typing import Dict, Tuple, Any
+from typing import Dict, Tuple, Any, Protocol
 
 import attr
 from numpy.typing import NDArray
@@ -12,6 +12,12 @@ import tensorflow as tf
 
 from .layers_getter import VggLayersGetter
 from .image_model import LAYERS as NETWORK_DESIGN
+
+
+class ImageSpecs(Protocol):
+    width: int
+    height: int
+    color_channels: int
 
 
 def load_vgg_model_parameters(path: str) -> Dict[str, NDArray]:
@@ -93,7 +99,7 @@ class GraphFactory:
         return W, b
 
     @classmethod
-    def create(cls, config, model_parameters=None) -> Dict[str, Any]:
+    def create(cls, config: ImageSpecs, model_parameters=None) -> Dict[str, Any]:
         """Create a model for the purpose of 'painting'/generating a picture.
 
         Creates a Deep Learning Neural Network with most layers having weights
@@ -132,7 +138,8 @@ class GraphFactory:
         # each average pooling layer uses custom weight values
         # all weights are guaranteed to remain constant (see GraphBuilder._conv_2d method)
 
-        cls.builder.input(config.image_width, config.image_height, nb_channels=config.color_channels)
+        # cls.builder.input(config.image_width, config.image_height, nb_channels=config.color_channels)
+        cls.builder.input(config.width, config.height, nb_channels=config.color_channels)
         for layer_id in NETWORK_DESIGN:
             layer(layer_id)
 

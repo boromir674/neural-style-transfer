@@ -5,7 +5,8 @@ import pytest
 def nst_observer(disk):
     """An instance object of StylingObserver class."""
     from artificial_artwork.styling_observer import StylingObserver
-    return StylingObserver(disk.save_image)
+    from artificial_artwork.image.image_operations import convert_to_uint8
+    return StylingObserver(disk.save_image, convert_to_uint8)
 
 
 

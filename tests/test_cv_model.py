@@ -41,8 +41,14 @@ def graph_factory():
 
 @pytest.mark.xfail(not os.path.isfile(PRODUCTION_IMAGE_MODEL),
     reason="No file found to load the pretrained image (cv) model.")
-def test_pretrained_model(model_parameters, graph_factory, default_image_processing_config, vgg_layers, style_network_architecture):
+def test_pretrained_model(model_parameters, graph_factory, vgg_layers, style_network_architecture):
     layers = model_parameters['layers']
+
+    image_specs = type('ImageSpecs', (), {
+        'width': 400,
+        'height': 300,
+        'color_channels': 3
+    })()
 
     # verify original/loaded neural network has 43 layers
     assert len(layers[0]) == 43
@@ -50,7 +56,7 @@ def test_pretrained_model(model_parameters, graph_factory, default_image_process
     for i, name in enumerate(vgg_layers):
         assert layers[0][i][0][0][0][0] == name
 
-    graph = graph_factory.create(default_image_processing_config, model_parameters=model_parameters)
+    graph = graph_factory.create(image_specs, model_parameters=model_parameters)
     assert set(graph.keys()) == set(['input'] + list(style_network_architecture))
 
 

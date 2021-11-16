@@ -6,7 +6,6 @@ from .style_layer_selector import NSTLayersSelection
 @attr.s
 class NSTAlgorithm:
     parameters = attr.ib()
-    image_config = attr.ib()
 
 
 @attr.s

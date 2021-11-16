@@ -53,10 +53,10 @@ def session():
     return MySession  
 
 
-@pytest.fixture
-def default_image_processing_config():
-    from artificial_artwork.image import ImageProcessingConfig
-    return ImageProcessingConfig.from_image_dimensions()
+# @pytest.fixture
+# def default_image_processing_config():
+#     from artificial_artwork.image import ImageProcessingConfig
+#     return ImageProcessingConfig.from_image_dimensions()
 
 
 @pytest.fixture
@@ -68,7 +68,7 @@ def image_factory():
     Returns:
         ImageFactory: an instance of the ImageFactory class
     """
-    from artificial_artwork.image import ImageFactory
+    from artificial_artwork.image.image_factory import ImageFactory
     from artificial_artwork.disk_operations import Disk
     return ImageFactory(Disk.load_image)
 

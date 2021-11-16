@@ -9,6 +9,7 @@ import os
 @define
 class StylingObserver(Observer):
     save_on_disk_callback: Callable[[str, npt.NDArray], None]
+    convert_to_unit8: Callable[[npt.NDArray], npt.NDArray]
     """Store a snapshot of the image under construction.
 
     Args:
@@ -35,28 +36,28 @@ class StylingObserver(Observer):
             matrix = np.reshape(matrix, tuple(matrix.shape[1:]))
 
         if str(matrix.dtype) != 'uint8':
-            matrix = self._convert_to_uint8(matrix)
+            matrix = self.convert_to_unit8(matrix)
         self.save_on_disk_callback(matrix, output_file_path, format='png')
 
-    bit_2_data_type = {8: np.uint8}
+    # bit_2_data_type = {8: np.uint8}
 
-    def _convert_to_uint8(self, im):
-        bitdepth = 8
-        out_type = type(self).bit_2_data_type[bitdepth]
-        mi = np.nanmin(im)
-        ma = np.nanmax(im)
-        if not np.isfinite(mi):
-            raise ValueError("Minimum image value is not finite")
-        if not np.isfinite(ma):
-            raise ValueError("Maximum image value is not finite")
-        if ma == mi:
-            return im.astype(out_type)
+    # def _convert_to_uint8(self, im):
+    #     bitdepth = 8
+    #     out_type = type(self).bit_2_data_type[bitdepth]
+    #     mi = np.nanmin(im)
+    #     ma = np.nanmax(im)
+    #     if not np.isfinite(mi):
+    #         raise ValueError("Minimum image value is not finite")
+    #     if not np.isfinite(ma):
+    #         raise ValueError("Maximum image value is not finite")
+    #     if ma == mi:
+    #         return im.astype(out_type)
 
-        # Make float copy before we scale
-        im = im.astype("float64")
-        # Scale the values between 0 and 1 then multiply by the max value
-        im = (im - mi) / (ma - mi) * (np.power(2.0, bitdepth) - 1) + 0.499999999
-        assert np.nanmin(im) >= 0
-        assert np.nanmax(im) < np.power(2.0, bitdepth)
-        im = im.astype(out_type)
-        return im
+    #     # Make float copy before we scale
+    #     im = im.astype("float64")
+    #     # Scale the values between 0 and 1 then multiply by the max value
+    #     im = (im - mi) / (ma - mi) * (np.power(2.0, bitdepth) - 1) + 0.499999999
+    #     assert np.nanmin(im) >= 0
+    #     assert np.nanmax(im) < np.power(2.0, bitdepth)
+    #     im = im.astype(out_type)
+    #     return im

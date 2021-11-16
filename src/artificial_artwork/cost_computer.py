@@ -48,7 +48,7 @@ class NSTContentCostComputer:
         image is forward propagated (passed through) in the network.
 
         3. The above activations are a n_H x n_W x n_C tensor
-        OR Height x Width x Number_of_Channers
+        OR Height x Width x Number_of_Channels
 
         Pseudo code for latex expression of the mathematical equation:
 

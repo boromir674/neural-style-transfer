@@ -33,9 +33,15 @@ class NSTAlgorithmRunner:
         ## Prepare ##
         c_image = self.nst_algorithm.parameters.content_image
         s_image = self.nst_algorithm.parameters.style_image
-        
+
+        image_specs = type('ImageSpecs', (), {
+            'height': c_image.matrix.shape[1],
+            'width': c_image.matrix.shape[2],
+            'color_channels': c_image.matrix.shape[3]
+        })()
+
         print(' --- Loading CV Image Model ---')
-        style_network = graph_factory.create(self.nst_algorithm.image_config)
+        style_network = graph_factory.create(image_specs)
 
         noisy_content_image_matrix = self.apply_noise(self.nst_algorithm.parameters.content_image.matrix)
 
@@ -215,7 +221,7 @@ class CostBuilder:
     cost_function = attr.ib()
     compute_content_cost = attr.ib()
     compute_style_cost = attr.ib()
-    
+
     cost = attr.ib(init=False, default=None)
     content_cost = attr.ib(init=False, default=None)
     style_cost = attr.ib(init=False, default=None)
@@ -241,7 +247,7 @@ class Optimization:
 
     def optimize_against(self, cost):
         self._train_step = self.optimizer.minimize(cost)
-    
+
     @property
     def train_step(self):
         return self._train_step
