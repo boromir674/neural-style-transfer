@@ -123,7 +123,7 @@ jobs:
       NEURAL_STYLE_TRANSFER_DEPS_GRAPHS: dependencies-graphs
     steps:
       - checkout
-      - run: sudo apt-get update -y
+      - run: sudo apt-get update -y --allow-releaseinfo-change
       - run: python -m pip install -U pip
       - run:
           name: Install the dot binary included in the graphviz package/distribution
@@ -164,13 +164,13 @@ workflows:
           filters:
             tags:
               only: /.*/
-      # - visualize_dependency_graphs:
-      #     filters:
-      #       branches:
-      #         only:
-      #           - master
-      #           - dev
-      #           - release-staging
+      - visualize_dependency_graphs:
+          filters:
+            branches:
+              only:
+                - master
+                - dev
+                - release-staging
       # - build-documentation:
       #     filters:
       #       branches:
