@@ -1,5 +1,5 @@
-
 import tensorflow as tf
+from .nst_math import gram_matrix
 
 
 class NSTCostComputer:
@@ -76,8 +76,6 @@ class NSTContentCostComputer:
         J_content = tf.reduce_sum(tf.square(a_C - a_G)) / (4 * n_H * n_W * n_C)
         return J_content
 
-
-from .math import gram_matrix
 
 class GramMatrixComputer(type):
     def __new__(mcs, *args, **kwargs):

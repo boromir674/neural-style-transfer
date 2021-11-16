@@ -4,7 +4,7 @@ import tensorflow as tf
 
 @pytest.fixture
 def gram_matrix():
-    from artificial_artwork.math import gram_matrix
+    from artificial_artwork.nst_math import gram_matrix
     return gram_matrix
 
 
