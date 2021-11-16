@@ -135,6 +135,3 @@ def test_non_finite_minimum_value(test_image, image_operations):
 def test_non_finite_maximum_value(test_image, image_operations):
     with pytest.raises(ValueError, match=r'Maximum image value is not finite'):
         runtime_image = image_operations.convert_to_uint8(np.array(test_image, dtype=np.float32))
-
-
-# def test_uint8_convertion_infinite():
