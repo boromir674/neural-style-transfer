@@ -47,9 +47,9 @@ Key features of the package:
 
 Installation
 ------------
-| The Neural Style Transfer - CLI heavely depends on Tensorflow (tf) and therefor it is crucial that tf is installed correctly in your Python environment.
+| The Neural Style Transfer - CLI heavely depends on Tensorflow (tf) and therefore it is crucial that tf is installed correctly in your Python environment.
 
-Sample commands to install NST CLI using a terminal:
+Sample commands to install the NST CLI from source, using a terminal:
 
 ::
 
@@ -67,6 +67,18 @@ Sample commands to install NST CLI using a terminal:
     # Install NST CLI (in virtual environment)
     pip install -e .
 
+
+Alternative command to install the NST CLI by downloading the `artificial_artwork` python package from pypi:
+
+::
+
+    pip install artificial_artwork
+
+
+Make the cli available for your host system:
+
+::
+
     # Setup a symbolic link (in your host system) in a location in your PATH
     # Assuming ~/.local/bin is in your PATH
     ln -s $PWD/env/bin/neural-style-transfer ~/.local/bin/neural-style-transfer
@@ -78,7 +90,7 @@ Sample commands to install NST CLI using a terminal:
 Usage
 -----
 
-Download the Vgg-Verydeep-19 pretrained `model` from https://mega.nz/file/i5xDWI4Y.
+Download the Vgg-Verydeep-19 pretrained `model` from https://drive.protonmail.com/urls/7RXGN23ZRR#hsw4STil0Hgc.
 
 Exctract the model (weights and layer architecture).
 
@@ -120,6 +132,21 @@ Navigating to `nst_output` you can find multiple image files generated from runn
 image generated on a different iteration while running the algorithm. The bigger the iteration the more "style" has been applied.
 
 Check out your artificial artwork!
+
+
+Docker image
+------------
+
+We have included a docker file that we use to build an image where both the `artificial_artwork` package (source code)
+and the pretrained model are present. That way you can immediately start creating artwork!
+
+::
+
+    docker pull boromir674/neural-style-transfer
+
+    mkdir nst-output
+
+    docker run -it --rm -v nst-output:/app/nst-output boromir674/neural-style-transfer
 
 
 
