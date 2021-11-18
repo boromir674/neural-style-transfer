@@ -5,7 +5,7 @@ from time import time
 
 
 from .tf_session_runner import TensorflowSessionRunner
-from .model_loader import load_vgg_model
+from .pretrained_model import graph_factory
 from .cost_computer import NSTCostComputer, NSTContentCostComputer, NSTStyleCostComputer
 from .utils.notification import Subject
 
@@ -20,15 +20,6 @@ class NSTAlgorithmRunner:
     nn_builder = attr.ib(init=False, default=None)
     nn_cost_builder = attr.ib(init=False, default=None)
 
-    # nn_builder = attr.ib(init=False, default=attr.Factory(lambda self: NeuralNetBuilder(
-    #     self.image_model, self.session_runner.session
-    # ), takes_self=True))
-    # nn_cost_builder = attr.ib(init=False, default=attr.Factory(lambda: CostBuilder(
-    #     NSTCostComputer.compute,
-    #     NSTContentCostComputer.compute,
-    #     NSTStyleCostComputer.compute,
-    # )))
-
     # broadcast facilities to notify observers/listeners
     progress_subject = attr.ib(init=False, default=attr.Factory(Subject))
     peristance_subject = attr.ib(init=False, default=attr.Factory(Subject))
@@ -42,19 +33,22 @@ class NSTAlgorithmRunner:
         ## Prepare ##
         c_image = self.nst_algorithm.parameters.content_image
         s_image = self.nst_algorithm.parameters.style_image
-        
+
+        image_specs = type('ImageSpecs', (), {
+            'height': c_image.matrix.shape[1],
+            'width': c_image.matrix.shape[2],
+            'color_channels': c_image.matrix.shape[3]
+        })()
+
         print(' --- Loading CV Image Model ---')
-        image_model = load_vgg_model(
-            self.nst_algorithm.parameters.cv_model,
-            self.nst_algorithm.image_config,
-        )
+        style_network = graph_factory.create(image_specs)
 
         noisy_content_image_matrix = self.apply_noise(self.nst_algorithm.parameters.content_image.matrix)
 
         print(' --- Building Computations ---')
 
         self.nn_builder = NeuralNetBuilder(
-            image_model,
+            style_network,
             self.session_runner.session
         )
 
@@ -78,7 +72,7 @@ class NSTAlgorithmRunner:
         # using the loaded cv model (which is a dict of layers)
         # the NSTStyleLayer ids attribute to query the dict
         for style_layer_id, nst_style_layer in self.nst_algorithm.parameters.style_layers:
-            nst_style_layer.neurons = image_model[style_layer_id]
+            nst_style_layer.neurons = style_network[style_layer_id]
         # TODO obviously encapsulate the above code elsewhere
 
         self.nn_cost_builder.build_style_cost(
@@ -100,7 +94,7 @@ class NSTAlgorithmRunner:
         self.session_runner.run(tf.compat.v1.global_variables_initializer())
 
         # Run the noisy input image (initial generated image) through the model
-        self.session_runner.run(image_model['input'].assign(input_image))
+        self.session_runner.run(style_network['input'].assign(input_image))
 
         # Iterate
         print(' --- Running Iterative Algorithm ---')
@@ -109,7 +103,7 @@ class NSTAlgorithmRunner:
         self.time_started = time()
 
         while not self.nst_algorithm.parameters.termination_condition.satisfied:
-            generated_image = self.iterate(image_model)
+            generated_image = self.iterate(style_network)
             progress = self._progress(generated_image, completed_iterations=i+1)
             if i % 20 == 0:
                 self._notify_persistance(progress)
@@ -227,7 +221,7 @@ class CostBuilder:
     cost_function = attr.ib()
     compute_content_cost = attr.ib()
     compute_style_cost = attr.ib()
-    
+
     cost = attr.ib(init=False, default=None)
     content_cost = attr.ib(init=False, default=None)
     style_cost = attr.ib(init=False, default=None)
@@ -253,7 +247,7 @@ class Optimization:
 
     def optimize_against(self, cost):
         self._train_step = self.optimizer.minimize(cost)
-    
+
     @property
     def train_step(self):
         return self._train_step

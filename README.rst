@@ -1,6 +1,11 @@
 Neural Style Transfer - CLI
 ===========================
 
+Create artificial artwork by transfering the appearance of one image (eg a famous painting) to another
+user-supplied image (eg your favourite photograph).
+
+Uses a Neural Style Transfer algorithm to transfer the appearance, which you can run though a CLI program.
+
 `Neural Style Tranfer` (NST) is an algorithm that applies the `style` of an image to the `contents` of another and produces a `generated` image.
 The idea is to find out how someone, with the `painting style` shown in one image, would depict the `contents` shown in another image.
 
@@ -17,6 +22,11 @@ This Python package runs a Neural Style Tranfer algorithm on input `content` and
     * - tests
       - | |circleci| |codecov|
 
+    * - package
+      - | |pypi| |wheel| |py_versions| |commits_since|
+
+    * - containerization
+      - | |docker| |image_size|
 
     * - code quality
       - |better_code_hub| |code_climate| |maintainability| |codacy| |scrutinizer|
@@ -40,9 +50,9 @@ Key features of the package:
 
 Installation
 ------------
-| The Neural Style Transfer - CLI heavely depends on Tensorflow (tf) and therefor it is crucial that tf is installed correctly in your Python environment.
+| The Neural Style Transfer - CLI heavely depends on Tensorflow (tf) and therefore it is crucial that tf is installed correctly in your Python environment.
 
-Sample commands to install NST CLI using a terminal:
+Sample commands to install the NST CLI from source, using a terminal:
 
 ::
 
@@ -60,6 +70,18 @@ Sample commands to install NST CLI using a terminal:
     # Install NST CLI (in virtual environment)
     pip install -e .
 
+
+Alternative command to install the NST CLI by downloading the `artificial_artwork` python package from pypi:
+
+::
+
+    pip install artificial_artwork
+
+
+Make the cli available for your host system:
+
+::
+
     # Setup a symbolic link (in your host system) in a location in your PATH
     # Assuming ~/.local/bin is in your PATH
     ln -s $PWD/env/bin/neural-style-transfer ~/.local/bin/neural-style-transfer
@@ -71,7 +93,7 @@ Sample commands to install NST CLI using a terminal:
 Usage
 -----
 
-Download the Vgg-Verydeep-19 pretrained `model` from https://mega.nz/file/i5xDWI4Y.
+Download the Vgg-Verydeep-19 pretrained `model` from https://drive.protonmail.com/urls/7RXGN23ZRR#hsw4STil0Hgc.
 
 Exctract the model (weights and layer architecture).
 
@@ -115,6 +137,21 @@ image generated on a different iteration while running the algorithm. The bigger
 Check out your artificial artwork!
 
 
+Docker image
+------------
+
+We have included a docker file that we use to build an image where both the `artificial_artwork` package (source code)
+and the pretrained model are present. That way you can immediately start creating artwork!
+
+::
+
+    docker pull boromir674/neural-style-transfer
+
+    mkdir nst-output
+
+    docker run -it --rm -v nst-output:/app/nst-output boromir674/neural-style-transfer
+
+
 
 
 .. |circleci|  image:: https://img.shields.io/circleci/build/github/boromir674/neural-style-transfer/master?logo=circleci
@@ -124,8 +161,27 @@ Check out your artificial artwork!
 
 .. |codecov| image:: https://codecov.io/gh/boromir674/neural-style-transfer/branch/master/graph/badge.svg?token=3POTVNU0L4
     :alt: Codecov
-      :target: https://codecov.io/gh/boromir674/neural-style-transfer
+    :target: https://codecov.io/gh/boromir674/neural-style-transfer
     
+
+
+.. |pypi| image:: https://img.shields.io/pypi/v/artificial-artwork?color=blue&label=pypi&logo=pypi&logoColor=%23849ed9
+    :alt: PyPI
+    :target: https://pypi.org/project/artificial-artwork/
+
+.. |wheel| image:: https://img.shields.io/pypi/wheel/artificial-artwork?logo=python&logoColor=%23849ed9
+    :alt: PyPI - Wheel
+    :target: https://pypi.org/project/artificial-artwork
+
+.. |py_versions| image:: https://img.shields.io/pypi/pyversions/artificial-artwork?color=blue&logo=python&logoColor=%23849ed9
+    :alt: PyPI - Python Version
+    :target: https://pypi.org/project/artificial-artwork
+
+.. |commits_since| image:: https://img.shields.io/github/commits-since/boromir674/neural-style-transfer/v0.5/master?color=blue&logo=Github
+    :alt: GitHub commits since tagged version (branch)
+    :target: https://github.com/boromir674/neural-style-transfer/compare/v0.5..master
+
+
 
 .. |better_code_hub| image:: https://bettercodehub.com/edge/badge/boromir674/neural-style-transfer?branch=master
     :alt: Better Code Hub
@@ -161,3 +217,11 @@ Check out your artificial artwork!
     :alt: Supported versions
     :target: https://pypi.org/project/topic-modeling-toolkit
 
+
+
+.. |docker| image:: https://img.shields.io/docker/v/boromir674/neural-style-transfer/latest?logo=docker&logoColor=%23849ED9
+    :alt: Docker Image Version (tag latest semver)
+    :target: https://hub.docker.com/r/boromir674/neural-style-transfer
+
+.. |image_size| image:: https://img.shields.io/docker/image-size/boromir674/neural-style-transfer/latest?logo=docker&logoColor=%23849ED9
+    :alt: Docker Image Size (tag)

@@ -1,34 +1,12 @@
-
-import os
 import click
 
 from .disk_operations import Disk
 from .styling_observer import StylingObserver
 from .algorithm import NSTAlgorithm, AlogirthmParameters
 from .nst_tf_algorithm import NSTAlgorithmRunner
-from .image import ImageFactory, ImageProcessingConfig
-from .algorithm_progress import NSTAlgorithmProgress
 from .termination_condition.termination_condition import TerminationConditionFacility
 from .termination_condition_adapter import TerminationConditionAdapterFactory
-
-
-def get_vgg_verydeep_19_model():
-    try:
-        return os.environ['AA_VGG_19']
-    except KeyError:
-        file_path = os.path.join(os.getcwd(), 'imagenet-vgg-verydeep-19.mat')
-        if os.path.exists(file_path):
-            return file_path
-        file_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'imagenet-vgg-verydeep-19.mat')
-        if os.path.exists(file_path):
-            return file_path
-    raise NoImageModelSpesifiedError('No pretrained image model found. '
-        'Please download it and set the AA_VGG_19 environment variable with the'
-        'path where ou stored the model (*.mat file), to indicate to wher to '
-        'locate and load it')
-
-
-class NoImageModelSpesifiedError(Exception): pass
+from .nst_image import ImageManager
 
 
 @click.command()
@@ -39,7 +17,6 @@ class NoImageModelSpesifiedError(Exception): pass
 @click.option('--location', '-l', type=str, default='.')
 def cli(content_image, style_image, interactive, iterations, location):
 
-    IMAGE_MODEL_PATH = get_vgg_verydeep_19_model()
     TERMINATION_CONDITION = 'max-iterations'
     STYLE_LAYERS = [
         ('conv1_1', 0.2),
@@ -49,42 +26,68 @@ def cli(content_image, style_image, interactive, iterations, location):
         ('conv5_1', 0.2),
     ]
 
-    image_factory = ImageFactory(Disk.load_image)
+    import numpy as np
+    from artificial_artwork.image.image_operations import noisy, reshape_image, subtract, convert_to_uint8
 
-    # for now we have hardcoded the config to receive 300 x 400 images with 3 color channels
-    image_process_config = ImageProcessingConfig.from_image_dimensions()
-    
-    termination_condition = TerminationConditionFacility.create(TERMINATION_CONDITION, iterations)
-    termination_condition_adapter = TerminationConditionAdapterFactory.create(TERMINATION_CONDITION, termination_condition)
+    # todo dynamically find means
+    means = np.array([123.68, 116.779, 103.939]).reshape((1,1,1,3))  # means
+
+    image_manager = ImageManager([
+        lambda matrix: reshape_image(matrix, ((1,) + matrix.shape)),
+        lambda matrix: subtract(matrix, means),  # input image must have 3 channels!
+    ])
+
+    # probably load each image in separate thread and then join
+    image_manager.load_from_disk(content_image, 'content')
+    image_manager.load_from_disk(style_image, 'style')
+
+    if not image_manager.images_compatible:
+        print("Given CONTENT image '{content_image}' has 'height' x 'width' x "
+        f"'color_channels': {image_manager.content_image.matrix.shape}")
+        print("Given STYLE image '{style_image}' has 'height' x 'width' x "
+        f"'color_channels': {image_manager.style_image.matrix.shape}")
+        print('Expected to receive images (matrices) of identical shape')
+        print('Exiting..')
+        exit(1)
+
+    # image_factory = ImageFactory(Disk.load_image)
+    # content_image = image_factory.from_disk(content_image, reshape_and_normalize_pipeline)
+    # style_image = image_factory.from_disk(style_image, reshape_and_normalize_pipeline)   
+
+    termination_condition = TerminationConditionFacility.create(
+        TERMINATION_CONDITION, iterations)
+    termination_condition_adapter = TerminationConditionAdapterFactory.create(
+        TERMINATION_CONDITION, termination_condition)
     print(f' -- Termination Condition: {termination_condition}')
 
     algorithm_parameters = AlogirthmParameters(
-        image_factory.from_disk(content_image),
-        image_factory.from_disk(style_image),
-        IMAGE_MODEL_PATH,
+        image_manager.content_image,
+        image_manager.style_image,
         STYLE_LAYERS,
         termination_condition_adapter,
         location,
     )
 
-    algorithm = NSTAlgorithm(algorithm_parameters, image_process_config)
+    algorithm = NSTAlgorithm(algorithm_parameters)
 
-    algorithm_runner = NSTAlgorithmRunner.default(algorithm, image_factory.image_processor.noisy)
+    # algorithm_runner = NSTAlgorithmRunner.default(
+    #     algorithm,
+    #     image_factory.image_processor.noisy
+    # )
 
-    algorithm_progress = NSTAlgorithmProgress({})
-    styling_observer = StylingObserver(Disk.save_image)
-    
+    noisy_ratio = 0.6  # ratio
+
+    # NEW
+    algorithm_runner = NSTAlgorithmRunner.default(
+        algorithm,
+        lambda matrix: noisy(matrix, noisy_ratio)
+    )
+
     algorithm_runner.progress_subject.add(
-        algorithm_progress,
         termination_condition_adapter,
     )
     algorithm_runner.peristance_subject.add(
-        styling_observer
+        StylingObserver(Disk.save_image, convert_to_uint8)
     )
-            
 
     algorithm_runner.run()
-
-
-if __name__ == '__main__':
-    cli()

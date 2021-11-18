@@ -120,10 +120,10 @@ jobs:
   visualize_dependency_graphs:
     executor: py38-docker-image
     environment:
-      NEURAL_STYLE_TRANSFER_DEPS_GRAPHS: dependencies-graphs
+      NST_DEPS_GRAPHS: dependency-graphs
     steps:
       - checkout
-      - run: sudo apt-get update -y
+      - run: sudo apt-get update -y --allow-releaseinfo-change
       - run: python -m pip install -U pip
       - run:
           name: Install the dot binary included in the graphviz package/distribution
@@ -135,7 +135,7 @@ jobs:
           name: Visualize dependency graphs as .svg files
           command: tox -e graphs -vv
       - store_artifacts:
-          path: dependencies-graphs
+          path: dependency-graphs
           destination: dep-graphs
       - run:
           name: Visualize uml diagrams as .svg files
@@ -164,13 +164,13 @@ workflows:
           filters:
             tags:
               only: /.*/
-      # - visualize_dependency_graphs:
-      #     filters:
-      #       branches:
-      #         only:
-      #           - master
-      #           - dev
-      #           - release-staging
+      - visualize_dependency_graphs:
+          filters:
+            branches:
+              only:
+                - master
+                - dev
+                - release-staging
       # - build-documentation:
       #     filters:
       #       branches:

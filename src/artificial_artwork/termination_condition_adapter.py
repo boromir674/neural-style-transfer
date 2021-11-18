@@ -56,7 +56,8 @@ class TerminationConditionAdapterType(type):
         
         # The (outer) keys are usable by client code to select termination condition
         # Each (inner) 'key_name' points to the name to use to query the subject dict
-        # Each initializer is a callback to use to initialize the 'runtime_state' attribute [per termination condition (adapter)]
+        # Each 'state' key points to a value that should be used to initialize
+        # the 'runtime_state' attribute [per termination condition (adapter)]
         termination_condition_adapter_class.mapping = {
             'max-iterations': {'key_name': 'iterations', 'state': 0},
             'convergence': {'key_name': 'cost', 'state': float('inf')},

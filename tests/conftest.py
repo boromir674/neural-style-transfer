@@ -53,10 +53,10 @@ def session():
     return MySession  
 
 
-@pytest.fixture
-def default_image_processing_config():
-    from artificial_artwork.image import ImageProcessingConfig
-    return ImageProcessingConfig.from_image_dimensions()
+# @pytest.fixture
+# def default_image_processing_config():
+#     from artificial_artwork.image import ImageProcessingConfig
+#     return ImageProcessingConfig.from_image_dimensions()
 
 
 @pytest.fixture
@@ -68,7 +68,7 @@ def image_factory():
     Returns:
         ImageFactory: an instance of the ImageFactory class
     """
-    from artificial_artwork.image import ImageFactory
+    from artificial_artwork.image.image_factory import ImageFactory
     from artificial_artwork.disk_operations import Disk
     return ImageFactory(Disk.load_image)
 
@@ -102,3 +102,28 @@ def subscribe():
     def _subscribe(broadcaster, listeners):
         broadcaster.add(*listeners)
     return _subscribe
+
+
+
+@pytest.fixture
+def broadcaster_class():
+    class TestSubject:
+        def __init__(self, subject, done_callback):
+            self.subject = subject
+            self.done = done_callback
+
+        def iterate(self):
+            i = 0
+            while not self.done():
+                # do something in the current iteration
+                print('Iteration with index', i)
+
+                # notify when we have completed i+1 iterations
+                self.subject.state = type('Subject', (), {
+                    'metrics': {'iterations': i + 1},  # we have completed i+1 iterations
+                }) 
+                self.subject.notify()
+                i += 1
+            return i
+
+    return TestSubject

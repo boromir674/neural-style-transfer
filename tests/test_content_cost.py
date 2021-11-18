@@ -8,10 +8,6 @@ def compute_cost():
     return NSTContentCostComputer.compute
 
 
-# @pytest.fixture
-# def activations():
-
-
 def test_content_cost_computation(session, compute_cost):
     with session(2) as _test:
         a_C = tf.compat.v1.random_normal([1, 4, 4, 3], mean=1, stddev=4)
