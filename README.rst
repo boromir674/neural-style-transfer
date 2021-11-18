@@ -25,6 +25,9 @@ This Python package runs a Neural Style Tranfer algorithm on input `content` and
     * - package
       - | |pypi| |wheel| |py_versions| |commits_since|
 
+    * - containerization
+      - | |docker| |image_size|
+
     * - code quality
       - |better_code_hub| |code_climate| |maintainability| |codacy| |scrutinizer|
 
@@ -214,3 +217,11 @@ and the pretrained model are present. That way you can immediately start creatin
     :alt: Supported versions
     :target: https://pypi.org/project/topic-modeling-toolkit
 
+
+
+.. |docker| image:: https://img.shields.io/docker/v/boromir674/neural-style-transfer/latest?logo=docker&logoColor=%23849ED9
+    :alt: Docker Image Version (tag latest semver)
+    :target: https://hub.docker.com/r/boromir674/neural-style-transfer
+
+.. |image_size| image:: https://img.shields.io/docker/image-size/boromir674/neural-style-transfer/latest?logo=docker&logoColor=%23849ED9
+    :alt: Docker Image Size (tag)
