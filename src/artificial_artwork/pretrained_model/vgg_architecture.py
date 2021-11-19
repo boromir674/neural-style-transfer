@@ -7,7 +7,7 @@ def vgg_layers():
         (1, 'relu1_1') ,
         (2, 'conv1_2') ,  # (3, 3, 64, 64)
         (3, 'relu1_2') ,
-        (4, 'pool1')   ,
+        (4, 'pool1')   ,  # maxpool
         (5, 'conv2_1') ,  # (3, 3, 64, 128)
         (6, 'relu2_1') ,
         (7, 'conv2_2') ,  # (3, 3, 128, 128)
@@ -38,14 +38,14 @@ def vgg_layers():
         (32, 'conv5_3'),  # (3, 3, 512, 512)
         (33, 'relu5_3'),
         (34, 'conv5_4'),  # (3, 3, 512, 512)
-#         35 is relu
-#         36 is maxpool
-#         37 is fullyconnected (7, 7, 512, 4096)
-#         38 is relu
-#         39 is fullyconnected (1, 1, 4096, 4096)
-#         40 is relu
-#         41 is fullyconnected (1, 1, 4096, 1000)
-#         42 is softmax
+        (35, 'relu5_4'),
+        (36, 'pool5'),
+        (37, 'fc6'),  # fullyconnected (7, 7, 512, 4096)
+        (38, 'relu6'),
+        (39, 'fc7'),  # fullyconnected (1, 1, 4096, 4096)
+        (40, 'relu7'),
+        (41, 'fc8'),  # fullyconnected (1, 1, 4096, 1000)
+        (42, 'prob'),  # softmax
     )
 
 
