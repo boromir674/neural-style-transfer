@@ -50,13 +50,3 @@ class NSTLayersSelection:
 
     def __iter__(self) -> Iterable[Tuple[str, NSTStyleLayer]]:
         return iter(((layer.id, layer) for layer in self._layers))
-
-
-# Production Style Layers selection
-
-            # ('conv1_1', 0.2),
-            # ('conv2_1', 0.2),
-            # ('conv3_1', 0.2),
-            # ('conv4_1', 0.2),
-            # ('conv5_1', 0.2)
-            # ]
