@@ -1,8 +1,6 @@
-### Part of this code is due to the MatConvNet team and is used to load the parameters of the pretrained VGG19 model in the notebook ###
-
 import os
 import re
-from typing import Dict, Tuple, Any, Protocol
+from typing import Dict, Tuple, Any, Protocol, Iterable
 
 import attr
 from numpy.typing import NDArray
@@ -11,7 +9,6 @@ import scipy.io
 import tensorflow as tf
 
 from .layers_getter import VggLayersGetter
-from .image_model import LAYERS as NETWORK_DESIGN
 
 
 class ImageSpecs(Protocol):
@@ -37,7 +34,7 @@ def get_vgg_19_model_path():
             'locate and load it') from variable_not_found
 
 
-def load_default_model_parameters():
+def load_default_model_parameters() -> Dict[str, NDArray]:
     path = get_vgg_19_model_path()
     return load_vgg_model_parameters(path)
 
@@ -81,25 +78,12 @@ class GraphBuilder:
         return tf.compat.v1.nn.conv2d(self._prev_layer, filter=W, strides=[1, 1, 1, 1], padding='SAME') + b
 
 
-@attr.s
-class ModelParameters:
-    params = attr.ib(default=attr.Factory(load_default_model_parameters))
-
-
 class GraphFactory:
     builder = GraphBuilder()
 
     @classmethod
-    def weights(cls, layer: NDArray) -> Tuple[NDArray, NDArray]:
-        """Get the weights and bias for a given layer of the VGG model."""
-            # wb = vgg_layers[0][layer][0][0][2]
-        wb = layer[0][0][2]
-        W = wb[0][0]
-        b = wb[0][1]
-        return W, b
-
-    @classmethod
-    def create(cls, config: ImageSpecs, model_parameters=None) -> Dict[str, Any]:
+    def create(cls, config: ImageSpecs, model_design) -> Dict[str, Any]:
+    # def create(cls, config: ImageSpecs, model_parameters=None) -> Dict[str, Any]:
         """Create a model for the purpose of 'painting'/generating a picture.
 
         Creates a Deep Learning Neural Network with most layers having weights
@@ -113,24 +97,13 @@ class GraphFactory:
         Returns:
             Dict[str, Any]: [description]
         """
-
-        vgg_model_parameters = ModelParameters(*list(filter(None, [model_parameters])))
-
-        vgg_layers = get_layers(vgg_model_parameters.params)
-
+        vgg_layers = get_layers(model_design.model_parameters.params)
         layer_getter = VggLayersGetter(vgg_layers)
 
-        def relu(layer_id: str):
-            return cls.builder.relu_conv_2d(layer_id, cls.weights(layer_getter.id_2_layer[layer_id]))
-
-        layer_callbacks = {
-            'conv': relu,
-            'avgpool': cls.builder.avg_pool
-        }
-
-        def layer(layer_id: str):
-            matched_string = re.match(r'(\w+?)[\d_]*$', layer_id).group(1)
-            return layer_callbacks[matched_string](layer_id)
+        layer_maker = LayerMaker(
+            layer_getter,
+            cls.builder
+        )
 
         ## Build Graph
 
@@ -138,9 +111,49 @@ class GraphFactory:
         # each average pooling layer uses custom weight values
         # all weights are guaranteed to remain constant (see GraphBuilder._conv_2d method)
 
-        # cls.builder.input(config.image_width, config.image_height, nb_channels=config.color_channels)
         cls.builder.input(config.width, config.height, nb_channels=config.color_channels)
-        for layer_id in NETWORK_DESIGN:
-            layer(layer_id)
+        layer_maker.make_layers(model_design.network_layers)
 
         return cls.builder.graph
+
+
+@attr.s
+class LayerMaker:
+    getter = attr.ib()
+    graph_builder = attr.ib()
+    layers_design = attr.ib(default=None)
+    layer_callbacks = attr.ib(init=False, default=attr.Factory(lambda self: {
+            'conv': self._relu,
+            'avgpool': self.graph_builder.avg_pool
+        }, takes_self=True)
+    )
+
+    def weights(self, layer: NDArray) -> Tuple[NDArray, NDArray]:
+        """Get the weights and bias for a given layer of the VGG model."""
+        # wb = vgg_layers[0][layer][0][0][2]
+        wb = layer[0][0][2]
+        W = wb[0][0]
+        b = wb[0][1]
+        return W, b
+
+    def _relu(self, layer_id: str):
+        return self.graph_builder.relu_conv_2d(layer_id, self.weights(self.getter.id_2_layer[layer_id]))
+
+    def layer(self, layer_id: str):
+        matched_string = re.match(r'(\w+?)[\d_]*$', layer_id).group(1)
+        return self.layer_callbacks[matched_string](layer_id)
+      
+    def make_layers(self, layers: Iterable[str]):
+        for layer_id in layers:
+            self.layer(layer_id)
+
+
+@attr.s
+class ModelParameters:
+    params = attr.ib(default=attr.Factory(load_default_model_parameters))
+
+
+@attr.s
+class NSTModelDesign:
+    network_layers = attr.ib()
+    model_parameters = attr.ib(default=None, converter=lambda x: ModelParameters(*list(filter(None, [x]))))

@@ -41,7 +41,10 @@ class NSTAlgorithmRunner:
         })()
 
         print(' --- Loading CV Image Model ---')
-        style_network = graph_factory.create(image_specs)
+        from .pretrained_model.image_model import LAYERS as NETWORK_DESIGN
+        from .pretrained_model.model_loader import NSTModelDesign
+        style_network = graph_factory.create(image_specs,
+            NSTModelDesign(NETWORK_DESIGN))
 
         noisy_content_image_matrix = self.apply_noise(self.nst_algorithm.parameters.content_image.matrix)
 

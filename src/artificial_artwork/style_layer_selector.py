@@ -7,8 +7,8 @@ class NSTStyleLayer:
     id: str = attr.ib()
     coefficient: float = attr.ib()
     @coefficient.validator
-    def validate_wight(self, attribute, value):
-        if value <= 0 or 1 <= value:
+    def validate_weight(self, attribute, value):
+        if value <= 0 or 1 < value:
             raise ValueError(f'Coefficient must be a number between 0 and 1. Given {value}')
     neurons = attr.ib(default=None)
 

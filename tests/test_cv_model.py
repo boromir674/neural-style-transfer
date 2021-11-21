@@ -10,7 +10,7 @@ PRODUCTION_IMAGE_MODEL = os.environ.get('AA_VGG_19', 'PRETRAINED_MODEL_NOT_FOUND
 
 
 @pytest.fixture
-def pre_trained_models():
+def pre_trained_models(toy_pre_trained_model):
     
     from artificial_artwork.pretrained_model.model_loader import load_default_model_parameters
     from artificial_artwork.pretrained_model.vgg_architecture import LAYERS as vgg_layers
@@ -25,9 +25,9 @@ def pre_trained_models():
         }),
         # Toy simulated pretrained model for (mock) testing
         'toy': type('PretrainedModel', (), {
-            # 'parameters_loader': load_default_model_parameters,
-            # 'vgg_layers': vgg_layers,
-            # 'picked_layers': picked_layers,
+            'parameters_loader': toy_pre_trained_model['parameters_loader'],
+            'vgg_layers': toy_pre_trained_model['model_layers'],
+            'picked_layers': toy_pre_trained_model['picked_layers'],
         }),
     }
 
@@ -46,8 +46,8 @@ def graph_factory():
     return graph_factory
 
 
-@pytest.mark.xfail(not os.path.isfile(PRODUCTION_IMAGE_MODEL),
-    reason="No file found to load the pretrained image (cv) model.")
+# @pytest.mark.xfail(not os.path.isfile(PRODUCTION_IMAGE_MODEL),
+#     reason="No file found to load the pretrained image (cv) model.")
 def test_pretrained_model(pre_trained_model, graph_factory):
     model_parameters = pre_trained_model.parameters_loader()
     layers = model_parameters['layers']
@@ -64,5 +64,11 @@ def test_pretrained_model(pre_trained_model, graph_factory):
     for i, name in enumerate(pre_trained_model.vgg_layers):
         assert layers[0][i][0][0][0][0] == name
 
-    graph = graph_factory.create(image_specs, model_parameters=model_parameters)
+    from artificial_artwork.pretrained_model.model_loader import NSTModelDesign
+
+    print('-------------', pre_trained_model.picked_layers)
+    graph = graph_factory.create(image_specs, NSTModelDesign(
+        pre_trained_model.picked_layers,
+        model_parameters
+    ))
     assert set(graph.keys()) == set(['input'] + list(pre_trained_model.picked_layers))

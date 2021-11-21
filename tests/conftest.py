@@ -127,3 +127,44 @@ def broadcaster_class():
             return i
 
     return TestSubject
+
+
+
+@pytest.fixture
+def toy_pre_trained_model():
+    model_layers = (
+        # (0, 'conv'),
+        # (1, 'relu'),
+        # (2, 'maxpool'),
+        'conv1_1',
+        'relu1',
+        'maxpool1',
+    )
+    # layers we pick that capture the 'style' features of an image
+
+    style_layers = ('conv1_1',)
+    import numpy as np
+    from functools import reduce
+    convo_w_weights_shape = (3, 3, 3, 4)
+    def load_parameters():
+        return {
+            'layers': [[
+                [[[['conv1_1'], 'unused', [[
+                    np.reshape(np.array([i for i in range(1, reduce(lambda i,j: i*j, convo_w_weights_shape)+1)], dtype=np.float32), convo_w_weights_shape),
+                    np.array([5], dtype=np.float32)
+                ]]]]],
+                [[[['relu1'], 'unused', [['W', 'b']]]]],
+                [[[['maxpool1'], 'unused', [['W', 'b']]]]],
+            ]]
+        }
+    return {
+        'parameters_loader': load_parameters,
+        'model_layers': model_layers,
+        'picked_layers': style_layers,
+    }
+
+
+@pytest.fixture
+def image_manager_class():
+    from artificial_artwork.nst_image import ImageManager
+    return ImageManager
