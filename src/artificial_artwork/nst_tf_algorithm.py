@@ -5,7 +5,7 @@ from time import time
 
 
 from .tf_session_runner import TensorflowSessionRunner
-from .pretrained_model import graph_factory
+from .style_model import graph_factory
 from .cost_computer import NSTCostComputer, NSTContentCostComputer, NSTStyleCostComputer
 from .utils.notification import Subject
 
@@ -15,6 +15,7 @@ class NSTAlgorithmRunner:
     nst_algorithm = attr.ib()
     session_runner = attr.ib()
     apply_noise = attr.ib()
+    model_design = attr.ib()
     optimization = attr.ib(default=attr.Factory(lambda: Optimization()))
 
     nn_builder = attr.ib(init=False, default=None)
@@ -22,12 +23,14 @@ class NSTAlgorithmRunner:
 
     # broadcast facilities to notify observers/listeners
     progress_subject = attr.ib(init=False, default=attr.Factory(Subject))
-    peristance_subject = attr.ib(init=False, default=attr.Factory(Subject))
+    persistance_subject = attr.ib(init=False, default=attr.Factory(Subject))
+
+    NETWORK_OUTPUT = 'conv4_2'
 
     @classmethod
-    def default(cls, nst_algorithm, apply_noise):
+    def default(cls, nst_algorithm, apply_noise, model_design):
         session_runner = TensorflowSessionRunner.with_default_graph_reset()
-        return NSTAlgorithmRunner(nst_algorithm, session_runner, apply_noise)
+        return NSTAlgorithmRunner(nst_algorithm, session_runner, apply_noise, model_design)
 
     def run(self):
         ## Prepare ##
@@ -41,10 +44,10 @@ class NSTAlgorithmRunner:
         })()
 
         print(' --- Loading CV Image Model ---')
-        from .pretrained_model.image_model import LAYERS as NETWORK_DESIGN
-        from .pretrained_model.model_loader import NSTModelDesign
-        style_network = graph_factory.create(image_specs,
-            NSTModelDesign(NETWORK_DESIGN))
+
+        # print('----\n', self.load_model.__name__, ' -----\n')
+
+        style_network = graph_factory.create(image_specs, self.model_design)
 
         noisy_content_image_matrix = self.apply_noise(self.nst_algorithm.parameters.content_image.matrix)
 
@@ -56,7 +59,7 @@ class NSTAlgorithmRunner:
         )
 
         # indicate content_image and the output layer of the Neural Network
-        self.nn_builder.build_activations(c_image.matrix, 'conv4_2')
+        self.nn_builder.build_activations(c_image.matrix, self.NETWORK_OUTPUT)
 
         self.nn_cost_builder = CostBuilder(
             NSTCostComputer.compute,
@@ -157,8 +160,8 @@ class NSTAlgorithmRunner:
         }
 
     def _notify_persistance(self, progress):
-        self.peristance_subject.state = type('SubjectState', (), progress)
-        self.peristance_subject.notify()
+        self.persistance_subject.state = type('SubjectState', (), progress)
+        self.persistance_subject.notify()
 
     def _notify_progress(self, progress):
         # set subject with the appropriate state to broadcast

@@ -140,9 +140,13 @@ def toy_pre_trained_model():
         'relu1',
         'maxpool1',
     )
-    # layers we pick that capture the 'style' features of an image
+    # layers we pick to use for our Neural Network
+    network_layers = ('conv1_1',)
 
-    style_layers = ('conv1_1',)
+    # layers we pick that capture the 'style' features of an image
+    # we place equal weights on each layer when computing the weighted 'style cost'
+    weight = 1.0 / len(network_layers)
+    style_layers = [(layer_id, weight) for layer_id in network_layers]
     import numpy as np
     from functools import reduce
     convo_w_weights_shape = (3, 3, 3, 4)
@@ -160,7 +164,8 @@ def toy_pre_trained_model():
     return {
         'parameters_loader': load_parameters,
         'model_layers': model_layers,
-        'picked_layers': style_layers,
+        'network_layers': network_layers,
+        'style_layers': style_layers,
     }
 
 
@@ -168,3 +173,43 @@ def toy_pre_trained_model():
 def image_manager_class():
     from artificial_artwork.nst_image import ImageManager
     return ImageManager
+
+
+@pytest.fixture
+def pre_trained_models(toy_pre_trained_model):
+    
+    from artificial_artwork.pretrained_model.model_loader import load_default_model_parameters
+    from artificial_artwork.pretrained_model.vgg_architecture import LAYERS as vgg_layers
+    from artificial_artwork.pretrained_model.image_model import LAYERS as picked_layers
+    from artificial_artwork.cli import STYLE_LAYERS
+
+    return {
+        # Production vgg pretrained model
+        'vgg': type('PretrainedModel', (), {
+            'parameters_loader': load_default_model_parameters,
+            'vgg_layers': vgg_layers,
+            'network_layers': picked_layers,
+            'style_layers': STYLE_LAYERS,
+            'output_layer': 'conv4_2'
+        }),
+        # Toy simulated pretrained model for (mock) testing
+        'toy': type('PretrainedModel', (), {
+            'parameters_loader': toy_pre_trained_model['parameters_loader'],
+            'vgg_layers': toy_pre_trained_model['model_layers'],
+            'network_layers': toy_pre_trained_model['network_layers'],
+            'style_layers': toy_pre_trained_model['style_layers'],
+            'output_layer': 'conv1_1'
+        }),
+    }
+
+import os
+PRODUCTION_IMAGE_MODEL = os.environ.get('AA_VGG_19', 'PRETRAINED_MODEL_NOT_FOUND')
+
+
+@pytest.fixture
+def pre_trained_model(pre_trained_models):
+    import os
+    return {
+        True: pre_trained_models['vgg'],
+        False: pre_trained_models['toy'],
+    }[os.path.isfile(PRODUCTION_IMAGE_MODEL)]

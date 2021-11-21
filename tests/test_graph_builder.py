@@ -3,7 +3,7 @@ import pytest
 
 @pytest.fixture
 def graph_builder():
-    from artificial_artwork.pretrained_model.model_loader import GraphBuilder
+    from artificial_artwork.style_model.graph_builder import GraphBuilder
     return GraphBuilder()
 
 

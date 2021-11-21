@@ -7,7 +7,18 @@ from .nst_tf_algorithm import NSTAlgorithmRunner
 from .termination_condition.termination_condition import TerminationConditionFacility
 from .termination_condition_adapter import TerminationConditionAdapterFactory
 from .nst_image import ImageManager
+from .pretrained_model.model_loader import load_default_model_parameters
+from .style_model.model_design import NSTModelDesign
+from .pretrained_model.image_model import LAYERS as NETWORK_DESIGN
 
+
+STYLE_LAYERS = [
+        ('conv1_1', 0.2),
+        ('conv2_1', 0.2),
+        ('conv3_1', 0.2),
+        ('conv4_1', 0.2),
+        ('conv5_1', 0.2),
+    ]
 
 @click.command()
 @click.argument('content_image')
@@ -18,13 +29,7 @@ from .nst_image import ImageManager
 def cli(content_image, style_image, interactive, iterations, location):
 
     TERMINATION_CONDITION = 'max-iterations'
-    STYLE_LAYERS = [
-        ('conv1_1', 0.2),
-        ('conv2_1', 0.2),
-        ('conv3_1', 0.2),
-        ('conv4_1', 0.2),
-        ('conv5_1', 0.2),
-    ]
+    
 
     import numpy as np
     from artificial_artwork.image.image_operations import noisy, reshape_image, subtract, convert_to_uint8
@@ -50,10 +55,6 @@ def cli(content_image, style_image, interactive, iterations, location):
         print('Exiting..')
         exit(1)
 
-    # image_factory = ImageFactory(Disk.load_image)
-    # content_image = image_factory.from_disk(content_image, reshape_and_normalize_pipeline)
-    # style_image = image_factory.from_disk(style_image, reshape_and_normalize_pipeline)   
-
     termination_condition = TerminationConditionFacility.create(
         TERMINATION_CONDITION, iterations)
     termination_condition_adapter = TerminationConditionAdapterFactory.create(
@@ -70,24 +71,19 @@ def cli(content_image, style_image, interactive, iterations, location):
 
     algorithm = NSTAlgorithm(algorithm_parameters)
 
-    # algorithm_runner = NSTAlgorithmRunner.default(
-    #     algorithm,
-    #     image_factory.image_processor.noisy
-    # )
-
     noisy_ratio = 0.6  # ratio
 
-    # NEW
     algorithm_runner = NSTAlgorithmRunner.default(
         algorithm,
-        lambda matrix: noisy(matrix, noisy_ratio)
+        lambda matrix: noisy(matrix, noisy_ratio),
+        NSTModelDesign(NETWORK_DESIGN, load_default_model_parameters)
     )
 
     algorithm_runner.progress_subject.add(
         termination_condition_adapter,
     )
-    algorithm_runner.peristance_subject.add(
+    algorithm_runner.persistance_subject.add(
         StylingObserver(Disk.save_image, convert_to_uint8)
     )
-
+    
     algorithm_runner.run()
