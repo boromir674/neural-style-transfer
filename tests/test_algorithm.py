@@ -14,19 +14,6 @@ def image_file_names():
         'style': 'blue-red_w300-h225.jpg'
     })
 
-# @pytest.fixture
-# def monkeypatch_model(toy_pre_trained_model, monkeypatch):
-#     def patch():
-#         import artificial_artwork.pretrained_model.model_loader as ml
-#         def toy_callback():
-#             print('------\nTOY LOAD MODEL CALL ---------\n')
-#             return toy_pre_trained_model['parameters_loader']
-#         monkeypatch.setattr(
-#             ml,
-#             'load_default_model_parameters',
-#             toy_callback)
-#     return patch
-
 
 @pytest.fixture
 def image_manager(image_manager_class):
@@ -98,9 +85,7 @@ def get_algorithm_runner(create_algorithm, create_production_algorithm_runner, p
         algorithm = create_algorithm(
             image_manager.content_image,
             image_manager.style_image,
-            # [(layer_id, style_layers_weight) for layer_id in pre_trained_model['picked_layers']],
             pre_trained_model.style_layers,
-            # [(toy_pre_trained_model['picked_layers'][0], 1.0)],
             termination_condition_adapter,
             location
         )
@@ -145,31 +130,3 @@ def test_nst_runner(
     template_string = image_file_names.content + '+' + image_file_names.style + '-' + '{}' + '.png'
     assert os.path.isfile(os.path.join(tmpdir, template_string.format(1)))
     assert os.path.isfile(os.path.join(tmpdir, template_string.format(ITERATIONS)))
-
-
-# def test_running_cli(image_file_names, test_image, monkeypatch_model, tmpdir):
-#     """Test the main function of the cli; perform neural style transfer.
-
-#     Runs a simple 'smoke test' by iterating only 3 times.
-#     """
-#     import os
-#     # if 'AA_VGG_19' not in os.environ:
-#     monkeypatch_model()
-#     iterations = 3
-#     response = runner.invoke(cli, [
-#         test_image(image_file_names.content),
-#         test_image(image_file_names.style),
-#         '--iterations',
-#         str(iterations),
-#         '--location',
-#         tmpdir,
-#     ])
-#     print(response.output)
-#     # print(response.stderr)
-#     print(response.exception)
-#     print(response.exc_info)
-#     assert response.exit_code == 0
-    
-#     template_string = image_file_names.content + '+' + image_file_names.style + '-' + '{}' + '.png'
-#     assert os.path.isfile(os.path.join(tmpdir, template_string.format(1)))
-#     assert os.path.isfile(os.path.join(tmpdir, template_string.format(iterations)))
