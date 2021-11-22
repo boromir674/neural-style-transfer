@@ -147,9 +147,12 @@ and the pretrained model are present. That way you can immediately start creatin
 
     docker pull boromir674/neural-style-transfer
 
-    mkdir nst-output
+    export NST_OUTPUT=/home/$USER/nst-output
 
-    docker run -it --rm -v nst-output:/app/nst-output boromir674/neural-style-transfer
+    CONTENT=/path/to/content-image.jpg
+    STYLE=/path/to/style-image.jpg
+
+    docker run -it --rm -v $NST_OUTPUT:/nst-output boromir674/neural-style-transfer $STYLE $CONTENT --iteratins 200 --location /nst-output
 
 
 
