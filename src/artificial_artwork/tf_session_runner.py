@@ -19,12 +19,15 @@ class TensorflowSessionRunner(Proxy):
         self.args_history: List[str] = []
 
     def request(self, *args, **kwargs):
-        self.args_history.append(f"ARGS: [{', '.join((str(_) for _ in args))}], KWARGS: [{', '.join((f'{k}={v}' for k, v in kwargs.items()))}]")
+        args_str = f"[{', '.join((str(_) for _ in args))}]"
+        kwargs_str = f"[{', '.join((f'{k}={v}' for k, v in kwargs.items()))}]"
+        self.args_history.append(f"ARGS: {args_str}, KWARGS: {kwargs_str}")
         try:
         # We know that Proxy executes request by executing the request method on the subject
             return super().request(*args, **kwargs)
-        except Exception as e:
-            raise e
+        except Exception as tensorflow_error:
+            raise TensorflowSessionRunError('Tensorflow error occured, when'
+            f'running session with input args {args_str} and kwargs {kwargs_str}') from tensorflow_error
 
     @property
     def session(self):
@@ -39,3 +42,6 @@ class TensorflowSessionRunner(Proxy):
         tf.compat.v1.disable_eager_execution()
         return TensorflowSessionRunner(TensorflowSessionRunnerSubject(
             tf.compat.v1.InteractiveSession()))
+
+
+class TensorflowSessionRunError(Exception): pass

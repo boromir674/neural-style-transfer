@@ -5,11 +5,11 @@ import tensorflow as tf
 
 
 class GraphBuilder:
-    
+
     def __init__(self):
         self.graph = {}
         self._prev_layer = None
-    
+
     def _build_layer(self, layer_id: str, layer):
         self.graph[layer_id] = layer
         self._prev_layer = layer
@@ -20,14 +20,15 @@ class GraphBuilder:
         return self._build_layer(layer_id, tf.Variable(np.zeros((1, height, width, nb_channels)), dtype=dtype))
 
     def avg_pool(self, layer_id: str):
-        return self._build_layer(layer_id, tf.nn.avg_pool(self._prev_layer, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME'))
+        return self._build_layer(layer_id,
+            tf.nn.avg_pool(self._prev_layer, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME'))
 
     def relu_conv_2d(self, layer_id: str, layer_weights: Tuple[NDArray, NDArray]):
         """A Relu wrapped around a convolutional layer.
-        
+
         Will use the layer_id to find weight (for W and b matrices) values in
         the pretrained model (layer).
-        
+
         Also uses the layer_id to as dict key to the output graph.
         """
         W, b = layer_weights

@@ -1,5 +1,4 @@
-""" 
-"""
+
 def vgg_layers():
     """The network's layer structure of the vgg image model."""
     return (

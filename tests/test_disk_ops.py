@@ -15,7 +15,7 @@ def images_to_save(test_image):
 def test_save_operation(image_id, expected_size, disk, images_to_save, tmpdir):
     import os
     target_file = os.path.join(tmpdir, image_id)
-    disk.save_image(images_to_save[image_id], target_file, format='png')
+    disk.save_image(images_to_save[image_id], target_file, save_format='png')
     # assert actual size of file in disk matches the expected size
     assert os.path.getsize(target_file) == expected_size
 

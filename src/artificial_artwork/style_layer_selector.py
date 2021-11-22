@@ -1,5 +1,5 @@
-import attr
 from typing import List, Tuple, Iterable
+import attr
 
 
 @attr.s
@@ -25,13 +25,12 @@ class NSTLayersSelection:
 
     @classmethod
     def from_tuples(cls, layers: List[Tuple[str, float]]):
-        print('FROM_TUPLES:', 'layers ->', layers)
         return NSTLayersSelection([NSTStyleLayer(*layer) for layer in layers])
 
     @property
     def layers(self) -> List[NSTStyleLayer]:
         return self._layers
-    
+
     @layers.setter
     def layers(self, layers) -> None:
         """Set the Style Layers selection.

@@ -10,7 +10,7 @@ class ImageManager:
     image_factory: ImageFactory = \
         attr.ib(init=False, default=attr.Factory(lambda: ImageFactory(Disk.load_image)))
     images_compatible: bool = attr.ib(init=False, default=False)
-    
+
     _known_types = attr.ib(init=False, default={'content', 'style'})
 
     def __attrs_post_init__(self):
@@ -41,7 +41,7 @@ class ImageManager:
     @content_image.setter
     def content_image(self, image):
         self._set_image(image, 'content')
-    
+
     @property
     def style_image(self):
         return self._style_image

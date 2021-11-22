@@ -1,7 +1,7 @@
-from typing import Callable, Dict, Protocol, Any, Iterable
-from numpy.typing import NDArray
 import re
+from typing import Callable, Dict, Protocol, Any, Iterable
 import attr
+from numpy.typing import NDArray
 
 from artificial_artwork.pretrained_model.model_parameters_utils import get_layers, vgg_weights
 from artificial_artwork.pretrained_model.layers_getter import ModelReporter
@@ -45,7 +45,7 @@ class GraphFactory:
             ModelReporter(cls.layers_extractor(model_design.parameters_loader()),
             vgg_weights)
         ).make_layers(model_design.network_layers)
-        
+
         return cls.builder.graph
 
 
@@ -55,18 +55,18 @@ class LayerMaker:
     reporter = attr.ib()
     layers_design = attr.ib(default=None)
     layer_callbacks = attr.ib(init=False, default=attr.Factory(lambda self: {
-            'conv': self._relu,
+            'conv': self.relu,
             'avgpool': self.graph_builder.avg_pool
         }, takes_self=True)
     )
 
-    def _relu(self, layer_id: str):
+    def relu(self, layer_id: str):
         return self.graph_builder.relu_conv_2d(layer_id, self.reporter.get_weights(layer_id))
 
     def layer(self, layer_id: str):
         matched_string = re.match(r'(\w+?)[\d_]*$', layer_id).group(1)
         return self.layer_callbacks[matched_string](layer_id)
-      
+
     def make_layers(self, layers: Iterable[str]):
         for layer_id in layers:
             self.layer(layer_id)

@@ -1,4 +1,6 @@
+import sys
 import click
+import numpy as np
 
 from .disk_operations import Disk
 from .styling_observer import StylingObserver
@@ -10,6 +12,7 @@ from .nst_image import ImageManager
 from .pretrained_model.model_loader import load_default_model_parameters
 from .style_model.model_design import NSTModelDesign
 from .pretrained_model.image_model import LAYERS as NETWORK_DESIGN
+from .image.image_operations import noisy, reshape_image, subtract, convert_to_uint8
 
 
 STYLE_LAYERS = [
@@ -18,7 +21,8 @@ STYLE_LAYERS = [
         ('conv3_1', 0.2),
         ('conv4_1', 0.2),
         ('conv5_1', 0.2),
-    ]
+]
+
 
 @click.command()
 @click.argument('content_image')
@@ -28,11 +32,7 @@ STYLE_LAYERS = [
 @click.option('--location', '-l', type=str, default='.')
 def cli(content_image, style_image, interactive, iterations, location):
 
-    TERMINATION_CONDITION = 'max-iterations'
-    
-
-    import numpy as np
-    from artificial_artwork.image.image_operations import noisy, reshape_image, subtract, convert_to_uint8
+    termination_condition = 'max-iterations'
 
     # todo dynamically find means
     means = np.array([123.68, 116.779, 103.939]).reshape((1,1,1,3))  # means
@@ -53,12 +53,12 @@ def cli(content_image, style_image, interactive, iterations, location):
         f"'color_channels': {image_manager.style_image.matrix.shape}")
         print('Expected to receive images (matrices) of identical shape')
         print('Exiting..')
-        exit(1)
+        sys.exit(1)
 
     termination_condition = TerminationConditionFacility.create(
-        TERMINATION_CONDITION, iterations)
+        termination_condition, iterations)
     termination_condition_adapter = TerminationConditionAdapterFactory.create(
-        TERMINATION_CONDITION, termination_condition)
+        termination_condition, termination_condition)
     print(f' -- Termination Condition: {termination_condition}')
 
     algorithm_parameters = AlogirthmParameters(
@@ -85,5 +85,5 @@ def cli(content_image, style_image, interactive, iterations, location):
     algorithm_runner.persistance_subject.add(
         StylingObserver(Disk.save_image, convert_to_uint8)
     )
-    
+
     algorithm_runner.run()

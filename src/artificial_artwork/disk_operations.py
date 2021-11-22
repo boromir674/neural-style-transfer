@@ -6,16 +6,16 @@ from .disk_interface import DiskInterface
 
 class Disk(DiskInterface):
     """Save or load images to and from the disk."""
-    
+
     @staticmethod
-    def save_image(image: NDArray, file_path: str, format=None) -> None:
+    def save_image(image: NDArray, file_path: str, save_format=None) -> None:
         """Save a numpy ndarray into a file on the disk.
 
         Args:
             image (NDArray): the image to save into a file
             file_path (str): the path (on the disk) of the file
         """
-        imageio.imsave(file_path, image, format=format)
+        imageio.imsave(file_path, image, format=save_format)
 
     @staticmethod
     def load_image(file_path: str) -> NDArray:
