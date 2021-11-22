@@ -34,10 +34,7 @@ def noisy(image: NDArray, ratio: float) -> NDArray:
     if ratio < 0 or 1 < ratio:
         raise InvalidRatioError('Expected a ratio value x such that 0 <= x <= 1')
 
-    prod_shape = image.shape
-    # assert prod_shape == (1, self.config.image_height, self.config.image_width, self.config.color_channels)
-
-    noise_image = np.random.uniform(-20, 20, prod_shape).astype('float32')
+    noise_image = np.random.uniform(-20, 20, image.shape).astype('float32')
 
     # Set the input_image to be a weighted average of the content_image and a noise_image
     return noise_image * ratio + image * (1 - ratio)

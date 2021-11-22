@@ -143,7 +143,6 @@ class NSTStyleCostComputer:
 
             # Select the output tensor of the currently selected layer
             out = nst_style_layer.neurons
-            # out = model[layer_name]
 
             # Set a_S to be the hidden layer activation from the layer we have selected, by running the session on out
             a_S = tf_session.run(out)

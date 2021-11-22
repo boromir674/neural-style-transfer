@@ -3,11 +3,9 @@ import attr
 from artificial_artwork.utils.subclass_registry import SubclassRegistry
 from .termination_condition_interface import TerminationConditionInterface
 
-# TODO: learn how to use the Abstract class implementing a generic interface
-# and then inherit from the Abstract class
-# T = TypeVar('T')
-
-# class AbstractTerminationCondition(TerminationConditionInterface, Generic[T]): pass
+# Future work: use an Abstract class while also inheriting from a generic
+# interface
+# class AbstractTerminationCondition(TerminationConditionInterface, Generic[T])
 
 
 class TerminationFactory(metaclass=SubclassRegistry):
