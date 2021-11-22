@@ -1,5 +1,5 @@
+from typing import Protocol, Callable, List
 import attr
-from typing import Protocol, Any, Callable, List
 from numpy.typing import NDArray
 
 from .image_processor import ImageProcessor

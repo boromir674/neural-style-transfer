@@ -6,7 +6,7 @@ class DiskInterface(ABC):
 
     @staticmethod
     @abstractmethod
-    def save_image(image: NDArray, file_path: str, format=None) -> None:
+    def save_image(image: NDArray, file_path: str, save_format=None) -> None:
         raise NotImplementedError
 
     @staticmethod

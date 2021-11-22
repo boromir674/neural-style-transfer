@@ -1,8 +1,7 @@
+from time import time
 from typing import Dict
 import attr
 import tensorflow as tf
-from time import time
-
 
 from .tf_session_runner import TensorflowSessionRunner
 from .style_model import graph_factory
@@ -73,7 +72,7 @@ class NSTAlgorithmRunner:
         )
 
         self.nn_builder.assign_input(s_image.matrix)
-        
+
         # manually set the neurons attribute for each NSTStyleLayer
         # using the loaded cv model (which is a dict of layers)
         # the NSTStyleLayer ids attribute to query the dict
@@ -95,7 +94,7 @@ class NSTAlgorithmRunner:
 
         print(' --- Preparing Iterative Learning Algorithm ---')
         input_image = noisy_content_image_matrix
-        
+
         # Initialize global variables (you need to run the session on the initializer)
         self.session_runner.run(tf.compat.v1.global_variables_initializer())
 
@@ -124,7 +123,7 @@ class NSTAlgorithmRunner:
                     'content-cost': Jc,
                     'style-cost': Js,
                 })
-            progress['metrics']['duration'] = time() - self.time_started,  # in seconds
+            progress['metrics']['duration'] = time() - self.time_started  # in seconds
             self._notify_progress(progress)
             i += 1
 
@@ -143,7 +142,7 @@ class NSTAlgorithmRunner:
     def iterate(self, image_model):
         # Run the session on the train_step to minimize the total cost
         self.session_runner.run([self.optimization.train_step])
-                    
+
         # Compute the generated image by running the session on the current model['input']
         generated_image = self.session_runner.run(image_model['input'])
         return generated_image
@@ -200,8 +199,8 @@ class NeuralNetBuilder:
     a_G = attr.ib(init=False, default=None)
 
     def assign_input(self, image):
-        # Assign the content image to be the input of the VGG model.  
-        self.session.run(self.model['input'].assign(image))    
+        # Assign the content image to be the input of the VGG model.
+        self.session.run(self.model['input'].assign(image))
 
     def build_activations(self, content_image, model_layer_id: str):
         self.assign_input(content_image)
@@ -216,7 +215,7 @@ class NeuralNetBuilder:
         # Set a_C to be the hidden layer activation from the layer we have selected
         self.a_C = self.session.run(self.output_neurons)
 
-        # Set a_G to be the hidden layer activation from same layer. Here, a_G references model['conv4_2'] 
+        # Set a_G to be the hidden layer activation from same layer. Here, a_G references model['conv4_2']
         # and isn't evaluated yet. Later in the code, we'll assign the image G as the model input, so that
         # when we run the session, this will be the activations drawn from the appropriate layer, with G as input.
         self.a_G = self.output_neurons
@@ -243,6 +242,27 @@ class CostBuilder:
         self.style_cost = self.compute_style_cost(tf_session, style_layers)
 
     def build_cost(self, alpha=10, beta=40):
+        """Build the function of the Total Cost (loss function).
+
+        The Total Cost function J(G) (learning error) is the linear combination
+        of the 'content cost' (J_content) and 'style cost' (J_style).
+
+        After invoking this method the Cost Function is accessible via the
+        'cost' attribute.
+
+        Total cost = alpha * J_content + beta * J_style
+
+        Or mathematically expressed as:
+
+        J(G) = alpha * J_content(C, G) + beta * J_style(S, G)
+
+        where G: Generated Image, C: Content Image, S: Style Image
+        and J, J_content, J_style are mathematical functions
+
+        Args:
+            alpha (float, optional): hyperparameter to weight content cost. Defaults to 10.
+            beta (float, optional): hyperparameter to weight style cost. Defaults to 40.
+        """
         self.cost = self.cost_function(self.content_cost, self.style_cost, alpha=alpha, beta=beta)
 
 

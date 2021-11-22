@@ -1,6 +1,6 @@
+from typing import Tuple
 import numpy as np
 from numpy.typing import NDArray
-from typing import Tuple
 
 
 def reshape_image(image: NDArray, shape: Tuple[int, ...]) -> NDArray:
@@ -18,12 +18,12 @@ def subtract(image: NDArray, array: NDArray) -> NDArray:
 
     Returns:
         NDArray: [description]
-    """ 
+    """
     try:
         return image - array
-    except ValueError as numpy_broadcast_error: 
+    except ValueError as numpy_broadcast_error:
         raise ShapeMissmatchError(
-            f'Expected arrays with matching shapes.') from numpy_broadcast_error
+            'Expected arrays with matching shapes.') from numpy_broadcast_error
 
 
 class ShapeMissmatchError(Exception): pass
@@ -32,7 +32,7 @@ class ShapeMissmatchError(Exception): pass
 def noisy(image: NDArray, ratio: float) -> NDArray:
     """Generates a noisy image by adding random noise to the content_image"""
     if ratio < 0 or 1 < ratio:
-        raise InvalidRatioError('Expected a ratio value x such that 0 <= x <= 1') 
+        raise InvalidRatioError('Expected a ratio value x such that 0 <= x <= 1')
 
     prod_shape = image.shape
     # assert prod_shape == (1, self.config.image_height, self.config.image_width, self.config.color_channels)
@@ -53,22 +53,22 @@ class ImageDTypeConverter:
     def __call__(self, image: NDArray):
         return self._convert_to_uint8(image)
 
-    def _convert_to_uint8(self, im):
+    def _convert_to_uint8(self, image):
         bitdepth = 8
         out_type = type(self).bit_2_data_type[bitdepth]
-        mi = np.nanmin(im)
-        ma = np.nanmax(im)
-        if not np.isfinite(mi):
+        min_pixel_value = np.nanmin(image)
+        max_pixel_value = np.nanmax(image)
+        if not np.isfinite(min_pixel_value):
             raise ValueError("Minimum image value is not finite")
-        if not np.isfinite(ma):
+        if not np.isfinite(max_pixel_value):
             raise ValueError("Maximum image value is not finite")
-        if ma == mi:
-            return im.astype(out_type)
+        if max_pixel_value == min_pixel_value:
+            return image.astype(out_type)
 
         # Make float copy before we scale
-        im = im.astype("float64")
+        im = image.astype("float64")
         # Scale the values between 0 and 1 then multiply by the max value
-        im = (im - mi) / (ma - mi) * (np.power(2.0, bitdepth) - 1) + 0.499999999
+        im = (im - min_pixel_value) / (max_pixel_value - min_pixel_value) * (np.power(2.0, bitdepth) - 1) + 0.499999999
         assert np.nanmin(im) >= 0
         assert np.nanmax(im) < np.power(2.0, bitdepth)
         im = im.astype(out_type)
