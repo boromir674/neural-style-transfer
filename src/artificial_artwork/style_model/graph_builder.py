@@ -17,7 +17,8 @@ class GraphBuilder:
 
     def input(self, image_specs):
         self.graph = {}
-        return self._build_layer('input', tf.Variable(np.zeros((1, image_specs.height, image_specs.width, image_specs.color_channels)), dtype='float32'))
+        return self._build_layer('input', tf.Variable(np.zeros(
+            (1, image_specs.height, image_specs.width, image_specs.color_channels)), dtype='float32'))
 
     def avg_pool(self, layer_id: str):
         return self._build_layer(layer_id,

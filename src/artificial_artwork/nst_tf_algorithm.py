@@ -11,11 +11,12 @@ from .utils.notification import Subject
 
 @attr.s
 class NSTAlgorithmRunner:
-    nst_algorithm = attr.ib()
     session_runner = attr.ib()
     apply_noise = attr.ib()
     model_design = attr.ib()
     optimization = attr.ib(default=attr.Factory(lambda: Optimization()))
+
+    nst_algorithm = attr.ib(init=False, default=None)
 
     nn_builder = attr.ib(init=False, default=None)
     nn_cost_builder = attr.ib(init=False, default=None)
@@ -27,14 +28,15 @@ class NSTAlgorithmRunner:
     NETWORK_OUTPUT = 'conv4_2'
 
     @classmethod
-    def default(cls, nst_algorithm, apply_noise, model_design):
+    def default(cls, apply_noise, model_design):
         session_runner = TensorflowSessionRunner.with_default_graph_reset()
-        return NSTAlgorithmRunner(nst_algorithm, session_runner, apply_noise, model_design)
+        return NSTAlgorithmRunner(session_runner, apply_noise, model_design)
 
-    def run(self):
+    def run(self, nst_algorithm):
         ## Prepare ##
-        c_image = self.nst_algorithm.parameters.content_image
-        s_image = self.nst_algorithm.parameters.style_image
+        self.nst_algorithm = nst_algorithm
+        c_image = nst_algorithm.parameters.content_image
+        s_image = nst_algorithm.parameters.style_image
 
         image_specs = type('ImageSpecs', (), {
             'height': c_image.matrix.shape[1],
@@ -97,8 +99,9 @@ class NSTAlgorithmRunner:
 
         # Run the noisy input image (initial generated image) through the model
         self.session_runner.run(style_network['input'].assign(input_image))
+        self.perform_nst(style_network)
 
-        # Iterate
+    def perform_nst(self, style_network):
         print(' --- Running Iterative Algorithm ---')
 
         i = 0
