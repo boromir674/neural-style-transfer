@@ -5,7 +5,7 @@ import tensorflow as tf
 
 from .tf_session_runner import TensorflowSessionRunner
 from .style_model import graph_factory
-from .cost_computer import NSTCostComputer, NSTContentCostComputer, NSTStyleCostComputer
+from .cost_computer import NSTContentCostComputer, NSTStyleCostComputer
 from .utils.notification import Subject
 
 
@@ -59,7 +59,6 @@ class NSTAlgorithmRunner:
         self.nn_builder.build_activations(c_image.matrix, self.NETWORK_OUTPUT)
 
         self.nn_cost_builder = CostBuilder(
-            NSTCostComputer.compute,
             NSTContentCostComputer.compute,
             NSTStyleCostComputer.compute,
         )
@@ -221,7 +220,6 @@ class NeuralNetBuilder:
 
 @attr.s
 class CostBuilder:
-    cost_function = attr.ib()
     compute_content_cost = attr.ib()
     compute_style_cost = attr.ib()
 
@@ -261,7 +259,7 @@ class CostBuilder:
             alpha (float, optional): hyperparameter to weight content cost. Defaults to 10.
             beta (float, optional): hyperparameter to weight style cost. Defaults to 40.
         """
-        self.cost = self.cost_function(self.content_cost, self.style_cost, alpha=alpha, beta=beta)
+        self.cost = alpha * self.content_cost + beta * self.style_cost
 
 
 @attr.s
