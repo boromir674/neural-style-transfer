@@ -53,12 +53,6 @@ def session():
     return MySession  
 
 
-# @pytest.fixture
-# def default_image_processing_config():
-#     from artificial_artwork.image import ImageProcessingConfig
-#     return ImageProcessingConfig.from_image_dimensions()
-
-
 @pytest.fixture
 def image_factory():
     """Production Image Factory.
@@ -133,9 +127,6 @@ def broadcaster_class():
 @pytest.fixture
 def toy_pre_trained_model():
     model_layers = (
-        # (0, 'conv'),
-        # (1, 'relu'),
-        # (2, 'maxpool'),
         'conv1_1',
         'relu1',
         'maxpool1',
@@ -175,11 +166,64 @@ def image_manager_class():
     return ImageManager
 
 
+## Supported pretrained models and their expected layers
+
 @pytest.fixture
-def pre_trained_models(toy_pre_trained_model):
+def vgg_layers():
+    """The vgg image model network's layer structure."""
+    VGG_LAYERS = (
+        (0, 'conv1_1') ,  # (3, 3, 3, 64)
+        (1, 'relu1_1') ,
+        (2, 'conv1_2') ,  # (3, 3, 64, 64)
+        (3, 'relu1_2') ,
+        (4, 'pool1')   ,  # maxpool
+        (5, 'conv2_1') ,  # (3, 3, 64, 128)
+        (6, 'relu2_1') ,
+        (7, 'conv2_2') ,  # (3, 3, 128, 128)
+        (8, 'relu2_2') ,
+        (9, 'pool2')   ,
+        (10, 'conv3_1'),  # (3, 3, 128, 256)
+        (11, 'relu3_1'),
+        (12, 'conv3_2'),  # (3, 3, 256, 256)
+        (13, 'relu3_2'),
+        (14, 'conv3_3'),  # (3, 3, 256, 256)
+        (15, 'relu3_3'),
+        (16, 'conv3_4'),  # (3, 3, 256, 256)
+        (17, 'relu3_4'),
+        (18, 'pool3')  ,
+        (19, 'conv4_1'),  # (3, 3, 256, 512)
+        (20, 'relu4_1'),
+        (21, 'conv4_2'),  # (3, 3, 512, 512)
+        (22, 'relu4_2'),
+        (23, 'conv4_3'),  # (3, 3, 512, 512)
+        (24, 'relu4_3'),
+        (25, 'conv4_4'),  # (3, 3, 512, 512)
+        (26, 'relu4_4'),
+        (27, 'pool4')  ,
+        (28, 'conv5_1'),  # (3, 3, 512, 512)
+        (29, 'relu5_1'),
+        (30, 'conv5_2'),  # (3, 3, 512, 512)
+        (31, 'relu5_2'),
+        (32, 'conv5_3'),  # (3, 3, 512, 512)
+        (33, 'relu5_3'),
+        (34, 'conv5_4'),  # (3, 3, 512, 512)
+        (35, 'relu5_4'),
+        (36, 'pool5'),
+        (37, 'fc6'),  # fullyconnected (7, 7, 512, 4096)
+        (38, 'relu6'),
+        (39, 'fc7'),  # fullyconnected (1, 1, 4096, 4096)
+        (40, 'relu7'),
+        (41, 'fc8'),  # fullyconnected (1, 1, 4096, 1000)
+        (42, 'prob'),  # softmax
+    )
+
+    return tuple((layer_id for _, layer_id in VGG_LAYERS))
+
+
+@pytest.fixture
+def pre_trained_models(vgg_layers, toy_pre_trained_model):
     
     from artificial_artwork.pretrained_model.model_loader import load_default_model_parameters
-    from artificial_artwork.pretrained_model.vgg_architecture import LAYERS as vgg_layers
     from artificial_artwork.pretrained_model.image_model import LAYERS as picked_layers
     from artificial_artwork.cli import STYLE_LAYERS
 
