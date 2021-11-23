@@ -17,7 +17,11 @@ def test_building_layers(graph_builder):
     channels = 2
     expected_input_shape = (1, height, width, channels)
 
-    graph_builder.input(width, height, nb_channels=channels)
+    graph_builder.input(type('ImageSpecs', (), {
+        'width': width,
+        'height': height,
+        'color_channels': channels
+    })())
     # assert previous layer is the 'input' layer we just added/created
     assert tuple(graph_builder._prev_layer.shape) == expected_input_shape
     assert (graph_builder._prev_layer.numpy() - graph_builder.graph['input'].numpy()).all() == 0

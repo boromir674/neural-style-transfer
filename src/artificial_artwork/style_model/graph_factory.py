@@ -39,7 +39,7 @@ class GraphFactory:
         # each average pooling layer uses custom weight values
         # all weights are guaranteed to remain constant (see GraphBuilder._conv_2d method)
 
-        cls.builder.input(config.width, config.height, nb_channels=config.color_channels)
+        cls.builder.input(config)
         LayerMaker(
             cls.builder,
             ModelReporter(cls.layers_extractor(model_design.parameters_loader()),
