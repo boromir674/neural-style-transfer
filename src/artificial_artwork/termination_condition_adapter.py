@@ -47,10 +47,10 @@ class AbstractTerminationConditionAdapter(ABC):
 
 class TerminationConditionAdapterType(type):
 
-    def __new__(mcs, *args, **kwargs):
+    def __new__(mcs, adapter_type: str):
         termination_condition_adapter_class = \
             type('TerminationConditionAdapter', (AbstractTerminationConditionAdapter,), {})
-        termination_condition_adapter_class.adapter_type = args[0]
+        termination_condition_adapter_class.adapter_type = adapter_type
 
         # The (outer) keys are usable by client code to select termination condition
         # Each (inner) 'key_name' points to the name to use to query the subject dict
