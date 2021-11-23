@@ -48,14 +48,8 @@ class NSTContentCostComputer:
         return J_content
 
 
-class GramMatrixComputer(type):
-    def __new__(mcs, *args, **kwargs):
-        class_object = super().__new__(mcs, *args, **kwargs)
-        class_object.compute_gram = gram_matrix
-        return class_object
-
-
-class NSTLayerStyleCostComputer(metaclass=GramMatrixComputer):
+class NSTLayerStyleCostComputer:
+    compute_gram = gram_matrix
 
     @classmethod
     def compute(cls, a_S, a_G):
