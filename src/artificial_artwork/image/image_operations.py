@@ -66,10 +66,7 @@ class ImageDTypeConverter:
         im = image.astype("float64")
         # Scale the values between 0 and 1 then multiply by the max value
         im = (im - min_pixel_value) / (max_pixel_value - min_pixel_value) * (np.power(2.0, bitdepth) - 1) + 0.499999999
-        assert np.nanmin(im) >= 0
-        assert np.nanmax(im) < np.power(2.0, bitdepth)
-        im = im.astype(out_type)
-        return im
+        return im.astype(out_type)
 
 
 convert_to_uint8 = ImageDTypeConverter()
