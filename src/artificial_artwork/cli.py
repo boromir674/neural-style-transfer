@@ -27,10 +27,9 @@ STYLE_LAYERS = [
 @click.command()
 @click.argument('content_image')
 @click.argument('style_image')
-@click.option('--interactive', '-i', type=bool, default=True)
-@click.option('--iterations', '-it', type=int, default=100)
+@click.option('--iterations', '-it', type=int, default=100, show_default=True)
 @click.option('--location', '-l', type=str, default='.')
-def cli(content_image, style_image, interactive, iterations, location):
+def cli(content_image, style_image, iterations, location):
 
     termination_condition = 'max-iterations'
 
