@@ -1,5 +1,7 @@
 import pytest
 
+from artificial_artwork.pretrained_model import model_handler
+
 
 @pytest.fixture
 def test_suite():
@@ -123,41 +125,65 @@ def broadcaster_class():
     return TestSubject
 
 
-
 @pytest.fixture
-def toy_pre_trained_model():
+def toy_model_data():
+    import numpy as np
+    from artificial_artwork.pretrained_model.model_handler import ModelHandlerFacility
+    from artificial_artwork.pre_trained_models.vgg import VggModelRoutines, VggModelHandler
+
+    from functools import reduce
     model_layers = (
         'conv1_1',
         'relu1',
         'maxpool1',
     )
+    convo_w_weights_shape = (3, 3, 3, 4)
+
+    class ToyModelRoutines(VggModelRoutines):
+
+        def load_layers(self, file_path: str):
+            return {
+                'layers': [[
+                    [[[[model_layers[0]], 'unused', [[
+                        np.reshape(np.array([i for i in range(1, reduce(lambda i,j: i*j, convo_w_weights_shape)+1)], dtype=np.float32), convo_w_weights_shape),
+                        np.array([5], dtype=np.float32)
+                    ]]]]],
+                    [[[[model_layers[1]], 'unused', [['W', 'b']]]]],
+                    [[[[model_layers[2]], 'unused', [['W', 'b']]]]],
+                ]]
+            }
+
+
+    toy_model_routines = ToyModelRoutines()
+
+    @ModelHandlerFacility.factory.register_as_subclass('toy')
+    class ToyModelHandler(VggModelHandler):
+        def _load_model_layers(self):
+            return toy_model_routines.load_layers('')['layers'][0]
+
+        @property
+        def model_routines(self):
+            return toy_model_routines
+
+    return type('TMD', (), {
+        # 'handler_class': ToyModelHandler,
+        'expected_layers': model_layers,
+    })
+
+
+@pytest.fixture
+def toy_network_design():
     # layers we pick to use for our Neural Network
     network_layers = ('conv1_1',)
-
-    # layers we pick that capture the 'style' features of an image
-    # we place equal weights on each layer when computing the weighted 'style cost'
     weight = 1.0 / len(network_layers)
     style_layers = [(layer_id, weight) for layer_id in network_layers]
-    import numpy as np
-    from functools import reduce
-    convo_w_weights_shape = (3, 3, 3, 4)
-    def load_parameters():
-        return {
-            'layers': [[
-                [[[['conv1_1'], 'unused', [[
-                    np.reshape(np.array([i for i in range(1, reduce(lambda i,j: i*j, convo_w_weights_shape)+1)], dtype=np.float32), convo_w_weights_shape),
-                    np.array([5], dtype=np.float32)
-                ]]]]],
-                [[[['relu1'], 'unused', [['W', 'b']]]]],
-                [[[['maxpool1'], 'unused', [['W', 'b']]]]],
-            ]]
-        }
-    return {
-        'parameters_loader': load_parameters,
-        'model_layers': model_layers,
-        'network_layers': network_layers,
+    return type('ModelDesign', (), {
+        'network_layers': (
+            'conv1_1',
+        ),
         'style_layers': style_layers,
-    }
+        'output_layer': 'conv1_1',
+    })
 
 
 @pytest.fixture
@@ -220,40 +246,41 @@ def vgg_layers():
     return tuple((layer_id for _, layer_id in VGG_LAYERS))
 
 
-@pytest.fixture
-def pre_trained_models(vgg_layers, toy_pre_trained_model):
-    
-    from artificial_artwork.pretrained_model.model_loader import load_default_model_parameters
-    from artificial_artwork.pretrained_model.image_model import LAYERS as picked_layers
-    from artificial_artwork.cli import STYLE_LAYERS
-
-    return {
-        # Production vgg pretrained model
-        'vgg': type('PretrainedModel', (), {
-            'parameters_loader': load_default_model_parameters,
-            'vgg_layers': vgg_layers,
-            'network_layers': picked_layers,
-            'style_layers': STYLE_LAYERS,
-            'output_layer': 'conv4_2'
-        }),
-        # Toy simulated pretrained model for (mock) testing
-        'toy': type('PretrainedModel', (), {
-            'parameters_loader': toy_pre_trained_model['parameters_loader'],
-            'vgg_layers': toy_pre_trained_model['model_layers'],
-            'network_layers': toy_pre_trained_model['network_layers'],
-            'style_layers': toy_pre_trained_model['style_layers'],
-            'output_layer': 'conv1_1'
-        }),
-    }
-
 import os
 PRODUCTION_IMAGE_MODEL = os.environ.get('AA_VGG_19', 'PRETRAINED_MODEL_NOT_FOUND')
 
 
 @pytest.fixture
-def pre_trained_model(pre_trained_models):
+def pre_trained_models_1(vgg_layers, toy_model_data, toy_network_design):
+    from artificial_artwork.production_networks import NetworkDesign
+    from artificial_artwork.pretrained_model.model_handler import ModelHandlerFacility
+    return {
+        'vgg': type('NSTModel', (), {
+            'pretrained_model': type('PTM', (), {
+                'expected_layers': vgg_layers,
+                'id': 'vgg',
+                'handler': ModelHandlerFacility.create('vgg'),
+            }),
+            'network_design': NetworkDesign.from_default_vgg()
+        }),
+        'toy': type('NSTModel', (), {
+            'pretrained_model': type('PTM', (), {
+                'expected_layers': toy_model_data.expected_layers,
+                'id': 'toy',
+                'handler': ModelHandlerFacility.create('toy'),
+            }),
+            'network_design': NetworkDesign(
+                toy_network_design.network_layers,
+                toy_network_design.style_layers,
+                toy_network_design.output_layer,
+            )
+        }),
+    }
+
+@pytest.fixture
+def model(pre_trained_models_1):
     import os
     return {
-        True: pre_trained_models['vgg'],
-        False: pre_trained_models['toy'],
+        True: pre_trained_models_1['vgg'],
+        False: pre_trained_models_1['toy'],
     }[os.path.isfile(PRODUCTION_IMAGE_MODEL)]

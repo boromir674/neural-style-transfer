@@ -55,7 +55,7 @@ def test_scenario(subject, observer):
             happen (or after it).
             """
             print("\nSubject: I'm doing something important.")
-            self._state = 1
+            self._state = 2
             print(f"Subject: My state has just changed to: {self._state}")
             self.notify()
 

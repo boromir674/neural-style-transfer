@@ -13,10 +13,11 @@ from .utils.notification import Subject
 class NSTAlgorithmRunner:
     session_runner = attr.ib()
     apply_noise = attr.ib()
-    model_design = attr.ib()
+    # model_design = attr.ib()
     optimization = attr.ib(default=attr.Factory(lambda: Optimization()))
 
     nst_algorithm = attr.ib(init=False, default=None)
+    parameters = attr.ib(init=False, default=None)
 
     nn_builder = attr.ib(init=False, default=None)
     nn_cost_builder = attr.ib(init=False, default=None)
@@ -25,16 +26,17 @@ class NSTAlgorithmRunner:
     progress_subject = attr.ib(init=False, default=attr.Factory(Subject))
     persistance_subject = attr.ib(init=False, default=attr.Factory(Subject))
 
-    NETWORK_OUTPUT = 'conv4_2'
+    # NETWORK_OUTPUT = 'conv4_2'
 
     @classmethod
-    def default(cls, apply_noise, model_design):
+    def default(cls, apply_noise):
         session_runner = TensorflowSessionRunner.with_default_graph_reset()
-        return NSTAlgorithmRunner(session_runner, apply_noise, model_design)
+        return NSTAlgorithmRunner(session_runner, apply_noise)
 
-    def run(self, nst_algorithm):
+    def run(self, nst_algorithm, model_design):
         ## Prepare ##
         self.nst_algorithm = nst_algorithm
+
         c_image = nst_algorithm.parameters.content_image
         s_image = nst_algorithm.parameters.style_image
 
@@ -46,7 +48,7 @@ class NSTAlgorithmRunner:
 
         print(' --- Loading CV Image Model ---')
 
-        style_network = graph_factory.create(image_specs, self.model_design)
+        style_network = graph_factory.create(image_specs, model_design)
 
         noisy_content_image_matrix = self.apply_noise(self.nst_algorithm.parameters.content_image.matrix)
 
@@ -58,7 +60,8 @@ class NSTAlgorithmRunner:
         )
 
         # indicate content_image and the output layer of the Neural Network
-        self.nn_builder.build_activations(c_image.matrix, self.NETWORK_OUTPUT)
+        self.nn_builder.build_activations(
+            c_image.matrix, model_design.network_design.output_layer)
 
         self.nn_cost_builder = CostBuilder(
             NSTContentCostComputer.compute,
@@ -75,13 +78,13 @@ class NSTAlgorithmRunner:
         # manually set the neurons attribute for each NSTStyleLayer
         # using the loaded cv model (which is a dict of layers)
         # the NSTStyleLayer ids attribute to query the dict
-        for style_layer_id, nst_style_layer in self.nst_algorithm.parameters.style_layers:
+        for style_layer_id, nst_style_layer in model_design.network_design.style_layers:
             nst_style_layer.neurons = style_network[style_layer_id]
         # TODO obviously encapsulate the above code elsewhere
 
         self.nn_cost_builder.build_style_cost(
             self.session_runner.session,
-            self.nst_algorithm.parameters.style_layers,
+            model_design.network_design.style_layers,
         )
 
         self.nn_cost_builder.build_cost(alpha=10, beta=40)

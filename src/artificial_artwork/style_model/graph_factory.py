@@ -3,8 +3,8 @@ from typing import Callable, Dict, Protocol, Any, Iterable
 import attr
 from numpy.typing import NDArray
 
-from artificial_artwork.pretrained_model.model_parameters_utils import get_layers, vgg_weights
-from artificial_artwork.pretrained_model.layers_getter import ModelReporter
+# from artificial_artwork.pretrained_model.model_parameters_utils import get_layers, vgg_weights
+# from artificial_artwork.pretrained_model.layers_getter import ModelReporter
 from .graph_builder import GraphBuilder
 
 
@@ -18,7 +18,7 @@ class ImageSpecs(Protocol):
 
 class GraphFactory:
     builder = GraphBuilder()
-    layers_extractor: Callable[[ModelParameters], NDArray] = get_layers
+    # layers_extractor: Callable[[ModelParameters], NDArray] = get_layers
 
     @classmethod
     def create(cls, config: ImageSpecs, model_design) -> Dict[str, Any]:
@@ -42,18 +42,17 @@ class GraphFactory:
         cls.builder.input(config)
         LayerMaker(
             cls.builder,
-            ModelReporter(cls.layers_extractor(model_design.parameters_loader()),
-            vgg_weights)
-        ).make_layers(model_design.network_layers)
+            model_design.pretrained_model.reporter,
+        ).make_layers(model_design.network_design.network_layers)
 
         return cls.builder.graph
 
+# ModelReporter(cls.layers_extractor(model_design.parameters_loader())
 
 @attr.s
 class LayerMaker:
     graph_builder = attr.ib()
     reporter = attr.ib()
-    layers_design = attr.ib(default=None)
     layer_callbacks = attr.ib(init=False, default=attr.Factory(lambda self: {
             'conv': self.relu,
             'avgpool': self.graph_builder.avg_pool

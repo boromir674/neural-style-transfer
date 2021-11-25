@@ -55,12 +55,11 @@ def algorithm(algorithm_parameters_class):
 
 
 @pytest.fixture
-def create_algorithm(algorithm, pre_trained_model, tmpdir):
+def create_algorithm(algorithm, tmpdir):
     def _create_algorithm(image_manager, termination_condition_adapter):
         return algorithm(
             image_manager.content_image,
             image_manager.style_image,
-            pre_trained_model.style_layers,
             termination_condition_adapter,
             tmpdir
         )
@@ -75,10 +74,9 @@ def create_production_algorithm_runner():
     from artificial_artwork.disk_operations import Disk
     
     noisy_ratio = 0.6
-    def _create_production_algorithm_runner(termination_condition_adapter, model_design):
+    def _create_production_algorithm_runner(termination_condition_adapter):
         algorithm_runner = NSTAlgorithmRunner.default(
             lambda matrix: noisy(matrix, noisy_ratio),
-            model_design
         )
 
         algorithm_runner.progress_subject.add(
@@ -92,28 +90,33 @@ def create_production_algorithm_runner():
 
 
 @pytest.fixture
-def get_algorithm_runner(create_production_algorithm_runner, pre_trained_model):
+def get_algorithm_runner(create_production_algorithm_runner):
     def _get_algorithm_runner(termination_condition_adapter):
         algorithm_runner = create_production_algorithm_runner(
             termination_condition_adapter,
-            type('ModelDesign', (), {
-                'network_layers': pre_trained_model.network_layers,
-                'parameters_loader': pre_trained_model.parameters_loader
-            })
         )
-        algorithm_runner.NETWORK_OUTPUT = pre_trained_model.output_layer
+        # algorithm_runner.NETWORK_OUTPUT = pre_trained_model.output_layer
         return algorithm_runner
     return _get_algorithm_runner
+
+
+@pytest.fixture
+def get_model_design():
+    from artificial_artwork.style_model.model_design import ModelDesign
+    def _get_model_design(handler, network_design):
+        return ModelDesign(handler, network_design)
+    return _get_model_design
 
 
 def test_nst_runner(
     get_algorithm_runner,
     create_algorithm,
     image_file_names,
+    get_model_design,
     max_iterations_adapter_factory_method,
     image_manager,
     test_image,
-    pre_trained_model,
+    model,
     tmpdir):
     """Test nst algorithm runner.
 
@@ -133,7 +136,12 @@ def test_nst_runner(
 
     algorithm = create_algorithm(image_manager, termination_condition_adapter)
 
-    algorithm_runner.run(algorithm)
+    model_design = get_model_design(
+        model.pretrained_model.handler,
+        model.network_design,
+    )
+    model_design.pretrained_model.load_model_layers()
+    algorithm_runner.run(algorithm, model_design)
 
     template_string = image_file_names.content + '+' + image_file_names.style + '-' + '{}' + '.png'
     assert os.path.isfile(os.path.join(tmpdir, template_string.format(1)))
