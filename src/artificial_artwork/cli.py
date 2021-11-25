@@ -57,12 +57,11 @@ def cli(content_image, style_image, iterations, location):
     content_image, style_image = read_images(content_image, style_image)
 
     from .production_networks import NetworkDesign
-    from .style_model.model_design import ModelDesign
     from .pretrained_model.model_handler import ModelHandlerFacility
-    model_design = ModelDesign(
-        ModelHandlerFacility.create('vgg'),
-        NetworkDesign.from_default_vgg()
-    )
+    model_design = type('ModelDesign', (), {
+        'pretrained_model': ModelHandlerFacility.create('vgg'),
+        'network_design': NetworkDesign.from_default_vgg()
+    })
     model_design.pretrained_model.load_model_layers()
 
     termination_condition_instance = TerminationConditionFacility.create(

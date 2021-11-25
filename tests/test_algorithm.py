@@ -95,16 +95,16 @@ def get_algorithm_runner(create_production_algorithm_runner):
         algorithm_runner = create_production_algorithm_runner(
             termination_condition_adapter,
         )
-        # algorithm_runner.NETWORK_OUTPUT = pre_trained_model.output_layer
         return algorithm_runner
     return _get_algorithm_runner
 
 
 @pytest.fixture
 def get_model_design():
-    from artificial_artwork.style_model.model_design import ModelDesign
     def _get_model_design(handler, network_design):
-        return ModelDesign(handler, network_design)
+        return type('ModelDesign', (), {
+            'pretrained_model': handler,
+            'network_design': network_design})
     return _get_model_design
 
 

@@ -9,11 +9,11 @@ from .model_routines import PretrainedModelRoutines
 class Modelhandler(ModelHandlerInterface):
     def __init__(self):
         self._reporter = None
-    
+
     @property
     def reporter(self):
         return self._reporter
-    
+
     @reporter.setter
     def reporter(self, layers):
         self._reporter = ModelReporter(

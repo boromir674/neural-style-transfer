@@ -35,11 +35,10 @@ def test_pretrained_model(model, graph_factory):
     for i, name in enumerate(model.pretrained_model.expected_layers):
         assert layers[i][0][0][0][0] == name
 
-    from artificial_artwork.style_model.model_design import ModelDesign
     model.pretrained_model.handler.reporter = layers
-    model_design = ModelDesign(
-        model.pretrained_model.handler,
-        model.network_design
-    )
+    model_design = type('ModelDesign', (), {
+        'pretrained_model': model.pretrained_model.handler,
+        'network_design': model.network_design
+    })
     graph = graph_factory.create(image_specs, model_design)
     assert set(graph.keys()) == set(['input'] + list(model.network_design.network_layers))
