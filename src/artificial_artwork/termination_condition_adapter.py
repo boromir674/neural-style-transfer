@@ -79,3 +79,11 @@ class TerminationConditionAdapterFactory:
     def create(cls, adapter_type: str, *args, **kwargs):
         dynamic_class = TerminationConditionAdapterClassFactory.create(adapter_type)
         return dynamic_class(*args, **kwargs)
+
+
+# class NSTTerminationConditionAdapterFactory:
+
+#     @classmethod
+#     def create(cls, adapter_type: str, *args, **kwargs):
+#         dynamic_class = TerminationConditionAdapterClassFactory.create(adapter_type)
+#         return dynamic_class(*args, **kwargs)

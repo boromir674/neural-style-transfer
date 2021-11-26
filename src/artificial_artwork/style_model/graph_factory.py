@@ -1,10 +1,8 @@
 import re
-from typing import Callable, Dict, Protocol, Any, Iterable
+from typing import Dict, Protocol, Any, Iterable
 import attr
 from numpy.typing import NDArray
 
-# from artificial_artwork.pretrained_model.model_parameters_utils import get_layers, vgg_weights
-# from artificial_artwork.pretrained_model.layers_getter import ModelReporter
 from .graph_builder import GraphBuilder
 
 
@@ -18,7 +16,6 @@ class ImageSpecs(Protocol):
 
 class GraphFactory:
     builder = GraphBuilder()
-    # layers_extractor: Callable[[ModelParameters], NDArray] = get_layers
 
     @classmethod
     def create(cls, config: ImageSpecs, model_design) -> Dict[str, Any]:
@@ -47,7 +44,6 @@ class GraphFactory:
 
         return cls.builder.graph
 
-# ModelReporter(cls.layers_extractor(model_design.parameters_loader())
 
 @attr.s
 class LayerMaker:

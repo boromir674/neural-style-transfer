@@ -5,28 +5,39 @@ from .model_handler_interface import ModelHandlerInterface
 from .layers_getter import ModelReporter
 from .model_routines import PretrainedModelRoutines
 
+from typing import Tuple, Protocol, Iterable
+from numpy.typing import NDArray
+
+
+class ReporterProtocol(Protocol):
+    def get_weights(self, layer_id: str) -> Tuple[NDArray, NDArray]: ...
+
 
 class Modelhandler(ModelHandlerInterface):
+    _reporter: ReporterProtocol
     def __init__(self):
         self._reporter = None
 
     @property
-    def reporter(self):
+    def reporter(self) -> ReporterProtocol:
         return self._reporter
 
     @reporter.setter
-    def reporter(self, layers):
-        self._reporter = ModelReporter(
+    def reporter(self, layers) -> None:
+        self._reporter = self._create_reporter(layers)
+
+    def _create_reporter(self, layers: Iterable[NDArray]) -> ReporterProtocol:
+        return ModelReporter(
             self.model_routines.get_layers_dict(layers),
             self.model_routines.get_weights
         )
 
-    def load_model_layers(self):
+    def load_model_layers(self) -> Iterable[NDArray]:
         layers = self._load_model_layers()
-        self.reporter = layers
+        self._reporter = self._create_reporter(layers)
         return layers
 
-    def _load_model_layers(self):
+    def _load_model_layers(self) -> Iterable[NDArray]:
         try:
             return self.model_routines.load_layers(os.environ[self.environment_variable])
         except KeyError as variable_not_found:
@@ -36,12 +47,15 @@ class Modelhandler(ModelHandlerInterface):
 class NoImageModelSpesifiedError(Exception): pass
 
 
-class ModelHandlerFactory(metaclass=SubclassRegistry): pass
+class ModelHandlerFactoryMeta(SubclassRegistry[Modelhandler]): pass
+
+
+class ModelHandlerFactory(metaclass=ModelHandlerFactoryMeta): pass
     
 
 class ModelHandlerFacility:
-    routines_interface = PretrainedModelRoutines
-    handler_class = Modelhandler
+    routines_interface: type = PretrainedModelRoutines
+    handler_class: type = Modelhandler
     factory = ModelHandlerFactory
 
     @classmethod

@@ -10,15 +10,14 @@ from .termination_condition.termination_condition import TerminationConditionFac
 from .termination_condition_adapter import TerminationConditionAdapterFactory
 from .nst_image import ImageManager
 from .image.image_operations import noisy, reshape_image, subtract, convert_to_uint8
-from .pre_trained_models import vgg as _
+from .production_networks import NetworkDesign
+from .pretrained_model.model_handler import ModelHandlerFacility
 
-# STYLE_LAYERS = [
-#         ('conv1_1', 0.2),
-#         ('conv2_1', 0.2),
-#         ('conv3_1', 0.2),
-#         ('conv4_1', 0.2),
-#         ('conv5_1', 0.2),
-# ]
+
+def load_pretrained_model_functions():
+    from .pre_trained_models import vgg
+    return vgg
+
 
 def read_images(content, style):
     # todo dynamically find means
@@ -56,8 +55,7 @@ def cli(content_image, style_image, iterations, location):
 
     content_image, style_image = read_images(content_image, style_image)
 
-    from .production_networks import NetworkDesign
-    from .pretrained_model.model_handler import ModelHandlerFacility
+    load_pretrained_model_functions()
     model_design = type('ModelDesign', (), {
         'pretrained_model': ModelHandlerFacility.create('vgg'),
         'network_design': NetworkDesign.from_default_vgg()

@@ -1,12 +1,13 @@
-from typing import Tuple, Dict
+from typing import Tuple, Dict, Protocol
 from numpy.typing import NDArray
 import scipy.io
 
-from artificial_artwork.pretrained_model.model_handler import ModelHandlerFacility
+
+from artificial_artwork.pretrained_model.model_routines import PretrainedModelRoutines
+from artificial_artwork.pretrained_model.model_handler import ModelHandlerFacility, Modelhandler
 
 
-# @ModelHandlerFacility.factory.register_as_subclass('vgg')
-class VggModelRoutines(ModelHandlerFacility.routines_interface):
+class VggModelRoutines(PretrainedModelRoutines):
 
     def load_layers(self, file_path: str) -> NDArray:
         return scipy.io.loadmat(file_path)['layers'][0]    
@@ -25,7 +26,7 @@ vgg_model_routines = VggModelRoutines()
 
 
 @ModelHandlerFacility.factory.register_as_subclass('vgg')
-class VggModelHandler(ModelHandlerFacility.handler_class):
+class VggModelHandler(Modelhandler):
 
     @property
     def environment_variable(self) -> str:

@@ -8,7 +8,11 @@ from .termination_condition_interface import TerminationConditionInterface
 # class AbstractTerminationCondition(TerminationConditionInterface, Generic[T])
 
 
-class TerminationFactory(metaclass=SubclassRegistry):
+class TerminationFactoryMeta(SubclassRegistry[TerminationConditionInterface]):
+    pass
+
+
+class TerminationFactory(metaclass=TerminationFactoryMeta):
     pass
 
 
