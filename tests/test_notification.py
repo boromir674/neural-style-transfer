@@ -3,13 +3,13 @@ import pytest
 
 @pytest.fixture
 def subject():
-    from artificial_artwork.utils.notification import Subject
+    from artificial_artwork.utils import Subject
     return Subject
 
 
 @pytest.fixture
 def observer():
-    from artificial_artwork.utils.notification import Observer
+    from artificial_artwork.utils import Observer
     return Observer
 
 

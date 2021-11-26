@@ -6,7 +6,7 @@ import tensorflow as tf
 from .tf_session_runner import TensorflowSessionRunner
 from .style_model import graph_factory
 from .cost_computer import NSTContentCostComputer, NSTStyleCostComputer
-from .utils.notification import Subject
+from .utils import Subject
 
 
 @attr.s

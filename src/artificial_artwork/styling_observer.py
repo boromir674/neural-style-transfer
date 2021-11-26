@@ -4,7 +4,7 @@ from attr import define
 import numpy as np
 import numpy.typing as npt
 
-from .utils.notification import Observer
+from .utils import Observer
 
 
 @define
