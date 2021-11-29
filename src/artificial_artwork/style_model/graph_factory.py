@@ -49,19 +49,28 @@ class GraphFactory:
 class LayerMaker:
     graph_builder = attr.ib()
     reporter = attr.ib()
+
     layer_callbacks = attr.ib(init=False, default=attr.Factory(lambda self: {
             'conv': self.relu,
             'avgpool': self.graph_builder.avg_pool
         }, takes_self=True)
     )
+    regex = attr.ib(init=False, default=re.compile(r'(\w+?)[\d_]*$'))
 
     def relu(self, layer_id: str):
         return self.graph_builder.relu_conv_2d(layer_id, self.reporter.get_weights(layer_id))
 
     def layer(self, layer_id: str):
-        matched_string = re.match(r'(\w+?)[\d_]*$', layer_id).group(1)
-        return self.layer_callbacks[matched_string](layer_id)
+        match_instance = self.regex.match(layer_id)
+        if match_instance is not None:
+            return self.layer_callbacks[match_instance.group(1)](layer_id)
+        raise UnknownLayerError(
+            f"Failed to construct layer '{layer_id}'. Supported layers are "
+            f"[{', '.join((k for k in self.layer_callbacks))}] and regex"
+            f"used to parse the layer is '{self.regex.pattern}'")
 
     def make_layers(self, layers: Iterable[str]):
         for layer_id in layers:
             self.layer(layer_id)
+
+class UnknownLayerError(Exception): pass

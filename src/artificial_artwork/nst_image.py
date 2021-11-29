@@ -1,7 +1,14 @@
 import attr
+from typing import Protocol
+from numpy.typing import NDArray
+
 from .image import ImageFactory
 from .disk_operations import Disk
 
+
+class ImageProtocol(Protocol):
+    path: str
+    matrix: NDArray
 
 
 @attr.s
@@ -12,6 +19,9 @@ class ImageManager:
     images_compatible: bool = attr.ib(init=False, default=False)
 
     _known_types = attr.ib(init=False, default={'content', 'style'})
+
+    _content_image: ImageProtocol
+    _style_image: ImageProtocol
 
     def __attrs_post_init__(self):
         for image_type in self._known_types:
@@ -35,17 +45,17 @@ class ImageManager:
         self.images_compatible = False
 
     @property
-    def content_image(self):
+    def content_image(self) -> ImageProtocol:
         return self._content_image
 
     @content_image.setter
-    def content_image(self, image):
+    def content_image(self, image: ImageProtocol) -> None:
         self._set_image(image, 'content')
 
     @property
-    def style_image(self):
+    def style_image(self) -> ImageProtocol:
         return self._style_image
 
     @style_image.setter
-    def style_image(self, image):
+    def style_image(self, image: ImageProtocol) -> None:
         self._set_image(image, 'style')

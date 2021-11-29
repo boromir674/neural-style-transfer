@@ -1,4 +1,4 @@
-from typing import Tuple, Dict, Protocol
+from typing import Tuple, Dict
 from numpy.typing import NDArray
 import scipy.io
 

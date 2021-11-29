@@ -26,18 +26,18 @@ class Modelhandler(ModelHandlerInterface):
     def reporter(self, layers) -> None:
         self._reporter = self._create_reporter(layers)
 
-    def _create_reporter(self, layers: Iterable[NDArray]) -> ReporterProtocol:
+    def _create_reporter(self, layers: NDArray) -> ReporterProtocol:
         return ModelReporter(
             self.model_routines.get_layers_dict(layers),
             self.model_routines.get_weights
         )
 
-    def load_model_layers(self) -> Iterable[NDArray]:
+    def load_model_layers(self) -> NDArray:
         layers = self._load_model_layers()
         self._reporter = self._create_reporter(layers)
         return layers
 
-    def _load_model_layers(self) -> Iterable[NDArray]:
+    def _load_model_layers(self) -> NDArray:
         try:
             return self.model_routines.load_layers(os.environ[self.environment_variable])
         except KeyError as variable_not_found:
