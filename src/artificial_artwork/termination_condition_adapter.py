@@ -1,7 +1,6 @@
 from abc import ABC
-from typing import Callable, Protocol, Dict, Any, Union
+from typing import Callable, Protocol, Dict, Any
 from types import MethodType
-from .termination_condition.termination_condition_interface import TerminationConditionInterface
 
 from .utils.memoize import ObjectsPool
 
@@ -9,11 +8,16 @@ from .utils.memoize import ObjectsPool
 class MetricsCapable(Protocol):
     metrics: Dict[str, Any]
 
+
+class TerminationConditionProtocol(Protocol):
+    def satisfied(self, progress: Any) -> bool: ...
+
+
 __all__ = ['TerminationConditionAdapterFactory']
 
 
 class AbstractTerminationConditionAdapter(ABC):
-    termination_condition: TerminationConditionInterface
+    termination_condition: TerminationConditionProtocol
     update: Callable[[MetricsCapable], None]
     runtime_state: Any
     mapping: Dict[str, Dict]
@@ -40,6 +44,8 @@ class AbstractTerminationConditionAdapter(ABC):
     @property
     def satisfied(self):
         return self.termination_condition.satisfied(self.runtime_state)
+
+class BaseTerminationConditionAdapter: pass
 
 
 def new_class(adapter_type: str):
