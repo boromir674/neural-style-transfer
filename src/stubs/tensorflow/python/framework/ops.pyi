@@ -1,3 +1,0 @@
-from typing import Protocol
-
-# class Tensor(Protocol): ...
