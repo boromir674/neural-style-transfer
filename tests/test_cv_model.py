@@ -1,7 +1,6 @@
 import os
 import pytest
 
-from artificial_artwork.pretrained_model.model_loader import get_vgg_19_model_path, load_default_model_parameters
 
 my_dir = os.path.dirname(os.path.realpath(__file__))
 
@@ -12,11 +11,8 @@ def graph_factory():
     return graph_factory
 
 
-# @pytest.mark.xfail(not os.path.isfile(PRODUCTION_IMAGE_MODEL),
-#     reason="No file found to load the pretrained image (cv) model.")
-def test_pretrained_model(pre_trained_model, graph_factory):
-    model_parameters = pre_trained_model.parameters_loader()
-    layers = model_parameters['layers']
+def test_pretrained_model(model, graph_factory):
+    layers = model.pretrained_model.handler.load_model_layers()
 
     image_specs = type('ImageSpecs', (), {
         'width': 400,
@@ -24,16 +20,14 @@ def test_pretrained_model(pre_trained_model, graph_factory):
         'color_channels': 3
     })()
 
-    # verify original/loaded neural network has 43 layers
-    assert len(layers[0]) == len(pre_trained_model.vgg_layers)
+    assert len(layers) == len(model.pretrained_model.expected_layers)
+    for i, name in enumerate(model.pretrained_model.expected_layers):
+        assert layers[i][0][0][0][0] == name
 
-    for i, name in enumerate(pre_trained_model.vgg_layers):
-        assert layers[0][i][0][0][0][0] == name
-
-    from artificial_artwork.style_model.model_design import NSTModelDesign
-
-    graph = graph_factory.create(image_specs, NSTModelDesign(
-        pre_trained_model.network_layers,
-        lambda: model_parameters
-    ))
-    assert set(graph.keys()) == set(['input'] + list(pre_trained_model.network_layers))
+    model.pretrained_model.handler.reporter = layers
+    model_design = type('ModelDesign', (), {
+        'pretrained_model': model.pretrained_model.handler,
+        'network_design': model.network_design
+    })
+    graph = graph_factory.create(image_specs, model_design)
+    assert set(graph.keys()) == set(['input'] + list(model.network_design.network_layers))

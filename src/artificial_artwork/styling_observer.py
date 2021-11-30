@@ -4,7 +4,7 @@ from attr import define
 import numpy as np
 import numpy.typing as npt
 
-from .utils.notification import Observer
+from .utils import Observer
 
 
 @define
@@ -39,4 +39,11 @@ class StylingObserver(Observer):
 
         if str(matrix.dtype) != 'uint8':
             matrix = self.convert_to_unit8(matrix)
+        if np.nanmin(matrix) < 0:
+            raise ImageDataValueError('Generated Image has pixel(s) with negative values.')
+        if np.nanmax(matrix) >= np.power(2.0, 8):
+            raise ImageDataValueError('Generated Image has pixel(s) with value >= 255.')
         self.save_on_disk_callback(matrix, output_file_path, save_format='png')
+
+
+class ImageDataValueError(Exception): pass

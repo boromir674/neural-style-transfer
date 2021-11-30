@@ -1,10 +1,8 @@
 import re
-from typing import Callable, Dict, Protocol, Any, Iterable
+from typing import Dict, Protocol, Any, Iterable
 import attr
 from numpy.typing import NDArray
 
-from artificial_artwork.pretrained_model.model_parameters_utils import get_layers, vgg_weights
-from artificial_artwork.pretrained_model.layers_getter import ModelReporter
 from .graph_builder import GraphBuilder
 
 
@@ -18,7 +16,6 @@ class ImageSpecs(Protocol):
 
 class GraphFactory:
     builder = GraphBuilder()
-    layers_extractor: Callable[[ModelParameters], NDArray] = get_layers
 
     @classmethod
     def create(cls, config: ImageSpecs, model_design) -> Dict[str, Any]:
@@ -39,12 +36,11 @@ class GraphFactory:
         # each average pooling layer uses custom weight values
         # all weights are guaranteed to remain constant (see GraphBuilder._conv_2d method)
 
-        cls.builder.input(config.width, config.height, nb_channels=config.color_channels)
+        cls.builder.input(config)
         LayerMaker(
             cls.builder,
-            ModelReporter(cls.layers_extractor(model_design.parameters_loader()),
-            vgg_weights)
-        ).make_layers(model_design.network_layers)
+            model_design.pretrained_model.reporter,
+        ).make_layers(model_design.network_design.network_layers)
 
         return cls.builder.graph
 
@@ -53,20 +49,29 @@ class GraphFactory:
 class LayerMaker:
     graph_builder = attr.ib()
     reporter = attr.ib()
-    layers_design = attr.ib(default=None)
+
     layer_callbacks = attr.ib(init=False, default=attr.Factory(lambda self: {
             'conv': self.relu,
             'avgpool': self.graph_builder.avg_pool
         }, takes_self=True)
     )
+    regex = attr.ib(init=False, default=re.compile(r'(\w+?)[\d_]*$'))
 
     def relu(self, layer_id: str):
         return self.graph_builder.relu_conv_2d(layer_id, self.reporter.get_weights(layer_id))
 
     def layer(self, layer_id: str):
-        matched_string = re.match(r'(\w+?)[\d_]*$', layer_id).group(1)
-        return self.layer_callbacks[matched_string](layer_id)
+        match_instance = self.regex.match(layer_id)
+        if match_instance is not None:
+            return self.layer_callbacks[match_instance.group(1)](layer_id)
+        raise UnknownLayerError(
+            f"Failed to construct layer '{layer_id}'. Supported layers are "
+            f"[{', '.join((k for k in self.layer_callbacks))}] and regex"
+            f"used to parse the layer is '{self.regex.pattern}'")
 
     def make_layers(self, layers: Iterable[str]):
         for layer_id in layers:
             self.layer(layer_id)
+
+
+class UnknownLayerError(Exception): pass

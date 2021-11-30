@@ -2,7 +2,7 @@
 from typing import List
 import tensorflow as tf
 
-from .utils.proxy import RealSubject, Proxy
+from .utils import RealSubject, Proxy
 
 
 class TensorflowSessionRunnerSubject(RealSubject):

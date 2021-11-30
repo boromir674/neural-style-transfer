@@ -1,6 +1,6 @@
 import attr
 
-from artificial_artwork.utils.subclass_registry import SubclassRegistry
+from artificial_artwork.utils import SubclassRegistry
 from .termination_condition_interface import TerminationConditionInterface
 
 # Future work: use an Abstract class while also inheriting from a generic
@@ -8,7 +8,11 @@ from .termination_condition_interface import TerminationConditionInterface
 # class AbstractTerminationCondition(TerminationConditionInterface, Generic[T])
 
 
-class TerminationFactory(metaclass=SubclassRegistry):
+class TerminationFactoryMeta(SubclassRegistry[TerminationConditionInterface]):
+    pass
+
+
+class TerminationFactory(metaclass=TerminationFactoryMeta):
     pass
 
 

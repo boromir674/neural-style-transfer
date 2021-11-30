@@ -1,8 +1,13 @@
 """Exposes the SubclassRegistry that allows to define a single registration point of one or more subclasses of a
 (common parent) class."""
 
+from typing import TypeVar, Generic, Dict
 
-class SubclassRegistry(type):
+T = TypeVar('T')
+
+
+class SubclassRegistry(type, Generic[T]):
+    subclasses: Dict[str, type]
     """Subclass Registry
 
     A (parent) class using this class as metaclass gains the 'subclasses' class attribute as well as the 'create' and
@@ -53,7 +58,7 @@ class SubclassRegistry(type):
         class_object.subclasses = {}
         return class_object
 
-    def create(cls, subclass_identifier, *args, **kwargs):
+    def create(cls, subclass_identifier, *args, **kwargs) -> T:
         """Create an instance of a registered subclass, given its unique identifier and runtime (constructor) arguments.
 
         Invokes the identified subclass constructor passing any supplied arguments. The user needs to know the arguments

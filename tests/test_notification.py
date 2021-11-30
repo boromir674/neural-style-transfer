@@ -3,13 +3,13 @@ import pytest
 
 @pytest.fixture
 def subject():
-    from artificial_artwork.utils.notification import Subject
+    from artificial_artwork.utils import Subject
     return Subject
 
 
 @pytest.fixture
 def observer():
-    from artificial_artwork.utils.notification import Observer
+    from artificial_artwork.utils import Observer
     return Observer
 
 
@@ -55,7 +55,7 @@ def test_scenario(subject, observer):
             happen (or after it).
             """
             print("\nSubject: I'm doing something important.")
-            self._state = 1
+            self._state = 2
             print(f"Subject: My state has just changed to: {self._state}")
             self.notify()
 

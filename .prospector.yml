@@ -72,8 +72,9 @@ pep257:
 mypy:
   run: false
   options:
-    ignore-missing-imports: true
-    follow-imports: skip
+    ignore-missing-imports: false
+    follow-imports: normal
+
 
 vulture:
   run: false

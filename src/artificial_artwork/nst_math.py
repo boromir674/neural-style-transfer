@@ -1,11 +1,11 @@
-from typing import Union
-from numpy.typing import NDArray
+from typing import TypeVar
 import tensorflow as tf
 
 
-# Define type alias
-VolumeType = Union[NDArray, tf.python.framework.ops.Tensor]
+# future work: narrow down the type pf matrix argument
+# VolumeType = Union[NDArray, Type[tf.python.framework.ops.Tensor]]
 
+VolumeType = TypeVar('VolumeType')
 
 def gram_matrix(matrix: VolumeType) -> VolumeType:
     """Compute the Gram matrix of input 2D matrix.

@@ -1,4 +1,4 @@
-from typing import List, Tuple, Iterable
+from typing import List, Tuple, Iterable, Protocol
 import attr
 
 
@@ -19,13 +19,17 @@ def validate_layers(layers):
         raise ValueError(f'Duplicate layers found in the selection: [{", ".join(layer_ids)}]')
 
 
+class StyleLayerSelectionProtocol(Protocol):
+    layers: List[NSTStyleLayer]
+
 @attr.s
 class NSTLayersSelection:
     _layers: List[NSTStyleLayer] = attr.ib(validator=lambda self, attribute, layers: validate_layers(layers))
 
     @classmethod
-    def from_tuples(cls, layers: List[Tuple[str, float]]):
+    def from_tuples(cls, layers: Iterable[Tuple[str, float]]) -> StyleLayerSelectionProtocol:
         return NSTLayersSelection([NSTStyleLayer(*layer) for layer in layers])
+        # return NSTLayersSelection([NSTStyleLayer(layer[0], layer[1]) for layer in layers])
 
     @property
     def layers(self) -> List[NSTStyleLayer]:

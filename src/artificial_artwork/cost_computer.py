@@ -2,28 +2,6 @@ import tensorflow as tf
 from .nst_math import gram_matrix
 
 
-class NSTCostComputer:
-    @classmethod
-    def compute(cls, quantity_a: float, quantity_b: float, alpha: float=10, beta: float=40) -> float:
-        """Compute the linear combination of the two input variables.
-
-        Computed the sumation of the 2 input numbers after multiplying with the
-        'alpha' and 'beta' coefficients.
-
-        Formula: Result = alpha * quantity_a + beta * quantity_b
-
-        Args:
-            quantity_a (float): the first number to sum
-            quantity_b (float): the second number to sum
-            alpha (float, optional): coefficient to multiply quantity_a. Defaults to 10.
-            beta (float, optional): coefficient to multiply quantity_a. Defaults to 40.
-
-        Returns:
-            (float): the result of the evaluating the linear combination formula
-        """
-        return alpha * quantity_a + beta * quantity_b
-
-
 class NSTContentCostComputer:
     @classmethod
     def compute(cls, a_C, a_G):
@@ -70,14 +48,8 @@ class NSTContentCostComputer:
         return J_content
 
 
-class GramMatrixComputer(type):
-    def __new__(mcs, *args, **kwargs):
-        class_object = super().__new__(mcs, *args, **kwargs)
-        class_object.compute_gram = gram_matrix
-        return class_object
-
-
-class NSTLayerStyleCostComputer(metaclass=GramMatrixComputer):
+class NSTLayerStyleCostComputer:
+    compute_gram = gram_matrix
 
     @classmethod
     def compute(cls, a_S, a_G):
