@@ -128,7 +128,7 @@ def broadcaster_class():
 @pytest.fixture
 def toy_model_data():
     import numpy as np
-    from artificial_artwork.pretrained_model.model_handler import ModelHandlerFacility
+    from artificial_artwork.pretrained_model import ModelHandlerFacility
     from artificial_artwork.pre_trained_models.vgg import VggModelRoutines, VggModelHandler
 
     from functools import reduce
@@ -166,7 +166,6 @@ def toy_model_data():
             return toy_model_routines
 
     return type('TMD', (), {
-        # 'handler_class': ToyModelHandler,
         'expected_layers': model_layers,
     })
 
@@ -253,7 +252,7 @@ PRODUCTION_IMAGE_MODEL = os.environ.get('AA_VGG_19', 'PRETRAINED_MODEL_NOT_FOUND
 @pytest.fixture
 def pre_trained_models_1(vgg_layers, toy_model_data, toy_network_design):
     from artificial_artwork.production_networks import NetworkDesign
-    from artificial_artwork.pretrained_model.model_handler import ModelHandlerFacility
+    from artificial_artwork.pretrained_model import ModelHandlerFacility
     return {
         'vgg': type('NSTModel', (), {
             'pretrained_model': type('PTM', (), {

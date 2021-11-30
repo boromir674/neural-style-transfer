@@ -5,8 +5,6 @@ from numpy.typing import NDArray
 from artificial_artwork.utils import SubclassRegistry
 from .model_handler_interface import ModelHandlerInterface
 from .layers_getter import ModelReporter
-from .model_routines import PretrainedModelRoutines
-
 
 
 class ReporterProtocol(Protocol):
@@ -55,7 +53,7 @@ class ModelHandlerFactory(metaclass=ModelHandlerFactoryMeta): pass
 
 
 class ModelHandlerFacility:
-    routines_interface: type = PretrainedModelRoutines
+    # routines_interface: type = PretrainedModelRoutines
     handler_class: type = Modelhandler
     factory = ModelHandlerFactory
 

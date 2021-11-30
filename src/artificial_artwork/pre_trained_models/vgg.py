@@ -4,7 +4,7 @@ import scipy.io
 
 
 from artificial_artwork.pretrained_model.model_routines import PretrainedModelRoutines
-from artificial_artwork.pretrained_model.model_handler import ModelHandlerFacility, Modelhandler
+from artificial_artwork.pretrained_model import ModelHandlerFacility, Modelhandler
 
 
 class VggModelRoutines(PretrainedModelRoutines):

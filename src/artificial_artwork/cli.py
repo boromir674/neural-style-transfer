@@ -9,7 +9,7 @@ from .nst_tf_algorithm import NSTAlgorithmRunner
 from .termination_condition_adapter_factory import TerminationConditionAdapterFactory
 from .nst_image import ImageManager, noisy, convert_to_uint8
 from .production_networks import NetworkDesign
-from .pretrained_model.model_handler import ModelHandlerFacility
+from .pretrained_model import ModelHandlerFacility
 
 
 def load_pretrained_model_functions():
