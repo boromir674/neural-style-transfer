@@ -2,7 +2,7 @@ from abc import ABC
 from typing import Callable, Protocol, Dict, Any
 from types import MethodType
 
-from .utils.memoize import ObjectsPool
+from .utils import ObjectsPool
 
 
 class MetricsCapable(Protocol):

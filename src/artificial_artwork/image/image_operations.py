@@ -3,6 +3,9 @@ import numpy as np
 from numpy.typing import NDArray
 
 
+__all__ = ['reshape_image', 'subtract', 'noisy', 'convert_to_uint8']
+
+
 def reshape_image(image: NDArray, shape: Tuple[int, ...]) -> NDArray:
     return np.reshape(image, shape)
 

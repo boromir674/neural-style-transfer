@@ -7,8 +7,7 @@ from .styling_observer import StylingObserver
 from .algorithm import NSTAlgorithm, AlogirthmParameters
 from .nst_tf_algorithm import NSTAlgorithmRunner
 from .termination_condition_adapter_factory import TerminationConditionAdapterFactory
-from .nst_image import ImageManager
-from .image.image_operations import noisy, reshape_image, subtract, convert_to_uint8
+from .nst_image import ImageManager, noisy, convert_to_uint8
 from .production_networks import NetworkDesign
 from .pretrained_model.model_handler import ModelHandlerFacility
 
@@ -24,10 +23,7 @@ def read_images(content, style):
     # todo dynamically find means
     means = np.array([123.68, 116.779, 103.939]).reshape((1,1,1,3))  # means
 
-    image_manager = ImageManager([
-        lambda matrix: reshape_image(matrix, ((1,) + matrix.shape)),
-        lambda matrix: subtract(matrix, means),  # input image must have 3 channels!
-    ])
+    image_manager = ImageManager.default(means)
 
     # probably load each image in separate thread and then join
     image_manager.load_from_disk(content, 'content')

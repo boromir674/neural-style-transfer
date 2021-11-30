@@ -28,7 +28,7 @@ class RealSubject(Subject):
         raise NotImplementedError
 
 
-# TODO use generic types to define RealSubject at runtime
+# future work use generic types to define RealSubject at runtime
 # then the client code will not have to overide the RealSubject
 class Proxy(Subject):
     """

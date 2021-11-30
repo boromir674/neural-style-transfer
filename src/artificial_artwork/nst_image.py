@@ -2,8 +2,11 @@ from typing import Protocol
 import attr
 from numpy.typing import NDArray
 
-from .image import ImageFactory
+from .image import ImageFactory, reshape_image, subtract, noisy, convert_to_uint8
 from .disk_operations import Disk
+
+
+__all__ = ['ImageManager', 'noisy', 'convert_to_uint8']
 
 
 class ImageProtocol(Protocol):
@@ -22,6 +25,13 @@ class ImageManager:
 
     _content_image: ImageProtocol
     _style_image: ImageProtocol
+
+    @staticmethod
+    def default(means):
+        return ImageManager([
+            lambda matrix: reshape_image(matrix, ((1,) + matrix.shape)),
+            lambda matrix: subtract(matrix, means),  # input image must have 3 channels!
+        ])
 
     def __attrs_post_init__(self):
         for image_type in self._known_types:
