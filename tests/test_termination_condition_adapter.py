@@ -2,9 +2,8 @@ import pytest
 
 @pytest.fixture
 def termination_condition_adapter(termination_condition):
-    from artificial_artwork.termination_condition_adapter import TerminationConditionAdapterFactory
-    termination_condition_instance = termination_condition('max-iterations', 4)
-    return TerminationConditionAdapterFactory.create('max-iterations', termination_condition_instance)
+    from artificial_artwork.termination_condition_adapter_factory import TerminationConditionAdapterFactory
+    return TerminationConditionAdapterFactory.create('max-iterations', 4)
 
 
 
@@ -21,10 +20,8 @@ def test_adapter(test_objects):
     # subscribe adapter to broadcaster
     test_objects.broadcaster.subject.attach(test_objects.adapter)
 
-    # select a loop function (from test implementations)
-
     # iterate
     iterations = test_objects.broadcaster.iterate()
 
-    # assert iterations completed are the expected nb of oiterations
+    # assert iterations completed are the expected nb of iterations
     assert iterations == 4

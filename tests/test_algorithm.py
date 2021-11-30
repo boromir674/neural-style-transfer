@@ -29,14 +29,9 @@ def image_manager(image_manager_class):
 
 @pytest.fixture
 def max_iterations_adapter_factory_method():
-    from artificial_artwork.termination_condition.termination_condition import TerminationConditionFacility
-    from artificial_artwork.termination_condition_adapter import TerminationConditionAdapterFactory
-
+    from artificial_artwork.termination_condition_adapter_factory import TerminationConditionAdapterFactory
     def create_max_iterations_termination_condition_adapter(iterations):
-        return TerminationConditionAdapterFactory.create(
-            'max-iterations', TerminationConditionFacility.create(
-                'max-iterations', iterations
-        ))
+        return TerminationConditionAdapterFactory.create('max-iterations', iterations)
     return create_max_iterations_termination_condition_adapter
 
 

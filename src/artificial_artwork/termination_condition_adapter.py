@@ -66,19 +66,3 @@ class TerminationConditionAdapterClassFactory:
     @classmethod
     def create(cls, adapter_type: str):
         return cls.classes_pool.get_object(adapter_type)
-
-
-class TerminationConditionAdapterFactory:
-
-    @classmethod
-    def create(cls, adapter_type: str, *args, **kwargs):
-        dynamic_class = TerminationConditionAdapterClassFactory.create(adapter_type)
-        return dynamic_class(*args, **kwargs)
-
-
-# class NSTTerminationConditionAdapterFactory:
-
-#     @classmethod
-#     def create(cls, adapter_type: str, *args, **kwargs):
-#         dynamic_class = TerminationConditionAdapterClassFactory.create(adapter_type)
-#         return dynamic_class(*args, **kwargs)

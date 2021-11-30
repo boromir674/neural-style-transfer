@@ -6,8 +6,7 @@ from .disk_operations import Disk
 from .styling_observer import StylingObserver
 from .algorithm import NSTAlgorithm, AlogirthmParameters
 from .nst_tf_algorithm import NSTAlgorithmRunner
-from .termination_condition.termination_condition import TerminationConditionFacility
-from .termination_condition_adapter import TerminationConditionAdapterFactory
+from .termination_condition_adapter_factory import TerminationConditionAdapterFactory
 from .nst_image import ImageManager
 from .image.image_operations import noisy, reshape_image, subtract, convert_to_uint8
 from .production_networks import NetworkDesign
@@ -62,16 +61,17 @@ def cli(content_image, style_image, iterations, location):
     })
     model_design.pretrained_model.load_model_layers()
 
-    termination_condition_instance = TerminationConditionFacility.create(
-        termination_condition, iterations)
-    termination_condition_adapter = TerminationConditionAdapterFactory.create(
-        termination_condition, termination_condition_instance)
-    print(f' -- Termination Condition: {termination_condition_instance}')
+    termination_condition = TerminationConditionAdapterFactory.create(
+        termination_condition,
+        iterations,
+    )
+
+    print(f' -- Termination Condition: {termination_condition.termination_condition}')
 
     algorithm_parameters = AlogirthmParameters(
         content_image,
         style_image,
-        termination_condition_adapter,
+        termination_condition,
         location,
     )
 
@@ -84,7 +84,7 @@ def cli(content_image, style_image, iterations, location):
     )
 
     algorithm_runner.progress_subject.add(
-        termination_condition_adapter,
+        termination_condition,
     )
     algorithm_runner.persistance_subject.add(
         StylingObserver(Disk.save_image, convert_to_uint8)
