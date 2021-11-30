@@ -29,7 +29,7 @@ This Python package runs a Neural Style Tranfer algorithm on input `content` and
       - | |docker| |image_size|
 
     * - code quality
-      - |better_code_hub| |scrutinizer|
+      - |better_code_hub| |codacy| |code_climate| |maintainability| |scrutinizer|
 
 
 
@@ -189,6 +189,18 @@ and the pretrained model are present. That way you can immediately start creatin
 .. |better_code_hub| image:: https://bettercodehub.com/edge/badge/boromir674/neural-style-transfer?branch=dev
     :alt: Better Code Hub
     :target: https://bettercodehub.com/
+
+.. |codacy| image:: https://app.codacy.com/project/badge/Grade/07b27ac547a94708aefc5e845d2b6d01
+    :alt: Codacy
+    :target: https://www.codacy.com/gh/boromir674/neural-style-transfer/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=boromir674/neural-style-transfer&amp;utm_campaign=Badge_Grade
+
+.. |code_climate| image:: https://api.codeclimate.com/v1/badges/2ea98633f88b75e87d1a/maintainability
+   :alt: Maintainability
+   :target: https://codeclimate.com/github/boromir674/neural-style-transfer/maintainability
+
+.. |maintainability| image:: https://img.shields.io/codeclimate/tech-debt/boromir674/neural-style-transfer?logo=CodeClimate
+    :alt: Technical Debt
+    :target: https://codeclimate.com/github/boromir674/neural-style-transfer/maintainability
 
 .. |scrutinizer| image:: https://img.shields.io/scrutinizer/quality/g/boromir674/neural-style-transfer/dev?logo=scrutinizer-ci
     :alt: Scrutinizer code quality
