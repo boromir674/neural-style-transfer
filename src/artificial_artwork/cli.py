@@ -14,6 +14,8 @@ from .pretrained_model.model_handler import ModelHandlerFacility
 
 
 def load_pretrained_model_functions():
+    # future work: discover dynamically the modules inside the pre_trained_model
+    # package
     from .pre_trained_models import vgg
     return vgg
 
@@ -39,7 +41,7 @@ def read_images(content, style):
         print('Expected to receive images (matrices) of identical shape')
         print('Exiting..')
         sys.exit(1)
-    
+
     return image_manager.content_image, image_manager.style_image
 
 

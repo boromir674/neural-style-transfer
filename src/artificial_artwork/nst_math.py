@@ -1,5 +1,4 @@
-from typing import TypeVar, Union, Type
-from numpy.typing import NDArray
+from typing import TypeVar
 import tensorflow as tf
 
 

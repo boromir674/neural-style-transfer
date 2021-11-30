@@ -13,9 +13,6 @@ class TerminationConditionProtocol(Protocol):
     def satisfied(self, progress: Any) -> bool: ...
 
 
-__all__ = ['TerminationConditionAdapterFactory']
-
-
 class AbstractTerminationConditionAdapter(ABC):
     termination_condition: TerminationConditionProtocol
     update: Callable[[MetricsCapable], None]

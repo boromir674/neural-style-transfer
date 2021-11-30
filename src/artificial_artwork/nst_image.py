@@ -1,5 +1,5 @@
-import attr
 from typing import Protocol
+import attr
 from numpy.typing import NDArray
 
 from .image import ImageFactory

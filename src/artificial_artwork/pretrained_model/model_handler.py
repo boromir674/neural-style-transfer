@@ -1,12 +1,12 @@
 import os
+from typing import Tuple, Protocol
+from numpy.typing import NDArray
 
 from artificial_artwork.utils.subclass_registry import SubclassRegistry
 from .model_handler_interface import ModelHandlerInterface
 from .layers_getter import ModelReporter
 from .model_routines import PretrainedModelRoutines
 
-from typing import Tuple, Protocol, Iterable
-from numpy.typing import NDArray
 
 
 class ReporterProtocol(Protocol):
@@ -44,6 +44,7 @@ class Modelhandler(ModelHandlerInterface):
             raise NoImageModelSpesifiedError(self.model_load_exception_text) \
                 from variable_not_found
 
+
 class NoImageModelSpesifiedError(Exception): pass
 
 
@@ -51,7 +52,7 @@ class ModelHandlerFactoryMeta(SubclassRegistry[Modelhandler]): pass
 
 
 class ModelHandlerFactory(metaclass=ModelHandlerFactoryMeta): pass
-    
+
 
 class ModelHandlerFacility:
     routines_interface: type = PretrainedModelRoutines

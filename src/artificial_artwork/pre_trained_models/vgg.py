@@ -10,11 +10,11 @@ from artificial_artwork.pretrained_model.model_handler import ModelHandlerFacili
 class VggModelRoutines(PretrainedModelRoutines):
 
     def load_layers(self, file_path: str) -> NDArray:
-        return scipy.io.loadmat(file_path)['layers'][0]    
+        return scipy.io.loadmat(file_path)['layers'][0]
 
     def get_id(self, layer: NDArray) -> str:
         return layer[0][0][0][0]
-    
+
     def get_layers_dict(self, layers: NDArray) -> Dict[str, NDArray]:
         return {self.get_id(layer): layers[index] for index, layer in enumerate(layers)}
 
