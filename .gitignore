@@ -13,3 +13,4 @@ build/
 *output
 uml-diagrams
 dependency-graphs
+coverage.xml

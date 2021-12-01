@@ -1,7 +1,17 @@
+from typing import Protocol
 import attr
-from .image import ImageFactory
+from numpy.typing import NDArray
+
+from .image import ImageFactory, reshape_image, subtract, noisy, convert_to_uint8
 from .disk_operations import Disk
 
+
+__all__ = ['ImageManager', 'noisy', 'convert_to_uint8']
+
+
+class ImageProtocol(Protocol):
+    path: str
+    matrix: NDArray
 
 
 @attr.s
@@ -10,8 +20,18 @@ class ImageManager:
     image_factory: ImageFactory = \
         attr.ib(init=False, default=attr.Factory(lambda: ImageFactory(Disk.load_image)))
     images_compatible: bool = attr.ib(init=False, default=False)
-    
+
     _known_types = attr.ib(init=False, default={'content', 'style'})
+
+    _content_image: ImageProtocol
+    _style_image: ImageProtocol
+
+    @staticmethod
+    def default(means):
+        return ImageManager([
+            lambda matrix: reshape_image(matrix, ((1,) + matrix.shape)),
+            lambda matrix: subtract(matrix, means),  # input image must have 3 channels!
+        ])
 
     def __attrs_post_init__(self):
         for image_type in self._known_types:
@@ -35,17 +55,17 @@ class ImageManager:
         self.images_compatible = False
 
     @property
-    def content_image(self):
+    def content_image(self) -> ImageProtocol:
         return self._content_image
 
     @content_image.setter
-    def content_image(self, image):
+    def content_image(self, image: ImageProtocol) -> None:
         self._set_image(image, 'content')
-    
+
     @property
-    def style_image(self):
+    def style_image(self) -> ImageProtocol:
         return self._style_image
 
     @style_image.setter
-    def style_image(self, image):
+    def style_image(self, image: ImageProtocol) -> None:
         self._set_image(image, 'style')

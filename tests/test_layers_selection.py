@@ -2,6 +2,18 @@ import pytest
 
 
 @pytest.fixture
+def style_layer_class():
+    from artificial_artwork.production_networks.style_layer_selector import NSTStyleLayer
+    return NSTStyleLayer
+
+
+@pytest.fixture
+def layers_selection_class():
+    from artificial_artwork.production_networks.style_layer_selector import NSTLayersSelection
+    return NSTLayersSelection
+
+
+@pytest.fixture
 def valid_style_layers():
     def _valid_style_layers_selection(nb_layers):
         return [(f'conv{index}_1', 1.0 / nb_layers) for index in range(1, nb_layers+1)]
@@ -9,25 +21,21 @@ def valid_style_layers():
 
 
 @pytest.fixture
-def valid_nst_layers_list(valid_style_layers):
-    from artificial_artwork.style_layer_selector import NSTStyleLayer
-    return [NSTStyleLayer(*layer) for layer in valid_style_layers(5)]
+def valid_nst_layers_list(valid_style_layers, style_layer_class):
+    return [style_layer_class(*layer) for layer in valid_style_layers(5)]
 
 
 @pytest.fixture
-def invalid_nst_layers_list():
-    from artificial_artwork.style_layer_selector import NSTStyleLayer
-    return [NSTStyleLayer(*layer) for layer in [
+def invalid_nst_layers_list(style_layer_class):
+    return [style_layer_class(*layer) for layer in [
         ('conv1_1', 0.2),
         ('conv2_1', 0.5),
         ('conv3_1', 0.5),]]
 
 
 @pytest.fixture
-def layers_selection(valid_style_layers):
-    from artificial_artwork.style_layer_selector import NSTLayersSelection
-    return NSTLayersSelection.from_tuples(valid_style_layers(5))
-
+def layers_selection(valid_style_layers, layers_selection_class):
+    return layers_selection_class.from_tuples(valid_style_layers(5))
 
 
 def test_layers_selection(layers_selection, valid_nst_layers_list, invalid_nst_layers_list):
@@ -57,13 +65,11 @@ def invalid_style_layers_list(request):
     return request.param
 
 
-def test_invalid_construction(invalid_style_layers_list):
-    from artificial_artwork.style_layer_selector import NSTLayersSelection
+def test_invalid_construction(invalid_style_layers_list, layers_selection_class):
     with pytest.raises(ValueError):
-        _ = NSTLayersSelection.from_tuples(invalid_style_layers_list)
+        _ = layers_selection_class.from_tuples(invalid_style_layers_list)
 
 
-def test_invalid_layer_coefficient():
-    from artificial_artwork.style_layer_selector import NSTStyleLayer
+def test_invalid_layer_coefficient(style_layer_class):
     with pytest.raises(ValueError):
-        _ = NSTStyleLayer('layer-id', 1.1)
+        _ = style_layer_class('layer-id', 1.1)

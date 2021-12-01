@@ -3,13 +3,13 @@ import pytest
 
 @pytest.fixture
 def subject():
-    from artificial_artwork.utils.notification import Subject
+    from artificial_artwork.utils import Subject
     return Subject
 
 
 @pytest.fixture
 def observer():
-    from artificial_artwork.utils.notification import Observer
+    from artificial_artwork.utils import Observer
     return Observer
 
 
@@ -55,8 +55,7 @@ def test_scenario(subject, observer):
             happen (or after it).
             """
             print("\nSubject: I'm doing something important.")
-            from random import randrange
-            self._state = randrange(0, 10)
+            self._state = 2
             print(f"Subject: My state has just changed to: {self._state}")
             self.notify()
 
@@ -69,8 +68,7 @@ def test_scenario(subject, observer):
     assert id(s1) != id(s2)
     assert id(s1._observers) != id(s2._observers)
     o1, o2 = ObserverA(), ObserverB()
-    # s2.attach(o1)
-    # s2.attach(o2)
+
     s2.add(o1, o2)
     # business logic
     print(s2._observers)

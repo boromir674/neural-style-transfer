@@ -1,1 +1,4 @@
-from .model_loader import GraphFactory as graph_factory
+from .model_handler import ModelHandlerFacility, Modelhandler
+
+
+__all__ = ['ModelHandlerFacility', 'Modelhandler']
