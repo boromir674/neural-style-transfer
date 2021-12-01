@@ -212,9 +212,9 @@ and the pretrained model are present. That way you can immediately start creatin
     :alt: PyPI Package latest release
     :target: https://pypi.org/project/topic-modeling-toolkit
 
-.. |python_versions| image:: https://img.shields.io/pypi/pyversions/topic-modeling-toolkit.svg
+.. |python_versions| image:: https://img.shields.io/pypi/pyversions/artificial-artwork.svg
     :alt: Supported versions
-    :target: https://pypi.org/project/topic-modeling-toolkit
+    :target: https://pypi.org/project/artificial-artwork/
 
 
 
