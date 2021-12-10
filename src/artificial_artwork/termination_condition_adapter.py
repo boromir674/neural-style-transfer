@@ -2,7 +2,7 @@ from abc import ABC
 from typing import Callable, Protocol, Dict, Any
 from types import MethodType
 
-from .utils import ObjectsPool
+from software_patterns import ObjectsPool
 
 
 class MetricsCapable(Protocol):
@@ -58,7 +58,7 @@ def new_class(adapter_type: str):
 
 class TerminationConditionAdapterClassFactory:
     """Acts as a proxy to the the 'class maker' function by returning a memoized class."""
-    classes_pool = ObjectsPool.new_empty(new_class)
+    classes_pool = ObjectsPool(new_class)
 
     @classmethod
     def create(cls, adapter_type: str):

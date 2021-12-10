@@ -2,11 +2,11 @@ from time import time
 from typing import Dict
 import attr
 import tensorflow as tf
+from software_patterns import Subject
 
 from .tf_session_runner import TensorflowSessionRunner
 from .style_model import graph_factory
 from .cost_computer import NSTContentCostComputer, NSTStyleCostComputer
-from .utils import Subject
 
 
 @attr.s
