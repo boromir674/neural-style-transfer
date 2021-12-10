@@ -9,7 +9,7 @@ def termination_condition_adapter(termination_condition):
 
 @pytest.fixture
 def test_objects(broadcaster_class, termination_condition_adapter):
-    from artificial_artwork.utils.notification import Subject
+    from software_patterns import Subject
     return type('O', (), {
         'broadcaster': broadcaster_class(Subject(), lambda: termination_condition_adapter.satisfied),
         'adapter': termination_condition_adapter

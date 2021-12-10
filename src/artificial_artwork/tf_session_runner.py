@@ -2,10 +2,10 @@
 from typing import List
 import tensorflow as tf
 
-from .utils import RealSubject, Proxy
+from software_patterns import ProxySubject, Proxy
 
 
-class TensorflowSessionRunnerSubject(RealSubject):
+class TensorflowSessionRunnerSubject(ProxySubject):
     def __init__(self, interactive_session) -> None:
         self.interactive_session = interactive_session
 
@@ -31,7 +31,7 @@ class TensorflowSessionRunner(Proxy):
 
     @property
     def session(self):
-        return self._real_subject.interactive_session
+        return self._proxy_subject.interactive_session
 
     def run(self, *args, **kwargs):
         return self.request(*args, **kwargs)

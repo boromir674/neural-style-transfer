@@ -37,7 +37,7 @@ def subject_container(tmpdir):
 
 @pytest.fixture
 def styling_observer_data(subject_container, nst_observer):
-    from artificial_artwork.utils.notification import Subject
+    from software_patterns import Subject
     return type('TestData', (), {
         'broadcaster': subject_container(Subject()),
         'observer': nst_observer,

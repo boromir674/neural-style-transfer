@@ -2,7 +2,7 @@ import os
 from typing import Tuple, Protocol
 from numpy.typing import NDArray
 
-from artificial_artwork.utils import SubclassRegistry
+from software_patterns import SubclassRegistry
 from .model_handler_interface import ModelHandlerInterface
 from .layers_getter import ModelReporter
 
