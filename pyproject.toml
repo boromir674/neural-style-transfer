@@ -1,3 +1,147 @@
+[tool.poetry]
+name = "artificial-artwork"
+version = "0.6.1"
+description = "Create artificial artwork by transfering the appearance of one image (eg a famous painting) to another user-supplied image (eg your favourite photograph)."
+authors = ["Konstantinos Lampridis <k.lampridis@hotmail.com>"]
+maintainers = ["Konstantinos Lampridis <k.lampridis@hotmail.com>"]
+license = "AGPL-3.0-only"
+readme = "README.rst"
+
+packages = [
+    { include = "artificial_artwork", from = "src" },
+]
+
+include = [
+    { path = "tests", format = "sdist" },
+    { path = "docs/**/*.rst", format = "sdist" },
+    { path = "docs/conf.py", format = "sdist" },
+    { path = "src/**/*.typed", format = "sdist" },
+    { path = "src/stubs/*.pyi", format = "sdist" },
+    "pyproject.toml",
+    "LICENSE",
+    "README.rst",
+    "CHANGELOG.rst",
+]
+
+
+homepage = "https://github.com/boromir674/neural-style-transfer"
+repository = "https://github.com/boromir674/neural-style-transfer"
+documentation = "https://neural-style-transfer.readthedocs.io/"
+
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Intended Audience :: End Users/Desktop",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: GNU Affero General Public License v3",
+    "Natural Language :: English",
+    "Operating System :: Unix",
+    "Operating System :: POSIX :: Linux",
+    "Operating System :: MacOS",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Topic :: Artistic Software",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Scientific/Engineering :: Image Processing",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Software Development",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: System :: Software Distribution",
+    "Typing :: Typed",
+]
+
+# DEPENDENCIES
+
+# Caret requirements allow SemVer compatible updates to a specified version. An update is allowed if the new version number does not modify the left-most non-zero digit in the major, minor, patch grouping. For instance, if we previously ran poetry add requests@^2.13.0 and wanted to update the library and ran poetry update requests, poetry would update us to version 2.14.0 if it was available, but would not update us to 3.0.0. If instead we had specified the version string as ^0.1.13, poetry would update to 0.1.14 but not 0.2.0. 0.0.x is not considered compatible with any other version.
+# REQUIREMENT  VERSIONS ALLOWED
+# ^1.2.3	   >=1.2.3 <2.0.0
+# ^1.2	       >=1.2.0 <2.0.0
+# ^1	       >=1.0.0 <2.0.0
+# ^0.2.3	   >=0.2.3 <0.3.0
+# ^0.0.3	   >=0.0.3 <0.0.4
+# ^0.0	       >=0.0.0 <0.1.0
+# ^0	       >=0.0.0 <1.0.0
+# "~" is the more conservative compared to "^"
+# Tilde requirements specify a minimal version with some ability to update. If you specify a major, minor, and patch version or only a major and minor version, only patch-level changes are allowed. If you only specify a major version, then minor- and patch-level changes are allowed.
+# REQUIREMENT  VERSIONS ALLOWED
+# ~1.2.3	   >=1.2.3 <1.3.0
+# ~1.2	       >=1.2.0 <1.3.0
+# ~1	       >=1.0.0 <2.0.0
+
+[tool.poetry.dependencies]
+python = "~3.8"
+cython = "^3.0.2"
+
+tensorflow = "2.2.0"
+click = "^8.1.7"
+software-patterns = "^2.0.0"
+attrs = "^23.1.0"
+numpy = "~1.21.3"
+scipy = "~1.4.1"
+imageio = "~2.10.1"
+protobuf = "^3.19.1"
+
+
+pytest = {version = "^7.4.2", optional = true}
+pytest-cov = {version = "^4.1.0", optional = true}
+
+
+[tool.poetry.extras]
+test = [
+    "pytest",
+    "pytest-cov",
+]
+
+
+# CLI / ENTRYPOINTS
+[tool.poetry.scripts]
+nst = 'artificial_artwork.cli:entry_point'
+
+
 [build-system]
-requires = ["setuptools >= 40.6.0", "wheel"]
-build-backend = "setuptools.build_meta"
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+
+# PyPI url links, that appear in 'Project Links' section
+
+[tool.poetry.urls]
+"Bug Tracker" = "https://github.com/boromir674/neural-style-transfer/issues"
+"CI: Github Actions" = "https://github.com/boromir674/neural-style-transfer/actions"
+"Documentation" = "https://neural-style-transfer.readthedocs.io/"
+"Source Code" = "https://github.com/boromir674/neural-style-transfer"
+"Changelog" = "https://github.com/boromir674/neural-style-transfer/blob/master/CHANGELOG.rst"
+# "Code of Conduct" = "https://github.com/boromir674/neural-style-transfer/blob/master/CONTRIBUTING.rst"
+
+# TODO Improve: add changelog in Docs and use that link below
+# https://neural-style-transfer.readthedocs.io/en/stable/changelog.html
+
+# Mailing lists =
+
+
+# TOOLS CONGIGS
+
+[tool.black]
+line-length = 95
+include = '\.pyi?$'
+extend-exclude = '''
+# A regex preceeded with ^/ will apply only to files and directories
+# in the root of the project.
+# ^/foo.py  # exclude a file named foo.py in the root of the project (in addition to the defaults)
+tests/smoke_test.py|
+hooks/post_gen_project.py
+'''
+
+[tool.isort]
+profile = 'black'
+
+[tool.software-release]
+version_variable = "src/cookiecutter_python/__init__.py:__version__"
+
+[tool.bandit]
+tests = []
+skips = [
+    "B101",
+]

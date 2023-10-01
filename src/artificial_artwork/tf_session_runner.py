@@ -2,14 +2,14 @@
 from typing import List
 import tensorflow as tf
 
-from .utils import RealSubject, Proxy
+from software_patterns import Proxy
 
 
-class TensorflowSessionRunnerSubject(RealSubject):
+class TensorflowSessionRunnerSubject:
     def __init__(self, interactive_session) -> None:
         self.interactive_session = interactive_session
 
-    def request(self, *args, **kwargs):
+    def run(self, *args, **kwargs):
         return self.interactive_session.run(*args, **kwargs)
 
 
@@ -18,23 +18,20 @@ class TensorflowSessionRunner(Proxy):
         super().__init__(real_subject)
         self.args_history: List[str] = []
 
-    def request(self, *args, **kwargs):
+    def run(self, *args, **kwargs):
+        session_run_callable = self._proxy_subject.run
         args_str = f"[{', '.join((str(_) for _ in args))}]"
         kwargs_str = f"[{', '.join((f'{k}={v}' for k, v in kwargs.items()))}]"
         self.args_history.append(f"ARGS: {args_str}, KWARGS: {kwargs_str}")
         try:
-        # We know that Proxy executes request by executing the request method on the subject
-            return super().request(*args, **kwargs)
+            return session_run_callable(*args, **kwargs)
         except Exception as tensorflow_error:
             raise TensorflowSessionRunError('Tensorflow error occured, when'
-            f'running session with input args {args_str} and kwargs {kwargs_str}') from tensorflow_error
+            f'running session with input args {args_str} and kwargs {kwargs_str}') from tensorflow_error        
 
     @property
     def session(self):
-        return self._real_subject.interactive_session
-
-    def run(self, *args, **kwargs):
-        return self.request(*args, **kwargs)
+        return self._proxy_subject.interactive_session
 
     @classmethod
     def with_default_graph_reset(cls):

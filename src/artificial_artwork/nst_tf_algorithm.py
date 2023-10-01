@@ -2,11 +2,11 @@ from time import time
 from typing import Dict
 import attr
 import tensorflow as tf
+from software_patterns import Subject
 
 from .tf_session_runner import TensorflowSessionRunner
 from .style_model import graph_factory
 from .cost_computer import NSTContentCostComputer, NSTStyleCostComputer
-from .utils import Subject
 
 
 @attr.s
@@ -115,17 +115,7 @@ class NSTAlgorithmRunner:
             progress = self._progress(generated_image, completed_iterations=i+1)
             if i % 20 == 0:
                 self._notify_persistance(progress)
-                Jt, Jc, Js = self._eval_cost()
-                self._print_cost(type('C', (), {
-                    'Jt': Jt,
-                    'Jc': Jc,
-                    'Js': Js,
-                }), iteration_index=i)
-                progress['metrics'].update({
-                    'cost': Jt,
-                    'content-cost': Jc,
-                    'style-cost': Js,
-                })
+                progress = self._print_to_std(progress)
             progress['metrics']['duration'] = time() - self.time_started  # in seconds
             self._notify_progress(progress)
             i += 1
@@ -141,6 +131,19 @@ class NSTAlgorithmRunner:
 
         print(' --- Finished Learning Algorithm :) ---')
 
+    def _print_to_std(self, progress):
+        Jt, Jc, Js = self._eval_cost()
+        self._print_cost(type('C', (), {
+            'Jt': Jt,
+            'Jc': Jc,
+            'Js': Js,
+        }), iteration_index=progress['metrics']['iterations']-1)
+        progress['metrics'].update({
+            'cost': Jt,
+            'content-cost': Jc,
+            'style-cost': Js,
+        })
+        return progress
 
     def iterate(self, image_model):
         # Run the session on the train_step to minimize the total cost
@@ -172,6 +175,7 @@ class NSTAlgorithmRunner:
         self.progress_subject.notify()
 
     def _eval_cost(self):
+        """Evaluate Total (Style + Constent) Cost"""
         # pass cost objects in session to evaluate them
         Jt, Jc, Js = self.session_runner.run([
             self.nn_cost_builder.cost,

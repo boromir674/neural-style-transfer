@@ -45,3 +45,4 @@ tomli==1.2.2
 urllib3==1.26.7
 Werkzeug==2.0.2
 wrapt==1.13.3
+software-patterns<=2.0.0
