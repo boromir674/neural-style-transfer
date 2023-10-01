@@ -1,21 +1,41 @@
 import os
 from typing import Callable
-from attr import define
+from attr import define, field, Factory
 import numpy as np
 import numpy.typing as npt
 
 from software_patterns import Observer
 
 
+def build_default_get_file_name(
+    max_iterations,
+):
+    max_iterations_str_len = len(str(max_iterations))
+    def get_iteration_string(iteration):
+        return str(iteration).zfill(max_iterations_str_len)
+
+    def _get_file_name(
+        content_image_path,
+        style_image_path,
+        iterations_completed
+    ):
+        return f'{os.path.basename(content_image_path)}+{os.path.basename(style_image_path)}-{get_iteration_string(iterations_completed)}.png'
+    return _get_file_name
+
+
 @define
 class StylingObserver(Observer):
-    save_on_disk_callback: Callable[[str, npt.NDArray], None]
-    convert_to_unit8: Callable[[npt.NDArray], npt.NDArray]
     """Store a snapshot of the image under construction.
 
     Args:
-        Observer ([type]): [description]
+        save_on_disk_callback (Callable[[str, npt.NDArray], None]): Callback
+        convert_to_unit8 (Callable[[npt.NDArray], npt.NDArray]): Callback
     """
+    save_on_disk_callback: Callable[[str, npt.NDArray], None]
+    convert_to_unit8: Callable[[npt.NDArray], npt.NDArray]
+    max_iterations: int
+    get_file_name: Callable[[], str] = field(default=Factory(lambda self: build_default_get_file_name(self.max_iterations), takes_self=True))
+
     def update(self, *args, **kwargs):
         output_dir = args[0].state.output_path
         content_image_path = args[0].state.content_image_path
@@ -30,7 +50,11 @@ class StylingObserver(Observer):
 
         output_file_path = os.path.join(
             output_dir,
-            f'{os.path.basename(content_image_path)}+{os.path.basename(style_image_path)}-{iterations_completed}.png'
+            self.get_file_name(
+                content_image_path,
+                style_image_path,
+                iterations_completed
+            )
         )
         # if we have shape of form (1, Width, Height, Number_of_Color_Channels)
         if matrix.ndim == 4 and matrix.shape[0] == 1:

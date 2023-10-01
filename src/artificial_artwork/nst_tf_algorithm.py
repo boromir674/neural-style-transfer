@@ -175,6 +175,7 @@ class NSTAlgorithmRunner:
         self.progress_subject.notify()
 
     def _eval_cost(self):
+        """Evaluate Total (Style + Constent) Cost"""
         # pass cost objects in session to evaluate them
         Jt, Jc, Js = self.session_runner.run([
             self.nn_cost_builder.cost,
