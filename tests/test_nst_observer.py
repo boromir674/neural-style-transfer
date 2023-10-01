@@ -1,12 +1,17 @@
 import pytest
 
 
+@pytest.fixture(scope='module')
+def nb_iterations():
+    return 100
+
+
 @pytest.fixture
-def nst_observer(disk):
+def nst_observer(disk, nb_iterations):
     """An instance object of StylingObserver class."""
     from artificial_artwork.styling_observer import StylingObserver
     from artificial_artwork.image.image_operations import convert_to_uint8
-    return StylingObserver(disk.save_image, convert_to_uint8)
+    return StylingObserver(disk.save_image, convert_to_uint8, nb_iterations)
 
 
 
@@ -44,7 +49,7 @@ def styling_observer_data(subject_container, nst_observer):
     })
 
 
-def test_styling_observer(styling_observer_data, subscribe, tmpdir):
+def test_styling_observer(styling_observer_data, subscribe, nb_iterations, tmpdir):
     d = styling_observer_data
     # Subscribe observer/listener to subject/broadcaster at runtime
     subscribe(
@@ -53,8 +58,9 @@ def test_styling_observer(styling_observer_data, subscribe, tmpdir):
     )
 
     import os
-    
+    assert nb_iterations == 100
+    zeroes = '00'
     d.broadcaster.notify(1)
-    assert os.path.isfile(os.path.join(tmpdir, 'c+s-1.png'))
+    assert os.path.isfile(os.path.join(tmpdir, f'c+s-{zeroes}1.png'))
     d.broadcaster.notify(2)
-    assert os.path.isfile(os.path.join(tmpdir, 'c+s-2.png'))
+    assert os.path.isfile(os.path.join(tmpdir, f'c+s-{zeroes}2.png'))

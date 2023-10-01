@@ -84,12 +84,14 @@ imageio = "~2.10.1"
 protobuf = "^3.19.1"
 
 
-# DEPS in EXTRAS
 pytest = {version = "^7.4.2", optional = true}
+pytest-cov = {version = "^4.1.0", optional = true}
+
 
 [tool.poetry.extras]
 test = [
     "pytest",
+    "pytest-cov",
 ]
 
 
