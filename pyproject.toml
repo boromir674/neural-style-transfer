@@ -138,7 +138,7 @@ hooks/post_gen_project.py
 profile = 'black'
 
 [tool.software-release]
-version_variable = "src/cookiecutter_python/__init__.py:__version__"
+version_variable = "src/artificial_artwork/__version__.py:__version__"
 
 [tool.bandit]
 tests = []
