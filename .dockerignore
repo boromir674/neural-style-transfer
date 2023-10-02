@@ -1,48 +1,101 @@
-*/__pycache__
-htmlcov
-__pycache__
-*.pyc
-*.pyo
-*.pyd
-.Python
-env
-pip-log.txt
-pip-delete-this-directory.txt
-.tox
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-*.log
-.git
-.mypy_cache
-.pytest_cache
-.hypothesis
-
-node_modules
+# App-specific
 pretrained*
-style-images
+content-images/
+d-output/
+demo-output/
 local/
-output/
 nst_output/
+output/
+requirements/
+style-images/
+src/artificial_artwork.egg-info/
+
+# CI files
+.circleci/
+.github/
+
+# Docker
+docker-compose.yml
+.docker
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*/__pycache__/
+*/*/__pycache__/
+*/*/*/__pycache__/
+*.py[cod]
+*/*.py[cod]
+*/*/*.py[cod]
+*/*/*/*.py[cod]
+
+# Build / Distribution / packaging
+.Python
 env/
 env-dev/
-dist/
 build/
-test-results/
-dependency-graphs/
-uml-diagrams
-.circleci
-.vscode
-.bettercodehub.yml
-.gitignore
-.prospector.yml
-.pylintrc
+develop-eggs/
+dist/
+downloads/
+eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+*/*/.egg-info/
+.installed.cfg
+*.egg
 
+# TOX
+.tox
+
+# IDE
+.vscode/
+
+# Type Checking: mypy
 mypy.ini
+src/stubs/
+
+# Unit Tests / Coverage
+# generated files
+htmlcov/
+test-results/
+.coverage
+# test/config files
+tests/
+.coveragerc
+
+# GIT
+.gitignore
+.git/
+
+
+# Pydeps
+dependency-graphs/
+pydeps/
+
+# UML generated files
+uml-diagrams/
+
+# NodeJS
+node_modules/
 package.json
 package-lock.json
+
+# Repo files: Development / Support
+Pretrained_Model_LICENSE.txt
+imagenet-vgg-verydeep-19.mat.tar
+MANIFEST.in
+scripts/
+requirements/
+codecov-script
+
+# Configuration files
+.prospector.yml
+.pylintrc
 tox.ini
-Dockerfile
+setup.cfg
+
+# MISC
+business-reqs.md
