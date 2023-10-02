@@ -65,12 +65,33 @@ WORKDIR /config
 ENTRYPOINT [ "/usr/local/share/docker-init.sh" ]
 CMD [ "sleep", "infinity" ]
 
+# Essential/Usefull Tools
 # Install poetry and tox, which are essential Tools for any Python dev stack
-RUN pip3 --disable-pip-version-check install tox==3.27.1 poetry
+    # && git clone git@github.com:boromir674/tree-1.8.0.git \
+RUN pip3 --disable-pip-version-check install tox==3.27.1 poetry \
+    && rm -rf /tmp/pip-tmp
 
-# install poetry dependencies so that vscode has access to them -  we cannot a virtual env here.
+# Install tree cli tool
+RUN git clone https://github.com/boromir674/tree-1.8.0.git tree-repo
+WORKDIR /config/tree-repo
+
+RUN rm *.o && make tree && make install
+
+WORKDIR /config
+
+RUN rm -rf tree-repo
+    # && rm -rf tree-1.8.0 \
+    # && apt-get update \
+    # && apt-get -y install --no-install-recommends tree \
+    # && apt-get autoremove -y \
+    # && apt-get clean -y \
+    # && rm -rf /var/lib/apt/lists/*
+
+
+
+# allow code navigation inside vscode, by installing the prod + test dependencies
 COPY poetry.lock /tmp/pip-tmp/
 COPY pyproject.toml /tmp/pip-tmp/
-RUN    poetry export --directory=/tmp/pip-tmp/ -f requirements.txt -o /tmp/pip-tmp/requirements-test.txt -E test \ 
+RUN poetry export --directory=/tmp/pip-tmp/ -f requirements.txt -o /tmp/pip-tmp/requirements-test.txt -E test \ 
     && pip3 --disable-pip-version-check --no-cache-dir install -r /tmp/pip-tmp/requirements-test.txt \
     && rm -rf /tmp/pip-tmp
