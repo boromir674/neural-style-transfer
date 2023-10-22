@@ -1,5 +1,6 @@
 from time import time
 from typing import Dict
+import typing as t
 import attr
 import tensorflow as tf
 from software_patterns import Subject
@@ -8,6 +9,8 @@ from .tf_session_runner import TensorflowSessionRunner
 from .style_model import graph_factory
 from .cost_computer import NSTContentCostComputer, NSTStyleCostComputer
 
+# define custom Layer type for type checking
+Layer = t.Union[t.Any, tf.Tensor]
 
 @attr.s
 class NSTAlgorithmRunner:
@@ -53,7 +56,10 @@ class NSTAlgorithmRunner:
 
         print(' --- Loading CV Image Model ---')
 
-        style_network = graph_factory.create(image_specs, model_design)
+        style_network = graph_factory.create(
+            image_specs,  # Input tensor is designed to match images dimensions
+            model_design,  # 
+        )
 
         noisy_content_image_matrix = self.apply_noise(self.nst_algorithm.parameters.content_image.matrix)
 
@@ -63,10 +69,16 @@ class NSTAlgorithmRunner:
             style_network,
             self.session_runner.session
         )
-
+        
+        ### Practically, we PASS the Content Image throught Graph
         # indicate content_image and the output layer of the Neural Network
         self.nn_builder.build_activations(
             c_image.matrix, model_design.network_design.output_layer)
+
+        # We have passed the User Content Image in the Network and we extracted the output Tensor
+        # from the Output Layer (defined in NetworkDesign)
+        # We will be leveraging this a_C tensor to measure Content Cost against
+        # the Generated Image a_G
 
         self.nn_cost_builder = CostBuilder(
             NSTContentCostComputer.compute,
@@ -78,19 +90,29 @@ class NSTAlgorithmRunner:
             self.nn_builder.a_G,
         )
 
+        ### Practically, we PASS the Style Image throught Graph, and in
+        # combination with Style Layers (and coefficients) we have defined we
+        # build the Computation Function for the Style Cost
         self.nn_builder.assign_input(s_image.matrix)
 
         # manually set the neurons attribute for each NSTStyleLayer
         # using the loaded cv model (which is a dict of layers)
         # the NSTStyleLayer ids attribute to query the dict
         for style_layer_id, nst_style_layer in model_design.network_design.style_layers:
+            # for each selected Style Layer, simply copy reference of Layer from
+            # Pretrained network Graph
             nst_style_layer.neurons = style_network[style_layer_id]
         # TODO obviously encapsulate the above code elsewhere
-
+        
+        # Build Style Cost Computation Function
         self.nn_cost_builder.build_style_cost(
             self.session_runner.session,
             model_design.network_design.style_layers,
         )
+
+        # Since the nn_cost_builder has already built the Style and Content Cost
+        # Computation Functions, now it is capable of building the 'Total Cost'
+        # Total Cost can simply be: TC = alpha * Jc + beta * Js
 
         self.nn_cost_builder.build_cost(
             alpha=10,  # content cost weight (raw multiplier)
@@ -103,12 +125,23 @@ class NSTAlgorithmRunner:
         ## Run Iterative Learning Algorithm ##
 
         print(' --- Preparing Iterative Learning Algorithm ---')
+        
+        # Take Input Content Image (as 3-color channel 4D tensor with means already subtracted)
+        # and generate a random noise image as a starting for the Generated
+        # Image (a_G)
         input_image = noisy_content_image_matrix
 
         # Initialize global variables (you need to run the session on the initializer)
         self.session_runner.run(tf.compat.v1.global_variables_initializer())
 
-        # Run the noisy input image (initial generated image) through the model
+        ## Practically, PASS the Noisy Content Image through Graph
+        # But out cost builder for example might not utilize the Graphs last Tensor output
+        # since our Style Layers most probably are towards the middle layers of the pretrained network model
+
+        # here basically we perform the first "iteration" outside the loop to
+        # initialize the Generated Image (a_G) with the Noisy Content Image
+        # and make the network produce the activations required for all the Cost Computing operations
+        # and performing Weight Optimization (learning)
         self.session_runner.run(style_network['input'].assign(input_image))
         self.perform_nst(style_network)
 
@@ -152,6 +185,18 @@ class NSTAlgorithmRunner:
 
         print(' --- Finished Learning Algorithm :) ---')
 
+    def iterate(self, image_model: t.Dict[str, Layer]):
+        # Run the session on the train_step to minimize the total cost
+        # This is our typical iterative learning loop / iteration, where the
+        # weights are adjusted to minimize a cost / objective function
+        self.session_runner.run([self.optimization.train_step])
+
+        ## Practically, PASS the current version of the Generated Image through
+        # the Graph
+        # Compute the generated image by running the session on the current model['input']
+        generated_image = self.session_runner.run(image_model['input'])
+        return generated_image
+
     def _print_to_std(self, progress):
         weighted_Jc = self.nn_cost_builder.content_cost_weight * self.Jc
         weighted_Js = self.nn_cost_builder.style_cost_weight * self.Js
@@ -166,14 +211,6 @@ class NSTAlgorithmRunner:
             f'   Content cost : {self.Jc}\n'
             f'   Style cost   : {self.Js}\n'
         )
-
-    def iterate(self, image_model):
-        # Run the session on the train_step to minimize the total cost
-        self.session_runner.run([self.optimization.train_step])
-
-        # Compute the generated image by running the session on the current model['input']
-        generated_image = self.session_runner.run(image_model['input'])
-        return generated_image
 
     def _progress(self, generated_image, completed_iterations: int) -> Dict:
         return {
@@ -248,11 +285,16 @@ class NeuralNetBuilder:
 
     def _setup_activations(self):
         # Set a_C to be the hidden layer activation from the layer we have selected
+        # Remember we have re-constructed the pretrained model Network by now.
+        # And we have selected in the NetworkDesign a layer that will bee the
+        # 'Output Layer'. Here we say that the Image Model will be modeling the
+        # Content of the G Image as the output of that selected Output Layer.
         self.a_C = self.session.run(self.output_neurons)
 
         # Set a_G to be the hidden layer activation from same layer. Here, a_G references model['conv4_2']
         # and isn't evaluated yet. Later in the code, we'll assign the image G as the model input, so that
-        # when we run the session, this will be the activations drawn from the appropriate layer, with G as input.
+        # when we run the session, this will be the activations drawn from the appropriate layer,
+        # with G as input.
         self.a_G = self.output_neurons
 
 
@@ -262,7 +304,7 @@ class CostBuilder:
     compute_style_cost = attr.ib()
 
     # Total cost = alpha * J_content + beta * J_style
-    cost = attr.ib(init=False, default=None)
+    cost = attr.ib(init=False, default=None)  # Total Cost
     content_cost = attr.ib(init=False, default=None)
     style_cost = attr.ib(init=False, default=None)
 

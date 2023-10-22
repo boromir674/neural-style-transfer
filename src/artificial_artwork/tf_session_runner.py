@@ -17,7 +17,7 @@ class TensorflowSessionRunner(Proxy):
     def __init__(self, real_subject) -> None:
         super().__init__(real_subject)
         # self._proxy_subject IS a reference to an
-        # TensorflowSessionRunnerSubject instance
+        # TensorflowSessionRun  nerSubject instance
         self.args_history: List[str] = []
 
     def run(self, *args, **kwargs):
