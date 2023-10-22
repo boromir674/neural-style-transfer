@@ -86,6 +86,8 @@ protobuf = "^3.19.1"
 
 pytest = {version = "^7.4.2", optional = true}
 pytest-cov = {version = "^4.1.0", optional = true}
+pytest-explicit = {version = "^1.0.1", optional = true}
+
 matplotlib = {version = "~3.7", optional = true}
 
 
@@ -93,6 +95,7 @@ matplotlib = {version = "~3.7", optional = true}
 test = [
     "pytest",
     "pytest-cov",
+    "pytest-explicit",
 ]
 gui = [
     "matplotlib",
@@ -103,7 +106,7 @@ gui = [
 [tool.poetry.scripts]
 nst = 'artificial_artwork.cli:entry_point'
 
-
+# INSTRUCT PIP to use Poetry as build backend (instead of legacy setuptools)
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
@@ -126,6 +129,24 @@ build-backend = "poetry.core.masonry.api"
 
 
 # TOOLS CONGIGS
+
+[tool.pytest.ini_options]
+minversion = "6.2"
+addopts = "--strict-markers"
+markers = [
+    "slow: Marks a slow test",
+    "integration: Tests that require integration with external resource (ie data, network, 3rd party service, etc)",
+    "network_bound: Require internet connection",
+]
+testpaths = [
+    "tests",
+]
+# pip install pytest-explicit
+explicit-only = [
+    "integration",
+    "network_bound",
+]
+
 
 [tool.black]
 line-length = 95

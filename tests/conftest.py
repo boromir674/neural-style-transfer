@@ -173,8 +173,9 @@ def toy_model_data():
 @pytest.fixture
 def toy_network_design():
     # layers we pick to use for our Neural Network
-    network_layers = ('conv1_1',)
-    weight = 1.0 / len(network_layers)
+    network_layers = ('conv1_1',)  # Toy Network has 1 Layer
+    weight = 1.0 / len(network_layers)  # equally weight all Style Layers
+    # for the Toy Network Design, select all Network Layers to be Style Layers
     style_layers = [(layer_id, weight) for layer_id in network_layers]
     return type('ModelDesign', (), {
         'network_layers': (
@@ -195,7 +196,7 @@ def image_manager_class():
 
 @pytest.fixture
 def vgg_layers():
-    """The vgg image model network's layer structure."""
+    """Production vgg image model Complete network's layer Architecture."""
     VGG_LAYERS = (
         (0, 'conv1_1') ,  # (3, 3, 3, 64)
         (1, 'relu1_1') ,
@@ -260,6 +261,7 @@ def pre_trained_models_1(vgg_layers, toy_model_data, toy_network_design):
                 'id': 'vgg',
                 'handler': ModelHandlerFacility.create('vgg'),
             }),
+            # Production Style Layers and Output (Content) Layer picked from vgg
             'network_design': NetworkDesign.from_default_vgg()
         }),
         'toy': type('NSTModel', (), {
@@ -279,6 +281,8 @@ def pre_trained_models_1(vgg_layers, toy_model_data, toy_network_design):
 @pytest.fixture
 def model(pre_trained_models_1):
     import os
+    print(f"\n -- PROD IM MODEL: {PRODUCTION_IMAGE_MODEL}")
+    print(f"Selected Prod?: {os.path.isfile(PRODUCTION_IMAGE_MODEL)}")
     return {
         True: pre_trained_models_1['vgg'],
         False: pre_trained_models_1['toy'],
