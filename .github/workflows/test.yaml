@@ -91,7 +91,7 @@ jobs:
       shell: bash
       id: parse_version
       run: |
-        PARSER="src/cookiecutter_python/{{ cookiecutter.project_slug }}/scripts/parse_version.py"
+        PARSER="scripts/parse_version.py"
         PARSED_VERSION=$(python "${PARSER}")
         # transform version (ie 1.7.4-rc.1) to match the name of the wheel produced (ie 1.7.4rc1)
         WHEEL_VERSION=$(echo $PARSED_VERSION | sed -E 's/([^.]*)\.([^.]*)\.([^-]*)-(rc)\.?(.*)/\1.\2.\3\4\5/')
@@ -127,8 +127,8 @@ jobs:
     #     DIST_DIR=dist
     #     echo "DIST_DIR=dist" >> $GITHUB_ENV
     #     mkdir ${DIST_DIR}
-    #     mv ".tox/${DIST_DIR}/cookiecutter_python-${PKG_VERSION}.tar.gz" "${DIST_DIR}"
-    #     mv ".tox/${DIST_DIR}/cookiecutter_python-${PKG_VERSION}-py3-none-any.whl" "${DIST_DIR}"
+    #     mv ".tox/${DIST_DIR}/artificial_artwork-${PKG_VERSION}.tar.gz" "${DIST_DIR}"
+    #     mv ".tox/${DIST_DIR}/artificial_artwork-${PKG_VERSION}-py3-none-any.whl" "${DIST_DIR}"
     #     tox -e check -vv -s false
     # - name: Install documentation test dependencies
     #   if: ${{ matrix.platform == 'macos-latest' && matrix.python-version != '3.6' }}
@@ -178,8 +178,8 @@ jobs:
       run: |
         # workflow enabled for branches and v* tags
         IMAGE_TAG="${GITHUB_REF_NAME}"  # this is branch name or tag name
-        echo "IMAGE_REF=generate-python:${IMAGE_TAG}" >> $GITHUB_ENV
-        docker build -t "${DOCKER_USER}/generate-python:${IMAGE_TAG}" .
+        echo "IMAGE_REF=neural-style-transfer:${IMAGE_TAG}" >> $GITHUB_ENV
+        docker build -t "${DOCKER_USER}/neural-style-transfer:${IMAGE_TAG}" .
     - name: Publish Docker Image to DockerHub
       env:
         DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
@@ -251,7 +251,7 @@ jobs:
       run: |
         TAG="${GITHUB_REF_NAME}"
         SEM_VER="${TAG:1}"  # remove the first character (v)
-        PARSER="src/cookiecutter_python/{{ cookiecutter.project_slug }}/scripts/parse_version.py"
+        PARSER="scripts/parse_version.py"
         PARSED_VERSION=$(python "${PARSER}")
         if [[ "${PARSED_VERSION}" != "${SEM_VER}" ]]; then
           echo "ERROR: Version in __init__.py (${PARSED_VERSION}) does not match tag (${SEM_VER})"
@@ -260,7 +260,7 @@ jobs:
     - run: mkdir ${DIST_DIR}
     - run: |
         # Get Source Distribution (tar.gz of source code)
-        source_distributions=$(find downloaded-artifacts -type f -name cookiecutter_python*.tar.gz)
+        source_distributions=$(find downloaded-artifacts -type f -name artificial_artwork*.tar.gz)
         source_distributions_array=($source_distributions)
         source_distribution=${source_distributions_array[0]}  # a *.tar.gz file path
         # Extract the base name (without the path)
@@ -276,7 +276,7 @@ jobs:
     - run: cp "$source_distribution" ${DIST_DIR}
     - run: |
         # Get all built Wheels and copy to dist folder
-        for f in `find downloaded-artifacts -type f -name cookiecutter_python*.whl`; do
+        for f in `find downloaded-artifacts -type f -name artificial_artwork*.whl`; do
           echo "F: $f";
           # TODO check for duplicates, which means that our build matrix produces the same wheel (need a different compiler that python such as pypy, cython, etc)
           cp $f ${DIST_DIR}
@@ -385,7 +385,7 @@ jobs:
         sudo apt-get update -y --allow-releaseinfo-change
         sudo apt-get install -y graphviz
     - name: Draw Dependency Graphs as .svg files
-      run: tox -e pydeps -vv -s false
+      run: TOXPYTHON=python tox -e pydeps -vv -s false
     - name: Upload Dependency Graphs as artifacts
       uses: actions/upload-artifact@v3
       with:
