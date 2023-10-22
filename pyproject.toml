@@ -86,12 +86,16 @@ protobuf = "^3.19.1"
 
 pytest = {version = "^7.4.2", optional = true}
 pytest-cov = {version = "^4.1.0", optional = true}
+matplotlib = {version = "~3.7", optional = true}
 
 
 [tool.poetry.extras]
 test = [
     "pytest",
     "pytest-cov",
+]
+gui = [
+    "matplotlib",
 ]
 
 
