@@ -16,9 +16,22 @@ class TensorflowSessionRunnerSubject:
 class TensorflowSessionRunner(Proxy):
     def __init__(self, real_subject) -> None:
         super().__init__(real_subject)
+        # self._proxy_subject IS a reference to an
+        # TensorflowSessionRunnerSubject instance
         self.args_history: List[str] = []
 
     def run(self, *args, **kwargs):
+        """# Using the `close()` method.
+        sess = tf.compat.v1.Session()
+        sess.run(...)
+        sess.close()
+
+        OR
+
+        # Using the context manager.
+        with tf.compat.v1.Session() as sess:
+        sess.run(...)
+        """        
         session_run_callable = self._proxy_subject.run
         args_str = f"[{', '.join((str(_) for _ in args))}]"
         kwargs_str = f"[{', '.join((f'{k}={v}' for k, v in kwargs.items()))}]"

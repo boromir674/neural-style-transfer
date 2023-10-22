@@ -26,6 +26,11 @@ class NSTAlgorithmRunner:
     progress_subject = attr.ib(init=False, default=attr.Factory(Subject))
     persistance_subject = attr.ib(init=False, default=attr.Factory(Subject))
 
+    # references to most recently Evaluated Cost values
+    Jt = attr.ib(init=False, default=None)
+    Jc = attr.ib(init=False, default=None)
+    Js = attr.ib(init=False, default=None)
+
     # NETWORK_OUTPUT = 'conv4_2'
 
     @classmethod
@@ -87,7 +92,10 @@ class NSTAlgorithmRunner:
             model_design.network_design.style_layers,
         )
 
-        self.nn_cost_builder.build_cost(alpha=10, beta=40)
+        self.nn_cost_builder.build_cost(
+            alpha=10,  # content cost weight (raw multiplier)
+            beta=40,  # style cost weight (raw multiplier)
+        )
 
         self.optimization = Optimization()
         self.optimization.optimize_against(self.nn_cost_builder.cost)
@@ -107,15 +115,28 @@ class NSTAlgorithmRunner:
     def perform_nst(self, style_network):
         print(' --- Running Iterative Algorithm ---')
 
+        # Evaluation of Costs Frequency
+        cost_eval_freq = 20
         i = 0
         self.time_started = time()
 
         while not self.nst_algorithm.parameters.termination_condition.satisfied:
             generated_image = self.iterate(style_network)
             progress = self._progress(generated_image, completed_iterations=i+1)
+            # Evaluate Cost scalars every cost_eval_freq iters
+            if i % cost_eval_freq == 0:
+                self.Jt, self.Jc, self.Js = self._eval_cost()
+                progress['metrics'].update({
+                    'cost': self.Jt,
+                    'content-cost': self.Jc,
+                    'style-cost': self.Js,
+                    'content-cost-weighted': self.nn_cost_builder.content_cost_weight * self.Jc,
+                    'style-cost-weighted': self.nn_cost_builder.style_cost_weight * self.Js,
+                })
+                self._print_to_std(progress)
             if i % 20 == 0:
                 self._notify_persistance(progress)
-                progress = self._print_to_std(progress)
+                self._print_to_std(progress)
             progress['metrics']['duration'] = time() - self.time_started  # in seconds
             self._notify_progress(progress)
             i += 1
@@ -132,18 +153,19 @@ class NSTAlgorithmRunner:
         print(' --- Finished Learning Algorithm :) ---')
 
     def _print_to_std(self, progress):
-        Jt, Jc, Js = self._eval_cost()
-        self._print_cost(type('C', (), {
-            'Jt': Jt,
-            'Jc': Jc,
-            'Js': Js,
-        }), iteration_index=progress['metrics']['iterations']-1)
-        progress['metrics'].update({
-            'cost': Jt,
-            'content-cost': Jc,
-            'style-cost': Js,
-        })
-        return progress
+        weighted_Jc = self.nn_cost_builder.content_cost_weight * self.Jc
+        weighted_Js = self.nn_cost_builder.style_cost_weight * self.Js
+        iteration_index: int = progress['metrics']['iterations']-1
+        print(
+            f' Iteration: {iteration_index}\n'
+            f' Jc + Js = {self.Js + self.Jc}\n'
+            f'  Total Cost     : {self.Jt}\n'
+            f' a * Jc + b * Js = {weighted_Jc + weighted_Js}\n'
+            f'  Weighted Content Cost : {weighted_Jc}\n'
+            f'  Weighted Style Cost   : {weighted_Js}\n'
+            f'   Content cost : {self.Jc}\n'
+            f'   Style cost   : {self.Js}\n'
+        )
 
     def iterate(self, image_model):
         # Run the session on the train_step to minimize the total cost
@@ -184,12 +206,18 @@ class NSTAlgorithmRunner:
         ])
         return Jt, Jc, Js
 
-    def _print_cost(self, costs, iteration_index):
+    def _print_cost(self, iteration_index):
+        weighted_Jc = self.nn_cost_builder.content_cost_weight * self.Jc
+        weighted_Js = self.nn_cost_builder.style_cost_weight * self.Js
         print(
             f' Iteration: {iteration_index}\n'
-            f'  Total Cost    : {costs.Jt}\n'
-            f'   Content cost : {costs.Jc}\n'
-            f'   Style cost   : {costs.Js}\n'
+            f' Jc + Js = {self.Js + self.Jc}\n'
+            f'  Total Cost    : {self.Jt}\n'
+            f' a * Jc + b * Js = {weighted_Jc + weighted_Js}\n'
+            f'  Weighted Content Cost : {weighted_Jc}\n'
+            f'  Weighted Style Cost   : {weighted_Js}\n'
+            f'   Content cost : {self.Jc}\n'
+            f'   Style cost   : {self.Js}\n'
         )
 
 
@@ -233,9 +261,15 @@ class CostBuilder:
     compute_content_cost = attr.ib()
     compute_style_cost = attr.ib()
 
+    # Total cost = alpha * J_content + beta * J_style
     cost = attr.ib(init=False, default=None)
     content_cost = attr.ib(init=False, default=None)
     style_cost = attr.ib(init=False, default=None)
+
+    # beta parameter (unormalized: does not ad to 1 with alpha)
+    # normaly the style weight should sth like 4 factors bigger than the content weight
+    content_cost_weight = attr.ib(init=False, default=10)
+    style_cost_weight = attr.ib(init=False, default=40)
 
     def build_content_cost(self, content_image_activations, generated_image_activations):
         # Compute the content cost
@@ -247,7 +281,7 @@ class CostBuilder:
         # Compute the style cost
         self.style_cost = self.compute_style_cost(tf_session, style_layers)
 
-    def build_cost(self, alpha=10, beta=40):
+    def build_cost(self, **kwargs):  # alpha=10, beta=40):
         """Build the function of the Total Cost (loss function).
 
         The Total Cost function J(G) (learning error) is the linear combination
@@ -269,6 +303,12 @@ class CostBuilder:
             alpha (float, optional): hyperparameter to weight content cost. Defaults to 10.
             beta (float, optional): hyperparameter to weight style cost. Defaults to 40.
         """
+        alpha = kwargs.get('alpha', self.content_cost)
+        beta = kwargs.get('beta', self.style_cost)
+
+        self.content_cost_weight = alpha
+        self.style_cost_weight = beta
+
         self.cost = alpha * self.content_cost + beta * self.style_cost
 
 
