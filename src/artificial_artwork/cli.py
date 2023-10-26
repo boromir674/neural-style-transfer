@@ -89,6 +89,8 @@ def run(content_image, style_image, iterations, location):
     algorithm_runner.run(algorithm, model_design)
 
 
+### NST CLI Entrypoint ###
+
 # ATTACH CMDs
 entry_point.add_command(run)
 from .cmd_demo import demo

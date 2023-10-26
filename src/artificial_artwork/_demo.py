@@ -11,59 +11,6 @@ from .pretrained_model import ModelHandlerFacility
 from .utils import load_pretrained_model_functions, read_images
 
 
-# def validate_and_normalize_path(ctx, param, value):
-#     """Custom function to validate and normalize a path."""
-#     if value is None:
-#         return None
-#     path = Path(value)
-
-#     if path.is_absolute():
-#         abs_path = path
-#     else:
-#         current_directory = Path.cwd()
-#         abs_path = current_directory / path
-
-#     if not abs_path.exists():
-#         abs_path.mkdir()
-#         click.echo(f'Folder "{abs_path}" created')
-#     else:
-#         # get files inside the folder
-#         folder_files = [f for f in abs_path.iterdir() if f.is_file()]
-#         if len(folder_files) > 0:
-#             # ask user whether to delete everything, process as it is or exit
-#             click.echo(f'Folder "{abs_path}" already exists and is not empty.')
-#             click.echo('What do you want to do?')
-#             click.echo('1. Delete everything and start from scratch')
-#             click.echo('2. Process the existing files')
-#             click.echo('3. Exit')
-#             choice = click.prompt('Enter your choice', type=int)
-#             if choice == 1:
-#                 click.echo('Deleting everything...')
-#                 for file in folder_files:
-#                     file.unlink()
-#             elif choice == 2:
-#                 click.echo('Processing existing files...')
-#             elif choice == 3:
-#                 click.echo('Exiting...')
-#                 ctx.exit()
-#             else:
-#                 raise click.BadParameter(f'Invalid choice "{choice}".')
-#     return abs_path
-
-
-# DEMO CMD
-# @click.command()
-# @click.option('-it', '--iterations', type=int, default=100, show_default=True,
-#     help='Number of iterations to run the algorithm.')
-# @click.option('-o', '--output', 'output_folder',
-#     # type=click.Path(exists=True),
-#     type=click.Path(
-#         # exists=True,
-#         file_okay=False, dir_okay=True, resolve_path=True),
-#     default='demo-output', show_default=True,
-#     help='Location to save the generated images.',
-#     callback=validate_and_normalize_path,
-# )
 def create_algo_runner(iterations=100, output_folder='gui-output-folder'):
     print("[DEBUG] output type: {}".format(type(output_folder)))
 

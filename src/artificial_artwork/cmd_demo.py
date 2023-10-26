@@ -1,18 +1,20 @@
 from pathlib import Path
-
+import typing as t
 import click
 
-from .disk_operations import Disk
-from .styling_observer import StylingObserver
-from .algorithm import NSTAlgorithm, AlogirthmParameters
-from .nst_tf_algorithm import NSTAlgorithmRunner
-from .termination_condition_adapter_factory import TerminationConditionAdapterFactory
-from .nst_image import noisy, convert_to_uint8
-from .production_networks import NetworkDesign
-from .pretrained_model import ModelHandlerFacility
-from .utils import load_pretrained_model_functions, read_images
+from ._demo import create_algo_runner as init_algo_infra
 
 
+class WithStateAttribute(t.Protocol):
+    """Protocol for classes that have a state attribute."""
+    state: t.Any
+
+class HandleAlgorithmProgressUpdatesAble(t.Protocol):
+    def update(self, subject: WithStateAttribute) -> None:
+        ...
+
+
+# Ask user what to do depending on whether the output folder already exists
 def validate_and_normalize_path(ctx, param, value):
     """Custom function to validate and normalize a path."""
     if value is None:
@@ -69,53 +71,35 @@ def validate_and_normalize_path(ctx, param, value):
 def demo(iterations, output_folder):
     print("[DEBUG] output type: {}".format(type(output_folder)))
     click.echo(f"Running demo with {iterations} iterations and location {output_folder}.")
-    import sys
-    sys.exit()
-    current_directory = Path.cwd()
+    
+    # By default the backend adds 2 Listeners/Observers to the Subject/State object
+    # The Subject being an object representing the current state of the Algorithm
+    # Progress (ie current Cost Values for Jc, Js, Jt, current iteration, etc)
+    # The backend does it by suscribing the Listeners to the Subject (see below
+    # the subscribe_to_algorithm_progress method in case you want to add more)
+    
+    # One Observer configured by the backend receives updates more frequently
+    # and it prints the Progress stats/metrics as a formatted message to the
+    # console
 
-    termination_condition = 'max-iterations'
-
-    content_img_file = current_directory / 'tests' / 'data' / 'canoe_water_w300-h225.jpg'
-    style_img_file = current_directory / 'tests' / 'data' / 'blue-red_w300-h225.jpg'
-
-    content_image, style_image = read_images(content_img_file, style_img_file)
-
-    load_pretrained_model_functions()
-    model_design = type('ModelDesign', (), {
-        'pretrained_model': ModelHandlerFacility.create('vgg'),
-        'network_design': NetworkDesign.from_default_vgg()
-    })
-    model_design.pretrained_model.load_model_layers()
-
-    termination_condition = TerminationConditionAdapterFactory.create(
-        termination_condition,
-        iterations,  # maximun number of iterations to run the algorithm
+    # The other Observer configured by the backend receives updates less frequently
+    # and it saves a snapshot of the Generated image during the current iteration
+    # to the output folder
+    backend_objects = init_algo_infra(
+        iterations=iterations,
+        output_folder=output_folder
     )
 
-    print(f' -- Termination Condition: {termination_condition.termination_condition}')
+    # destructuring the backend objects
+    run_algorithm: t.Callable[[], None] = backend_objects['run']
+    # subscribe_to_algorithm_progress: t.Callable[[HandleAlgorithmProgressUpdatesAble], None] = \
+    #     backend_objects['subscribe']
 
-    algorithm_parameters = AlogirthmParameters(
-        content_image,
-        style_image,
-        termination_condition,
-        output_folder,
-    )
+    run_algorithm()
 
-    algorithm = NSTAlgorithm(algorithm_parameters)
+    # print a stylized message to console informing that program finished suuccessfully :)
 
-    noisy_ratio = 0.6  # ratio
-
-    algorithm_runner = NSTAlgorithmRunner.default(
-        lambda matrix: noisy(matrix, noisy_ratio),
-    )
-
-    algorithm_runner.progress_subject.add(
-        termination_condition,
-    )
-    algorithm_runner.persistance_subject.add(
-        StylingObserver(Disk.save_image, convert_to_uint8, iterations)
-    )
-
-    algorithm_runner.run(algorithm, model_design)
-
-    click.echo(f"")
+    click.secho('Demo finished successfull :)', fg='green', bold=True)
+    click.secho('Check the output folder for the generated images.', fg='green', bold=True)
+    click.secho('xdg-open {}'.format(output_folder), fg='green', bold=True)
+    click.secho('Bye!', fg='green', bold=True)
