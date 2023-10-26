@@ -37,7 +37,7 @@ def test_pretrained_model(model: NSTTestingModelProtocol, graph_factory):
     Layer = t.Union[t.Any, TensorflowTensor]
 
     # env var used to 
-    env_var: str = model.pretrained_model.handler
+    env_var: str = model.pretrained_model.handler.environment_variable
     prod_env_var = 'AA_VGG_19'
     if env_var == prod_env_var and not os.environ.get(prod_env_var):
         # this behaviour arises suspicions of whether it was intended or not

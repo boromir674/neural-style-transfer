@@ -10,16 +10,24 @@ from .production_networks import NetworkDesign
 from .pretrained_model import ModelHandlerFacility
 from .utils import load_pretrained_model_functions, read_images
 
+this_file_directory = Path(__file__).parent
+source_root_dir = this_file_directory.parent.parent
 
-def create_algo_runner(iterations=100, output_folder='gui-output-folder'):
+
+def create_algo_runner(
+    iterations=100,
+    output_folder='gui-output-folder',
+    content_img_file=None,
+    style_img_file=None,
+):
     print("[DEBUG] output type: {}".format(type(output_folder)))
 
     current_directory = Path.cwd()
 
     termination_condition = 'max-iterations'
 
-    content_img_file = current_directory / 'tests' / 'data' / 'canoe_water_w300-h225.jpg'
-    style_img_file = current_directory / 'tests' / 'data' / 'blue-red_w300-h225.jpg'
+    content_img_file = content_img_file if content_img_file else source_root_dir / 'tests' / 'data' / 'canoe_water_w300-h225.jpg'
+    style_img_file = style_img_file if style_img_file else source_root_dir / 'tests' / 'data' / 'blue-red_w300-h225.jpg'
 
     content_image, style_image = read_images(content_img_file, style_img_file)
 

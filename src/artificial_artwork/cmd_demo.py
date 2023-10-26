@@ -10,8 +10,7 @@ class WithStateAttribute(t.Protocol):
     state: t.Any
 
 class HandleAlgorithmProgressUpdatesAble(t.Protocol):
-    def update(self, subject: WithStateAttribute) -> None:
-        ...
+    def update(self, subject: WithStateAttribute) -> None: ...
 
 
 # Ask user what to do depending on whether the output folder already exists

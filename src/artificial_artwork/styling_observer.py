@@ -34,7 +34,9 @@ class StylingObserver(Observer):
     save_on_disk_callback: Callable[[str, npt.NDArray], None]
     convert_to_unit8: Callable[[npt.NDArray], npt.NDArray]
     max_iterations: int
-    get_file_name: Callable[[], str] = field(default=Factory(lambda self: build_default_get_file_name(self.max_iterations), takes_self=True))
+    get_file_name: Callable[[], str] = field(default=Factory(
+        lambda self: build_default_get_file_name(self.max_iterations), takes_self=True
+    ))
 
     def update(self, *args, **kwargs):
         output_dir = args[0].state.output_path

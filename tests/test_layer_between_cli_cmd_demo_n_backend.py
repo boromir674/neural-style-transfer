@@ -48,8 +48,6 @@ def toy_model_data():
 def toy_nst_algorithm(toy_model_data, toy_network_design, monkeypatch):
     def _monkeypatch():
         return_toy_layers, _ = toy_model_data
-        import os
-        os.environ['AA_VGG_19'] = 'dummy_path'  # Patch/replace-with-mock
         from artificial_artwork.production_networks import NetworkDesign
         from artificial_artwork.pretrained_model import ModelHandlerFacility
         # equip Handler Facility Facory with the 'vgg' implementation
@@ -73,7 +71,6 @@ def toy_nst_algorithm(toy_model_data, toy_network_design, monkeypatch):
 
 def test_code_of_layer_bridging_demo_cli_cmd_and_backend(
     toy_nst_algorithm,
-    toy_model_data,
 ):
 
     # GIVEN the module that implements the layer which bridges the CLI demo cmd
@@ -83,7 +80,8 @@ def test_code_of_layer_bridging_demo_cli_cmd_and_backend(
     # GIVEN a function that implements a way to mock/monkeypatch the bridge, so
     # that this test case is a unit-test and does not need to integrate with the
     # production vgg image model
-    handler = toy_nst_algorithm().pretrained_model.handler
+    handler = toy_nst_algorithm().pretrained_model.handler  # monkey patch production pretrained weights
+    # handler = toy_nst_algorithm.pretrained_model.handler
 
     # WHEN we execute the Layer-provided function that initializes the NST algo
     backend_objs = create_algo_runner()

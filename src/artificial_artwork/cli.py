@@ -1,18 +1,16 @@
+import typing as t
 import os
 import sys
 import click
-
-from .disk_operations import Disk
-from .styling_observer import StylingObserver
-from .algorithm import NSTAlgorithm, AlogirthmParameters
-from .nst_tf_algorithm import NSTAlgorithmRunner
-from .termination_condition_adapter_factory import TerminationConditionAdapterFactory
-from .nst_image import noisy, convert_to_uint8
-from .production_networks import NetworkDesign
-from .pretrained_model import ModelHandlerFacility
-from .utils import load_pretrained_model_functions, read_images
-
+from ._main import create_algo_runner
 from artificial_artwork import __version__
+
+class WithStateAttribute(t.Protocol):
+    """Protocol for classes that have a state attribute."""
+    state: t.Any
+
+class HandleAlgorithmProgressUpdatesAble(t.Protocol):
+    def update(self, subject: WithStateAttribute) -> None: ...
 
 this_file_location = os.path.dirname(os.path.realpath(os.path.abspath(__file__)))
 
@@ -30,13 +28,11 @@ def version_msg():
     location = os.path.dirname(this_file_location)
     return message.format(location, python_version)
 
-
 # MAIN
 @click.group()
 @click.version_option(__version__, u'-V', u'--version', message=version_msg())
 def entry_point():
     pass
-
 
 # RUN CMD
 @click.command()
@@ -46,48 +42,15 @@ def entry_point():
 @click.option('--location', '-l', type=str, default='.')
 def run(content_image, style_image, iterations, location):
 
-    termination_condition = 'max-iterations'
-
-    content_image, style_image = read_images(content_image, style_image)
-
-    load_pretrained_model_functions()
-    model_design = type('ModelDesign', (), {
-        'pretrained_model': ModelHandlerFacility.create('vgg'),
-        'network_design': NetworkDesign.from_default_vgg()
-    })
-    model_design.pretrained_model.load_model_layers()
-
-    termination_condition = TerminationConditionAdapterFactory.create(
-        termination_condition,
-        iterations,
+    backend_objs: t.Dict[str, t.Any] = create_algo_runner(
+        iterations=iterations,
+        output_folder=location,
+        noisy_ratio=0.6,
     )
+    run_nst: t.Callable[[str, str], None] = backend_objs['run']
+    # subscribe_callback: t.Callable[[HandleAlgorithmProgressUpdatesAble], None] = backend_objs['subscribe']
 
-    print(f' -- Termination Condition: {termination_condition.termination_condition}')
-
-    algorithm_parameters = AlogirthmParameters(
-        content_image,
-        style_image,
-        termination_condition,
-        location,
-    )
-
-    algorithm = NSTAlgorithm(algorithm_parameters)
-
-    noisy_ratio = 0.6  # ratio
-
-    algorithm_runner = NSTAlgorithmRunner.default(
-        lambda matrix: noisy(matrix, noisy_ratio),
-    )
-
-    algorithm_runner.progress_subject.add(
-        termination_condition,
-    )
-    algorithm_runner.persistance_subject.add(
-        StylingObserver(Disk.save_image, convert_to_uint8)
-    )
-
-    algorithm_runner.run(algorithm, model_design)
-
+    run_nst(content_image, style_image)
 
 ### NST CLI Entrypoint ###
 
