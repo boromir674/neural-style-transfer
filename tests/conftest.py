@@ -127,6 +127,7 @@ def broadcaster_class():
 
 @pytest.fixture
 def toy_model_data():
+    """Create a toy Network and Load the Handlers Facility"""
     import numpy as np
     from artificial_artwork.pretrained_model import ModelHandlerFacility
     from artificial_artwork.pre_trained_models.vgg import VggModelRoutines, VggModelHandler
