@@ -1,0 +1,19 @@
+version: '3.7'
+
+services:
+  tensorboard_dev:
+    # How to BUILD the tensorboard_dev image
+    build:
+      context: ..  # Path to the directory containing your Dockerfile
+      dockerfile: Dockerfile.tensorboard
+      
+      # --build-args passed on docker build
+      args:
+        - TENSORBOARD_PORT=6006  # Change this value to set the TensorBoard port
+
+    # How to RUN the tensorboard_dev image
+    ports:
+      - "${TENSORBOARD_PORT:-6006}:6006"
+    volumes:
+      - ../logs-tensorboard:/runs  # Mount your log directory
+    command: ["tensorboard", "--logdir=runs", "--port=6006", "--bind_all"]
