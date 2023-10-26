@@ -83,13 +83,19 @@ scipy = "~1.4.1"
 imageio = "~2.10.1"
 protobuf = "^3.19.1"
 
-
+# Test Suite Runner and Fictures provider
 pytest = {version = "^7.4.2", optional = true}
+# Fixtures Provider and pytest marker provider
+pytest-click = {version = "^1.1.0", optional = true}
+# coverage provider
 pytest-cov = {version = "^4.1.0", optional = true}
+# support mapping marked tests with requiring explicit flags to be picked up
 pytest-explicit = {version = "^1.0.1", optional = true}
+# automatically distribute test cases execution among available CPUs
+pytest-xdist = {version = "^3.3.1", optional = true}
 
+# Support running a tkinter GUI client
 matplotlib = {version = "~3.7", optional = true}
-pytest-xdist = {version = "^3.3.1", optional = true, extras = ["test"]}
 
 
 [tool.poetry.extras]
@@ -97,6 +103,8 @@ test = [
     "pytest",
     "pytest-cov",
     "pytest-explicit",
+    "pytest-click",
+    "pytest-xdist",
 ]
 gui = [
     "matplotlib",
