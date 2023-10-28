@@ -1880,9 +1880,9 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 
 [extras]
 gui = ["matplotlib"]
-test = ["pytest", "pytest-cov", "pytest-explicit"]
+test = ["pytest", "pytest-click", "pytest-cov", "pytest-explicit", "pytest-xdist"]
 
 [metadata]
 lock-version = "2.0"
 python-versions = "~3.8"
-content-hash = "20df6411d6251b561587785169b81c8a03f88db9c92b7595f9f0be817b505943"
+content-hash = "5bc04aa794a8762311a3f4d2abbd5706d1ce6f30806a14c5e141cee204ada5df"
