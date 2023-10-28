@@ -112,11 +112,14 @@ class NSTStyleCostComputer:
 
         # for layer_name, coeff in STYLE_LAYERS:
         for _style_layer_id, nst_style_layer in model_layers:
-
+            #EG network Layers: L1, L2, L3, L4, L5
             # Select the output tensor of the currently selected layer
+            # eg reference to the L3 Layer
             out = nst_style_layer.neurons
 
             # Set a_S to be the hidden layer activation from the layer we have selected, by running the session on out
+            # ie Pass Image through Graph/Network Layers and get the output from
+            # the L3 Layer
             a_S = tf_session.run(out)
 
             # Set a_G to be the hidden layer activation from same layer. Here, a_G references model[layer_name]

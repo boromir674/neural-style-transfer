@@ -9,6 +9,31 @@ from .tf_session_runner import TensorflowSessionRunner
 from .style_model import graph_factory
 from .cost_computer import NSTContentCostComputer, NSTStyleCostComputer
 
+# Represents a Layer (cloned from a pretrained model network)
+# of the non-constant network we optimize weights for
+
+LayerID = str
+
+class NSTStyleLayerType(t.Protocol):
+    id: LayerID
+    coefficient: float
+    neurons: t.Any
+
+class NSTLayerSelectionType(t.Protocol):
+    def __iter__(self) -> t.Iterable[t.Tuple[LayerID, NSTStyleLayerType]]: ...
+
+
+class NetworkDesignType(t.Protocol):
+    network_layers: t.Tuple[LayerID]
+    style_layers: NSTLayerSelectionType
+    output_layer: LayerID
+
+class ModelDesignType(t.Protocol):
+    pretrained_model: t.Any
+    network_design: NetworkDesignType
+
+
+
 # define custom Layer type for type checking
 Layer = t.Union[t.Any, tf.Tensor]
 
@@ -41,7 +66,10 @@ class NSTAlgorithmRunner:
         session_runner = TensorflowSessionRunner.with_default_graph_reset()
         return NSTAlgorithmRunner(session_runner, apply_noise)
 
-    def run(self, nst_algorithm, model_design):
+    def run(self,
+        nst_algorithm,
+        model_design: ModelDesignType,
+    ):
         ## Prepare ##
         self.nst_algorithm = nst_algorithm
 
@@ -60,8 +88,17 @@ class NSTAlgorithmRunner:
             image_specs,  # Input tensor is designed to match images dimensions
             model_design,  # 
         )
-
-        noisy_content_image_matrix = self.apply_noise(self.nst_algorithm.parameters.content_image.matrix)
+        # One-Time Operation: APPLY NOISE to Content Image, with a ratio
+        from artificial_artwork.image.image_operations import ImageNoiseAdder
+        noise_adder = ImageNoiseAdder(seed=1234)
+        ratio = 0.6
+        apply_noise = lambda x: noise_adder(x, ratio)
+        noisy_content_image_matrix = apply_noise(
+            self.nst_algorithm.parameters.content_image.matrix
+        )
+        # noisy_content_image_matrix = self.apply_noise(
+        #     self.nst_algorithm.parameters.content_image.matrix
+        # )
 
         print(' --- Building Computations ---')
 
@@ -85,13 +122,14 @@ class NSTAlgorithmRunner:
             NSTStyleCostComputer.compute,
         )
 
+        # Content Image was passed through the graph, so we can get the activations
         self.nn_cost_builder.build_content_cost(
-            self.nn_builder.a_C,
-            self.nn_builder.a_G,
+            self.nn_builder.a_C,  # we have the Content Image activations
+            self.nn_builder.a_G,  # Generated Image activations
         )
 
         ### Practically, we PASS the Style Image throught Graph, and in
-        # combination with Style Layers (and coefficients) we have defined we
+        # combination with Style Layers (and coefficients) we have defined, we
         # build the Computation Function for the Style Cost
         self.nn_builder.assign_input(s_image.matrix)
 
@@ -154,6 +192,7 @@ class NSTAlgorithmRunner:
         self.time_started = time()
 
         while not self.nst_algorithm.parameters.termination_condition.satisfied:
+            # We pass the Curernt Gen Image throguh the Graph and get the next iteration of gen Image
             generated_image = self.iterate(style_network)
             progress = self._progress(generated_image, completed_iterations=i+1)
             # Evaluate Cost scalars every cost_eval_freq iters
@@ -317,7 +356,8 @@ class CostBuilder:
         # Compute the content cost
         self.content_cost = self.compute_content_cost(
             content_image_activations,
-            generated_image_activations)
+            generated_image_activations
+        )
 
     def build_style_cost(self, tf_session, style_layers):
         # Compute the style cost

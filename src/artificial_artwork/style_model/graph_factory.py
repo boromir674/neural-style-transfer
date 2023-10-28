@@ -40,7 +40,7 @@ class GraphFactory:
         cls.builder.input(config)
         LayerMaker(
             cls.builder,
-            model_design.pretrained_model.reporter,
+            model_design.pretrained_model.reporter,  # this reporter is able to extract weights
         ).make_layers(model_design.network_design.network_layers)  # all VGG layers
 
         return cls.builder.graph
