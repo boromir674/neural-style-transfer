@@ -13,10 +13,28 @@ AveragePooling. We opt for AveragePooling compared to MaxPooling, since it has
 been shown to yield better results.
 """
 
+# Each row instructs to build a Layer in a Computattional Graph which is used
+# for the NST Algorithm: to pass images and get compute Tensors, to optimize
+# weights, compute Costs, etc
+
+### For each 'conv_' item:
+# we build a Layer of with ReLU activation function and
+# Conv2D Tensor Operation ( AX + b ).
+# Other ReLU parameters: strides=[1, 1, 1, 1], padding='SAME'
+# The weights, A, b matrices, of the Conv2D are extracted from a
+# pretrained model (ie the vgg19 model trained for the task of image
+# classification on the imagenet dataset).
+
+### For each 'avgpool_' item:
+# we build a Layer of with Average Pooling operation
+# (ie a Tensor Operation that computes the average of a 2x2 window of the
+# input Tensor). The weights of the Average Pooling are predefined.
+# Avg Pool Parameters: ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME'
+
 LAYERS = (
-    'conv1_1' ,
-    'conv1_2' ,
-    'avgpool1',
+    'conv1_1' ,  # ReLU A, b weight matrices loaded with pretrained model values
+    'conv1_2' ,  # ReLU ...
+    'avgpool1',  # AvgPool parameters: ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME'
     'conv2_1' ,
     'conv2_2' ,
     'avgpool2',

@@ -5,8 +5,28 @@ import tensorflow as tf
 
 
 class GraphBuilder:
+    """Build an NST Style Network as a Compuational Graph of Tensor Operations.
 
+    Provides 3 methods for building the graph:
+        - input
+        - relu_conv_2d
+        - avg_pool
+    
+    Client code must first call the 'input' method to provide the input image
+    specifications (ie width, height, color_channels), which is necessary for
+    the first layer of the Graph.
+
+    Instances of this class are stateful, so the order in which the methods are
+    called matters. The 'input' method must be called first, followed by
+    alternating calls to 'relu_conv_2d' and 'avg_pool' methods.
+
+    The Graph is stored in the 'graph' instance attribute, which is a dict of
+    layer_id to the layer's output tensor.
+    """
     def __init__(self):
+        self.__init()
+
+    def __init(self):
         self.graph = {}
         self._prev_layer = None
 
@@ -16,7 +36,7 @@ class GraphBuilder:
         return self
 
     def input(self, image_specs):
-        self.graph = {}
+        self.__init()
         return self._build_layer('input', tf.Variable(np.zeros(
             (1, image_specs.height, image_specs.width, image_specs.color_channels)), dtype='float32'))
 
@@ -38,4 +58,9 @@ class GraphBuilder:
     def _conv_2d(self, W: NDArray, b: NDArray):
         W = tf.constant(W)
         b = tf.constant(np.reshape(b, (b.size)))
-        return tf.compat.v1.nn.conv2d(self._prev_layer, filter=W, strides=[1, 1, 1, 1], padding='SAME') + b
+        return tf.compat.v1.nn.conv2d(
+            self._prev_layer,
+            filter=W,
+            strides=[1, 1, 1, 1],
+            padding='SAME'
+        ) + b

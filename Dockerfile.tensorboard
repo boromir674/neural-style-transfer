@@ -1,0 +1,22 @@
+FROM python:3.8.0-slim
+
+# Build Arguments
+# integrate with docker build --build-arg TENSORBOARD_PORT=6006
+# integrate with docker-compose build --build-arg TENSORBOARD_PORT=6006
+ARG TENSORBOARD_PORT
+# Logs Dir with default
+ARG LOGS_DIR
+
+RUN pip install --upgrade pip
+RUN pip install "protobuf<3.21"
+RUN pip install "numpy>=1.21.3,<1.22.0"
+RUN pip install "tensorflow==2.2"
+RUN pip install tensorboard==2.2
+
+EXPOSE $TENSORBOARD_PORT
+
+CMD ["tensorboard", "--logdir=$LOGS_DIR", "--port=$TENSORBOARD_PORT", "--bind_all"]
+
+# docker run -it --rm -p 6006:6006 \
+#  -v "/data/repos/neural-style-transfer/logs-tensorboard:/logs" \
+#  tensorboard-dev tensorboard --logdir=/logs --port=6006 --bind_all
