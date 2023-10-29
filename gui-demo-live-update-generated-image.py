@@ -1,11 +1,16 @@
+import os
 import tkinter as tk
 from tkinter import filedialog
 import threading
+from pathlib import Path
 from PIL import Image, ImageTk  # You need to install the Python Imaging Library (PIL)
 
 # from artificial_artwork._demo import create_algo_runner
 from artificial_artwork._main import create_algo_runner
 from artificial_artwork.image import convert_to_uint8
+
+# Dir in which this python file/script resides within the Source Distribution (ie Git Repo)
+MY_DIR: str = os.path.dirname(os.path.realpath(__file__))
 
 
 # CONSTANTS
@@ -35,15 +40,8 @@ GENERATED_IMAGE_THUMBNAIL_SIZE = (500, 500)
 img_type_2_path = {}
 
 # Helper Functions
-def _build_open_image_dialog_callback(image_file_label, image_type: str):
-    def _open_image_dialog():
-        file_path = filedialog.askopenfilename()
-        if file_path:
-            img_type_2_path[image_type] = file_path
-            image_file_label.config(text=f'{IMAGE_COMP_ASSETS[image_type]["label_text"]} {file_path}')
-    return _open_image_dialog
 
-
+# Handle Click on Load Content/Style Image Button by loading the Image and rendering it on the UI
 def _build_open_image_dialog_callback_v2(x, image_type: str):
     def _open_file_dialog_v2():
         file_path = filedialog.askopenfilename()
@@ -65,26 +63,42 @@ def _build_open_image_dialog_callback_v2(x, image_type: str):
     return _open_file_dialog_v2
 
 
+def _load_nst_image_and_render(nst_image_ui, file_path):
+    image_label = nst_image_ui['image_label']  # what gets shown on the UI for a Loaded NST Image (Content or Style)
+    image_pane = nst_image_ui['image_pane']  # where the image gets rendered on the UI
+    image_type: str = nst_image_ui['image_type']  # item in set {'content', 'style'}
+
+    # Inform Global State of the currently selected Image to use as Input for the NST Algorithm
+    img_type_2_path[image_type] = file_path
+
+    image = Image.open(file_path)
+    image.thumbnail(INPUT_IMAGE_THUMBNAIL_SIZE)  # Resize the image to fit in the pane
+    photo = ImageTk.PhotoImage(image=image)
+
+    image_pane.config(image=photo)
+    image_pane.image = photo
+
+    image_label.config(text=f'{IMAGE_COMP_ASSETS[image_type]["label_text"]} {file_path}')
+    image_label.update_idletasks()
+
 # MAIN
 
 images_components_data = {
     'content': dict(
+        # Data to be shared when implementing handling of initialization (initial Render) or updating (re-render 'request') of UI Components 
         IMAGE_COMP_ASSETS['content'],
-        image_dialog_from_label=lambda label_obj: _build_open_image_dialog_callback(label_obj, 'content'),
+        # image_dialog key maps to a Callable that takes NO input (args and/or kwargs)
+        # this callable should be an object compatible as value to the 'command' (kwarg) of a tkinter.Button constructor
+        # the callable implements what happens when the User clicks the button
         image_dialog=lambda x: _build_open_image_dialog_callback_v2(x, 'content'),
     ),
     'style': dict(
+        # Data to be shared when implementing handling of initialization (initial Render) or updating (re-render 'request') of UI Components 
         IMAGE_COMP_ASSETS['style'],
-        image_dialog_from_label=lambda label_obj: _build_open_image_dialog_callback(label_obj, 'style'),
         image_dialog=lambda x: _build_open_image_dialog_callback_v2(x, 'style'),
     ),
 }
 
-
-# def open_file_dialog():
-#     file_path = filedialog.askopenfilename()
-#     if file_path:
-#         file_label.config(text=f'Selected file: {file_path}')
 
 # Create the main window
 root = tk.Tk()
@@ -97,21 +111,24 @@ description_label = tk.Label(root, text="Select a file using the buttons below:"
 description_label.pack(pady=10)  # Add padding
 
 
-# CONTENT IMAGE UI/UX
+# START - CONTENT IMAGE UI/UX
 
 # BUTTON -> Load Content Image
-button1 = tk.Button(
+select_content_image_btn = tk.Button(
     root,
     text=images_components_data['content']['load_button_text'],
-    # command=lambda: images_components_data['content']['image_dialog_from_label'](content_image_label)(),
     command=lambda: images_components_data['content']['image_dialog']({
-        'image_label': content_image_label,
-        'image_pane': content_image_pane,
+        'image_label': content_image_label,  # The Label UI Element to update when selected and loaded Loaded
+        'image_pane': content_image_pane,  # The Pane to Render the Content Image once Selected and Loaded
     })(),
 )
-button1.pack(pady=5)  # Add padding
+select_content_image_btn.pack(pady=5)  # Add padding
 
 # LABEL -> Show path of loaded Content Image
+DEMO_IMAGE = Path(MY_DIR) / 'tests' / 'data' / 'canoe_water_w300-h225.jpg'
+
+# Initialize with rendered text conveying the message that no image has been selected yet
+
 content_image_label = tk.Label(root, text=images_components_data['content']['label_text'])
 content_image_label.pack()
 
@@ -120,22 +137,39 @@ content_image_pane = tk.Label(root, width=0, height=0, bg="white")  # Set initia
 # content_image_pane = tk.Label(root, width=200, height=200, bg="white")
 content_image_pane.pack()
 
+# Automatically Load the Demo Content Image: read from disk update Image Pane and Label in UI
+# content_image_label.config(text=f"{images_components_data['content']['label_text']} {DEMO_IMAGE}")
+# content_image_label.update_idletasks()
+# content_image_label.pack()
 
-# STYLE IMAGE UI/UX
+content_image_label.pack()
+_load_nst_image_and_render({
+    'image_label': content_image_label,
+    'image_pane': content_image_pane,
+    'image_type': 'content',
+}, DEMO_IMAGE)
+
+# END - CONTENT IMAGE UI/UX
+
+
+# Start - STYLE IMAGE UI/UX
 
 # BUTTON -> Load Style Image
 load_style_image_btn = tk.Button(
     root,
     text=images_components_data['style']['load_button_text'],
-    # command=lambda: images_components_data['style']['image_dialog_from_label'](style_image_label)()
     command=lambda: images_components_data['style']['image_dialog']({
-        'image_label': style_image_label,
+        'image_label': style_image_label,  # update label once user selected a file from the dialog
         'image_pane': style_image_pane,
     })(),
 )
 load_style_image_btn.pack(pady=5)  # Add padding
 
+DEMO_STYLE_IMAGE = Path(MY_DIR) / 'tests' / 'data' / 'blue-red_w300-h225.jpg'
+
 # LABEL -> Show path of loaded Style Image
+
+# Initialize and Render constant Placeholder text
 style_image_label = tk.Label(root, text=images_components_data['style']['label_text'])
 style_image_label.pack()
 
@@ -143,6 +177,25 @@ style_image_label.pack()
 style_image_pane = tk.Label(root, width=0, height=0, bg="white")  # Set initial dimensions to 0
 # style_image_pane = tk.Label(root, width=200, height=200, bg="white")
 style_image_pane.pack()
+
+# OR Initialize with preloaded Demo Content Image
+# style_image_label = tk.Label(root,
+#     text=f"{images_components_data['content']['label_text']} {DEMO_STYLE_IMAGE}"
+# )
+
+# style_image_label.config(text=f"{images_components_data['content']['label_text']} {DEMO_STYLE_IMAGE}")
+# style_image_label.update_idletasks()
+
+# style_image_label.pack()
+
+_load_nst_image_and_render({
+    'image_label': style_image_label,
+    'image_pane': style_image_pane,
+    'image_type': 'style',
+}, DEMO_STYLE_IMAGE)
+
+
+# End - STYLE IMAGE UI/UX
 
 
 # GENERATED IMAGE UI/UX

@@ -96,6 +96,7 @@ class NSTAlgorithmRunner:
         noisy_content_image_matrix = apply_noise(
             self.nst_algorithm.parameters.content_image.matrix
         )
+
         # noisy_content_image_matrix = self.apply_noise(
         #     self.nst_algorithm.parameters.content_image.matrix
         # )
@@ -106,11 +107,13 @@ class NSTAlgorithmRunner:
             style_network,
             self.session_runner.session
         )
-        
+
         ### Practically, we PASS the Content Image throught Graph
         # indicate content_image and the output layer of the Neural Network
         self.nn_builder.build_activations(
-            c_image.matrix, model_design.network_design.output_layer)
+            c_image.matrix,
+            model_design.network_design.output_layer,
+        )
 
         # We have passed the User Content Image in the Network and we extracted the output Tensor
         # from the Output Layer (defined in NetworkDesign)
@@ -141,7 +144,7 @@ class NSTAlgorithmRunner:
             # Pretrained network Graph
             nst_style_layer.neurons = style_network[style_layer_id]
         # TODO obviously encapsulate the above code elsewhere
-        
+
         # Build Style Cost Computation Function
         self.nn_cost_builder.build_style_cost(
             self.session_runner.session,
@@ -163,7 +166,7 @@ class NSTAlgorithmRunner:
         ## Run Iterative Learning Algorithm ##
 
         print(' --- Preparing Iterative Learning Algorithm ---')
-        
+
         # Take Input Content Image (as 3-color channel 4D tensor with means already subtracted)
         # and generate a random noise image as a starting for the Generated
         # Image (a_G)
