@@ -4,6 +4,10 @@ Neural Style Transfer - CLI
 Create artificial artwork by transfering the appearance of one image (eg a famous painting) to another
 user-supplied image (eg your favourite photograph).
 
+| |Demo_Content_Image| + |Demo_Style_Image|
+| =
+| |Demo_Gen_Image|
+
 Uses a Neural Style Transfer algorithm to transfer the appearance, which you can run though a CLI program.
 
 `Neural Style Tranfer` (NST) is an algorithm that applies the `style` of an image to the `contents` of another and produces a `generated` image.
@@ -29,7 +33,7 @@ This Python package runs a Neural Style Tranfer algorithm on input `content` and
       - | |docker| |image_size|
 
     * - code quality
-      - |better_code_hub| |codacy| |code_climate| |maintainability| |scrutinizer|
+      - |codacy| |code_climate| |maintainability| |scrutinizer|
 
 
 
@@ -224,3 +228,16 @@ and the pretrained model are present. That way you can immediately start creatin
 
 .. |image_size| image:: https://img.shields.io/docker/image-size/boromir674/neural-style-transfer/latest?logo=docker&logoColor=%23849ED9
     :alt: Docker Image Size (tag)
+
+
+.. |Demo_Content_Image| image:: ./tests/data/canoe_water_w300-h225.jpg
+  :width: 300
+  :alt: Demo Content Image
+
+.. |Demo_Style_Image| image:: ./tests/data/blue-red_w300-h225.jpg
+  :width: 300
+  :alt: Demo Style Image
+
+.. |Demo_Gen_Image| image:: ./tests/data/canoe_water_w300-h225.jpg+blue-red_w300-h225.jpg-100-demo-gui-run-1.png
+  :width: 300
+  :alt: Gen Image
