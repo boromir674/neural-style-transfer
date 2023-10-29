@@ -1,11 +1,9 @@
 import pytest
 
-from click.testing import CliRunner
-from artificial_artwork.cli import cli
-from unittest.mock import patch
+# from click.testing import CliRunner
 
 
-runner = CliRunner()
+# runner = CliRunner()
 
 @pytest.fixture
 def image_file_names():
@@ -69,7 +67,7 @@ def create_production_algorithm_runner():
     from artificial_artwork.disk_operations import Disk
     
     noisy_ratio = 0.6
-    def _create_production_algorithm_runner(termination_condition_adapter):
+    def _create_production_algorithm_runner(termination_condition_adapter, max_iterations):
         algorithm_runner = NSTAlgorithmRunner.default(
             lambda matrix: noisy(matrix, noisy_ratio),
         )
@@ -78,7 +76,7 @@ def create_production_algorithm_runner():
             termination_condition_adapter,
         )
         algorithm_runner.persistance_subject.add(
-            StylingObserver(Disk.save_image, convert_to_uint8)
+            StylingObserver(Disk.save_image, convert_to_uint8, max_iterations)
         )
         return algorithm_runner
     return _create_production_algorithm_runner
@@ -86,9 +84,10 @@ def create_production_algorithm_runner():
 
 @pytest.fixture
 def get_algorithm_runner(create_production_algorithm_runner):
-    def _get_algorithm_runner(termination_condition_adapter):
+    def _get_algorithm_runner(termination_condition_adapter, max_iterations):
         algorithm_runner = create_production_algorithm_runner(
             termination_condition_adapter,
+            max_iterations,
         )
         return algorithm_runner
     return _get_algorithm_runner
@@ -127,7 +126,7 @@ def test_nst_runner(
 
     termination_condition_adapter = max_iterations_adapter_factory_method(ITERATIONS)
 
-    algorithm_runner = get_algorithm_runner(termination_condition_adapter)
+    algorithm_runner = get_algorithm_runner(termination_condition_adapter, ITERATIONS)
 
     algorithm = create_algorithm(image_manager, termination_condition_adapter)
 

@@ -27,6 +27,7 @@ def test_load_operation(image_name, expected_shape, expected_item_size, test_ima
     from functools import reduce
     image = disk.load_image(test_image(image_name))
     assert image.shape == expected_shape
-    assert image.size == reduce(lambda i, j: i * j, expected_shape)
+    expected_nb_pixels = reduce(lambda i, j: i * j, expected_shape)
+    assert image.size == expected_nb_pixels
     assert image.itemsize == expected_item_size  # in Bytes
-    assert image.nbytes == expected_item_size * image.size
+    assert image.nbytes == expected_item_size * expected_nb_pixels

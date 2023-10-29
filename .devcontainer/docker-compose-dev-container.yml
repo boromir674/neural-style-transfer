@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  my_dev_container:
+    build:
+      context: ..
+      dockerfile: .devcontainer/Dockerfile
+      # build arguments passed at build time
+      args:  # build arguments (passed on docker build)
+        # Python version to use (ie 3.10, 3.8)
+        # python 3.8 is the first runtime that the app is developed to run on
+        VARIANT: "3.8"
+
+    # hard-coded env variables to inject in the built image/container at runtime
+    environment:
+      AA_VGG_19: pretrained_model_bundle/imagenet-vgg-verydeep-19.mat
+    #   MY_ENV_VAR: 1
+
+    volumes:
+      - ../..:/workspaces:cached
+
+    # open a dev server with hot-reload in the default shell
+    # command: yarn develop
+
+    # Overrides default command so things don't shut down after the process ends.
+    command: sleep infinity  # should result in an open shell
+
+    # Uncomment the next line to use a non-root user for all processes.
+    # user: vscode
+
+    # Use "forwardPorts" in **devcontainer.json** to forward an app port locally.
+    # (Adding the "ports" property to this file will not forward from a Codespace.)

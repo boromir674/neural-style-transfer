@@ -2,7 +2,7 @@ import os
 from typing import Tuple, Protocol
 from numpy.typing import NDArray
 
-from artificial_artwork.utils import SubclassRegistry
+from software_patterns import SubclassRegistry
 from .model_handler_interface import ModelHandlerInterface
 from .layers_getter import ModelReporter
 
@@ -12,12 +12,28 @@ class ReporterProtocol(Protocol):
 
 
 class Modelhandler(ModelHandlerInterface):
+    """Handle
+
+    Args:
+        ModelHandlerInterface ([type]): [description]
+
+    Raises:
+        NoImageModelSpesifiedError: [description]
+
+    Returns:
+        [type]: [description]
+    """
     _reporter: ReporterProtocol
     def __init__(self):
         self._reporter = None
 
     @property
     def reporter(self) -> ReporterProtocol:
+        """Reporter getter, which can return Layer Weights given a layer (str) ID
+
+        Args:
+            layers ([type]): [description]
+        """
         return self._reporter
 
     @reporter.setter

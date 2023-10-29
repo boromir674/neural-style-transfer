@@ -17,6 +17,7 @@ class ImageProtocol(Protocol):
 @attr.s
 class ImageManager:
     preprocessing_pipeline = attr.ib()
+
     image_factory: ImageFactory = \
         attr.ib(init=False, default=attr.Factory(lambda: ImageFactory(Disk.load_image)))
     images_compatible: bool = attr.ib(init=False, default=False)

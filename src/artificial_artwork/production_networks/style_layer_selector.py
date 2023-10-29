@@ -14,9 +14,9 @@ class NSTStyleLayer:
 
 def validate_layers(layers):
     if abs(weights_sum := sum(coefs := [layer.coefficient for layer in layers]) - 1) > 1e-6:
-        raise ValueError(f'Coefficients do not sum to 1: sum({", ".join((str(_) for _ in coefs))}) = {weights_sum}')
+        raise ValueError(f'Coefficients of selected Style Layers do not sum to 1: sum({", ".join((str(_) for _ in coefs))}) = {weights_sum}')
     if len(set(layer_ids := [layer.id for layer in layers])) != len(layers):
-        raise ValueError(f'Duplicate layers found in the selection: [{", ".join(layer_ids)}]')
+        raise ValueError(f'Duplicate Style Layers found in the selection: [{", ".join(layer_ids)}]')
 
 
 class StyleLayerSelectionProtocol(Protocol):
