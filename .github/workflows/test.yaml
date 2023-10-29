@@ -33,7 +33,7 @@ env:
   RUN_LINT_CHECKS: "false"
   BUILD_DOCKER: "false"
   PUBLISH_ON_PYPI: "false"
-  DRAW_DEPENDENCIES: "true"
+  DRAW_DEPENDENCIES: "false"
 
 jobs:
   # we use the below to read the workflow env vars and be able to use in "- if:" Job conditionals
@@ -104,6 +104,7 @@ jobs:
         echo "==== $PARSED_VERSION  -->  $WHEEL_VERSION"
         echo "PKG_VERSION=$WHEEL_VERSION" >> $GITHUB_ENV  # to be used in the next step
         echo "SEMVER_PIP_FORMAT=$WHEEL_VERSION" >> $GITHUB_OUTPUT  # to be used in other jobs
+  ## TEST SUITE: By Default executes only unit-tests (ie no integration, or network-dependent tests)
     - name: Run Unit Tests
       run: tox -vv -s false
       env:
