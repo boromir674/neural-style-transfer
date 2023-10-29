@@ -31,7 +31,7 @@ def create_algo_runner(
 
     content_image, style_image = read_images(content_img_file, style_img_file)
 
-    load_pretrained_model_functions()
+    load_pretrained_model_functions()  # ie import VGG ModelHandler implementation (to allow facility creating instances)
     model_design = type('ModelDesign', (), {
         'pretrained_model': ModelHandlerFacility.create('vgg'),
         'network_design': NetworkDesign.from_default_vgg()

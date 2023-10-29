@@ -1,3 +1,4 @@
+import typing as t
 import pytest
 
 from artificial_artwork.pretrained_model import model_handler
@@ -126,52 +127,6 @@ def broadcaster_class():
 
 
 @pytest.fixture
-def toy_model_data():
-    """Create a toy Network and Load the Handlers Facility"""
-    import numpy as np
-    from artificial_artwork.pretrained_model import ModelHandlerFacility
-    from artificial_artwork.pre_trained_models.vgg import VggModelRoutines, VggModelHandler
-
-    from functools import reduce
-    model_layers = (
-        'conv1_1',
-        'relu1',
-        'maxpool1',
-    )
-    convo_w_weights_shape = (3, 3, 3, 4)
-
-    class ToyModelRoutines(VggModelRoutines):
-
-        def load_layers(self, file_path: str):
-            return {
-                'layers': [[
-                    [[[[model_layers[0]], 'unused', [[
-                        np.reshape(np.array([i for i in range(1, reduce(lambda i,j: i*j, convo_w_weights_shape)+1)], dtype=np.float32), convo_w_weights_shape),
-                        np.array([5], dtype=np.float32)
-                    ]]]]],
-                    [[[[model_layers[1]], 'unused', [['W', 'b']]]]],
-                    [[[[model_layers[2]], 'unused', [['W', 'b']]]]],
-                ]]
-            }
-
-
-    toy_model_routines = ToyModelRoutines()
-
-    @ModelHandlerFacility.factory.register_as_subclass('toy')
-    class ToyModelHandler(VggModelHandler):
-        def _load_model_layers(self):
-            return toy_model_routines.load_layers('')['layers'][0]
-
-        @property
-        def model_routines(self):
-            return toy_model_routines
-
-    return type('TMD', (), {
-        'expected_layers': model_layers,
-    })
-
-
-@pytest.fixture
 def toy_network_design():
     # layers we pick to use for our Neural Network
     network_layers = ('conv1_1',)  # Toy Network has 1 Layer
@@ -253,21 +208,47 @@ PRODUCTION_IMAGE_MODEL = os.environ.get('AA_VGG_19', 'PRETRAINED_MODEL_NOT_FOUND
 
 @pytest.fixture
 def pre_trained_models_1(vgg_layers, toy_model_data, toy_network_design):
+    import typing as t
+    from numpy.typing import NDArray
     from artificial_artwork.production_networks import NetworkDesign
     from artificial_artwork.pretrained_model import ModelHandlerFacility
+
+    toy_layers_loader: t.Callable[..., NDArray] = toy_model_data[0]
+    pretrained_toy_model_layers: t.List[str] = toy_model_data[1]
+
+    # equip ModelHandlerFacility with the 'vgg' class implementation
+    from artificial_artwork.pre_trained_models import vgg
+    # equip ModelHandlerFacility with the 'toy' class implementation
+    from artificial_artwork.pre_trained_models.vgg import VggModelRoutines, VggModelHandler
+    class ToyModelRoutines(VggModelRoutines):
+        # override only critical operations integrating with Prod Pretrained Stored Layers/Weights
+        def load_layers(self, file_path: str):
+            return toy_layers_loader(file_path)
+
+    toy_model_routines = ToyModelRoutines()
+
+    @ModelHandlerFacility.factory.register_as_subclass('toy')
+    class ToyModelHandler(VggModelHandler):
+        def _load_model_layers(self):
+            return toy_model_routines.load_layers('')['layers'][0]
+
+        @property
+        def model_routines(self):
+            return toy_model_routines
+
     return {
-        'vgg': type('NSTModel', (), {
-            'pretrained_model': type('PTM', (), {
-                'expected_layers': vgg_layers,
-                'id': 'vgg',
-                'handler': ModelHandlerFacility.create('vgg'),
-            }),
-            # Production Style Layers and Output (Content) Layer picked from vgg
-            'network_design': NetworkDesign.from_default_vgg()
-        }),
+        # 'vgg': type('NSTModel', (), {
+        #     'pretrained_model': type('PTM', (), {
+        #         'expected_layers': vgg_layers,
+        #         'id': 'vgg',
+        #         'handler': ModelHandlerFacility.create('vgg'),
+        #     }),
+        #     # Production Style Layers and Output (Content) Layer picked from vgg
+        #     'network_design': NetworkDesign.from_default_vgg()
+        # }),
         'toy': type('NSTModel', (), {
             'pretrained_model': type('PTM', (), {
-                'expected_layers': toy_model_data.expected_layers,
+                'expected_layers': pretrained_toy_model_layers,  # t.List[str]
                 'id': 'toy',
                 'handler': ModelHandlerFacility.create('toy'),
             }),
@@ -276,15 +257,130 @@ def pre_trained_models_1(vgg_layers, toy_model_data, toy_network_design):
                 toy_network_design.style_layers,
                 toy_network_design.output_layer,
             )
-        }),
-    }
-
+    }),}
 @pytest.fixture
 def model(pre_trained_models_1):
     import os
     print(f"\n -- PROD IM MODEL: {PRODUCTION_IMAGE_MODEL}")
     print(f"Selected Prod?: {os.path.isfile(PRODUCTION_IMAGE_MODEL)}")
-    return {
-        True: pre_trained_models_1['vgg'],
-        False: pre_trained_models_1['toy'],
-    }[os.path.isfile(PRODUCTION_IMAGE_MODEL)]
+
+    return pre_trained_models_1['toy']
+    # return {
+    #     True: pre_trained_models_1['vgg'],
+    #     False: pre_trained_models_1['toy'],
+    # }[os.path.isfile(PRODUCTION_IMAGE_MODEL)]
+
+
+
+# CONSTANT DATA Representing Layers Information (ie weight values) of Toy Network
+@pytest.fixture
+def toy_model_data():
+    import numpy as np
+
+    from functools import reduce
+    # This data format emulates the format the production pretrained VGG layer
+    # IDs are stored in
+    model_layers = (
+        'conv1_1',
+        'relu1',
+        'maxpool1',
+    )
+    convo_w_weights_shape = (3, 3, 3, 4)
+
+    def load_layers(*args):
+        """Load Layers of 3-layered Toy Neural Net, emulating prod VGG format.
+
+        It emulates what the production implementation (scipy.io.loadmat) does,
+        by returning an object following the same interface as the one returned
+        by scipy.io.loadmat, when called on the file storing the production
+        pretrained VGG model.
+        """
+        # here we use pytest to emit some text, leveraging pytest, so that the test code using this fixture
+        # can somehow verify that the text appeared in the expected place (ie console, log or sth)
+        print(f"VGG Mat Weights Mock Loader Called")
+
+        return {
+            'layers': [[
+                # 1st Layer: conv1_1
+                [[[[model_layers[0]], 'unused', [[
+                    # 'A' Matrix weights tensor with shape (3, 3, 3, 4) (total nb of values = 3*3*3*4 = 108)
+                    # for this toy Conv Layer we set the tensor values to be 1, 2, 3, ... 3 * 3 * 3 * 4 + 1 = 109
+                    np.reshape(np.array([i for i in range(1, reduce(lambda i,j: i*j, convo_w_weights_shape)+1)], dtype=np.float32), convo_w_weights_shape),
+                    # 'b' bias vector, which here is an array of shape (1,)
+                    # for this toy Conv Layer we set the bias value to be 5
+                    np.array([5], dtype=np.float32)
+                ]]]]],
+                # 2nd Layer: relu1
+                [[[[model_layers[1]], 'unused', [['W', 'b']]]]],  # these layer weights are not expected to be used, because the layer is not a Conv layer
+                # 3rd Layer: maxpool1
+                [[[[model_layers[2]], 'unused', [['W', 'b']]]]],  # these layer weights are not expected to be used, because the layer is not a Conv layer
+            ]]
+        }
+
+    return load_layers, model_layers
+
+
+# MONKEYPATH PROD NST ALGO at RUNTIME with Algo using Toy Network
+@pytest.fixture
+def toy_nst_algorithm(toy_model_data, toy_network_design, monkeypatch):
+    from numpy.typing import NDArray
+
+    toy_layers_loader: t.Callable[..., NDArray] = toy_model_data[0]
+    # pretrained_toy_model_layer_ids: t.List[str] = toy_model_data[1]
+
+    def _monkeypatch():
+
+        return_toy_layers, _ = toy_model_data
+        from artificial_artwork.production_networks import NetworkDesign
+        from artificial_artwork.pretrained_model import ModelHandlerFacility
+        # equip Handler Facility Facory with the 'vgg' implementation
+        from artificial_artwork.pre_trained_models import vgg
+        import scipy.io
+
+        # if prod VGG Handler tries to load VGG Prod Weights, return Toy Weights instead
+        # 1st we patch the scipy.io.loadmat, which is used by the production VGG Handler
+        monkeypatch.setattr(scipy.io, 'loadmat', return_toy_layers)  # Patch/replace-with-mock
+
+        from artificial_artwork.pre_trained_models.vgg import VggModelRoutines, VggModelHandler
+        class ToyModelRoutines(VggModelRoutines):
+            # override only critical operations integrating with Prod Pretrained Stored Layers/Weights
+            def load_layers(self, file_path: str):
+                return toy_layers_loader(file_path)
+
+        toy_model_routines = ToyModelRoutines()
+
+        class ToyModelHandler(VggModelHandler):
+            def _load_model_layers(self):
+                return toy_model_routines.load_layers('')['layers'][0]
+
+            @property
+            def model_routines(self):
+                return toy_model_routines
+
+        monkeypatch.setattr(
+            vgg, 'VggModelHandler', ToyModelHandler)  # Patch/replace-with-mock
+
+        # 2nd we patch the AA_VGG_19 env var which the code strictly requires to find
+        import os
+        os.environ['AA_VGG_19'] = 'unit-tests-toy-value'  # Patch/replace-with-mock
+
+        # Prod Code uses the 'default' factory (classmetod) method of class
+        # NetworkDesign, in order to instantiate a NetworkDesign object
+        # according to the 'Original' NST Algorithm (which layers to pick for
+        # creating ReLUs from their pretrained Conv A, b weights, or which is the Output Layer)
+        
+        # Monkey patching objects used in the 'default' factory method
+        monkeypatch.setattr(NetworkDesign, 'from_default_vgg',
+            lambda: NetworkDesign(
+                toy_network_design.network_layers,  # full list of layer IDs available in Pretrained Model
+                toy_network_design.style_layers,  # list of tuples with layer IDs and coefficients governing their proportional contribution to the Style Cost/Loss formula
+                toy_network_design.output_layer,  # layer ID to be used for Content Loss (ie last layer of Pretrained Model/Network)
+            )
+        )
+        # for convenience, construct here a ModelHanlder instance, equiped with
+        # handling all operations (of ModelHandlerInterface) with mocked Toy operations
+        # when needed and provide it to test code
+        # TODO remove the need for that
+        toy_model_handler = ModelHandlerFacility.create('vgg')  # handler instances are stateless, and lightweight
+        return toy_model_handler
+    return _monkeypatch
