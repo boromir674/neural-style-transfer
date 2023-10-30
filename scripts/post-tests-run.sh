@@ -65,7 +65,8 @@ fi
 
 # END - Rename Coverage Files (POC Version)
 
-echo " --- COVERAGE XML: ${destination_xml_file_path} --- "
+# Interface promises to return path to coverage xml file
+echo "${destination_xml_file_path}"
 
 # Github Actions original code
 # mv ./.tox/coverage.xml ./coverage-${{ matrix.platform }}-${{ matrix.python-version }}.xml
