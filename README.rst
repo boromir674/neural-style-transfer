@@ -17,14 +17,13 @@ NST takes a `content` image (eg picture taken with your camera) and a `style` im
 
 This Python package runs a Neural Style Tranfer algorithm on input `content` and `style` images to produce `generated` images.
 
-
 .. start-badges
 
 .. list-table::
     :stub-columns: 1
 
     * - tests
-      - | |circleci| |codecov|
+      - | |codecov|
 
     * - package
       - | |pypi| |wheel| |py_versions| |commits_since|

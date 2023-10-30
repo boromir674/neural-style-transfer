@@ -23,10 +23,11 @@ include = [
     "CHANGELOG.rst",
 ]
 
-
 homepage = "https://github.com/boromir674/neural-style-transfer"
 repository = "https://github.com/boromir674/neural-style-transfer"
 documentation = "https://neural-style-transfer.readthedocs.io/"
+
+keywords = ["artificial intelligence", "neural style transfer", "artificial art", "deep learning", "cli", "gui"]
 
 classifiers = [
     "Development Status :: 5 - Production/Stable",

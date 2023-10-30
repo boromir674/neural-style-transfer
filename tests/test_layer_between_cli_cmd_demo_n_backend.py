@@ -1,12 +1,17 @@
-# TEST that the _demo script (artificial_artwork._demo) which interfaces with
+
+# TEST that the _demo.py module (artificial_artwork._demo) which interfaces with
 # the 'cmd_demo' module (which defines the nst's 'demo' CLI subcommand)
+
 
 def test_code_of_layer_bridging_demo_cli_cmd_and_backend(
     toy_nst_algorithm,
+    test_suite,
+    monkeypatch,
 ):
+    from pathlib import Path
     # GIVEN the module that implements the layer which bridges the CLI demo cmd
     # and the backend
-    from artificial_artwork._demo import create_algo_runner
+    from artificial_artwork import _demo
 
     # GIVEN a function that implements a way to mock/monkeypatch the bridge, so
     # that this test case is a unit-test and does not need to integrate with the
@@ -14,8 +19,10 @@ def test_code_of_layer_bridging_demo_cli_cmd_and_backend(
     handler = toy_nst_algorithm()  # monkey patch production pretrained weights
     # and return a handler designed to handle operations of toy model
 
+    monkeypatch.setattr(_demo, 'source_root_dir', Path(test_suite) / '..')
+
     # WHEN we execute the Layer-provided function that initializes the NST algo
-    backend_objs = create_algo_runner()
+    backend_objs = _demo.create_algo_runner()
 
     # THEN we are provided with a way to run/start the iterative algorithm,
     # which by now should be configured (ie define Computational Graph Architecture,
