@@ -53,11 +53,9 @@ platform="linux"
 python_version="3.8"
 
 # get coverage data file path
-mv ./.tox/coverage.xml "${destination_xml_file_path}"
-# destination_xml_file_path="./coverage-${platform}-${python_version}.xml"
-
 # try to copy coverage data file to destination, else print error and tox coverage run log
-cp ./.tox/coverage.xml "${output_file}"
+mv ./.tox/coverage.xml "${destination_xml_file_path}"
+
 if [ $? -ne 0 ]; then
     echo "[ERROR] Failed to copy coverage data file to destination: ${destination_xml_file_path}"
     echo "[DEBUG] Dumping tox -e coverage run output:"
@@ -67,8 +65,7 @@ fi
 
 # END - Rename Coverage Files (POC Version)
 
-echo "${destination_xml_file_path}"
-
+echo " --- COVERAGE XML: ${destination_xml_file_path} --- "
 
 # Github Actions original code
 # mv ./.tox/coverage.xml ./coverage-${{ matrix.platform }}-${{ matrix.python-version }}.xml
