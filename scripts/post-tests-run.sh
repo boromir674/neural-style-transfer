@@ -3,6 +3,9 @@
 # MUST run from within the Repo Root Directory
 # DESIGNED to run after tests have been run
 
+# READ 1st Positional Arguments
+destination_xml_file_path=$1
+
 
 # Script that creates a Coverage XML file, by Aggregating all discovered Coverage
 # data found at runtime (ie generated from Test Suite Run(s), that produced a
@@ -50,11 +53,11 @@ platform="linux"
 python_version="3.8"
 
 # get coverage data file path
-destination_xml_file_path="./coverage-${platform}-${python_version}.xml"
+mv ./.tox/coverage.xml "${destination_xml_file_path}"
+# destination_xml_file_path="./coverage-${platform}-${python_version}.xml"
 
-# mv ./.tox/coverage.xml "${destination_xml_file_path}"
 # try to copy coverage data file to destination, else print error and tox coverage run log
-cp ./.tox/coverage.xml "${destination_xml_file_path}"
+cp ./.tox/coverage.xml "${output_file}"
 if [ $? -ne 0 ]; then
     echo "[ERROR] Failed to copy coverage data file to destination: ${destination_xml_file_path}"
     echo "[DEBUG] Dumping tox -e coverage run output:"

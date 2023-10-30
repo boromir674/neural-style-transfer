@@ -75,9 +75,13 @@ jobs:
       matrix: ${{fromJSON(needs.set_github_outputs.outputs.matrix)}}
     outputs:
       SEMVER_PIP_FORMAT: ${{ steps.parse_version.outputs.SEMVER_PIP_FORMAT }}
+      # CI_COVERAGE_XML: ${{ steps.produce_coverage_xml_file.outputs.CI_COVERAGE_XML }}
+      # can be used in Other Jobs as for example
+        # needs: [test_suite]
+        # environment:
+        #  name: ${{ needs.test_suite.outputs.CI_COVERAGE_XML }}
     steps:
     - run: echo "[INFO] Platform/OS ${{ matrix.platform }} , Python -> ${{ matrix.python-version }}"
-
     - uses: actions/checkout@v3
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v4
@@ -123,37 +127,26 @@ jobs:
     # no compiled code
     # .tox/${DIST_DIR}/cookiecutter_python-${PKG_VERSION}-py3-none-any.whl
 
-    # "Aggregate Code Coverage data from Test Suite (dev, sdist, wheel) & make Reports"
-    # leverages ./scripts/post-tests-run.sh which returns the path of the XML Aggregated Coverage DataXML Filecoverage report
-
     - name: "Aggregate Code Coverage & make XML Reports"
+      id: produce_coverage_xml_file
+      env:
+        # just "destructure" (aka extract) needed values from the matrix, to use in step code
+        PLATFORM: ${{ matrix.platform }}
+        PY_VERSION: ${{ matrix.python-version }}
       run: |
+        # leverages ./scripts/post-tests-run.sh which returns the path of the XML Aggregated Coverage DataXML Filecoverage report
         chmod +x ./scripts/post-tests-run.sh
-        RUNNER_COVERAGE_XML_FILE_PATH=$(./scripts/post-tests-run.sh)
+        RUNNER_COVERAGE_XML_FILE_PATH=$(./scripts/post-tests-run.sh "${PLATFORM}-${PY_VERSION}")
 
-        # Other Jobs, might use CI_COVERAGE_XML as
-        #
-        # env:
-        #   PACKAGE_DIST_VERSION: ${{ needs.test_suite.outputs.SEMVER_PIP_FORMAT }}
-
-        echo "CI_COVERAGE_XML=$RUNNER_COVERAGE_XML_FILE_PATH" >> $GITHUB_ENV
         echo "CI_COVERAGE_XML=$RUNNER_COVERAGE_XML_FILE_PATH" >> $GITHUB_OUTPUT
-      # env:
-      #   USER_PYTHON_VERSION: ${{ matrix.python-version }}  # Python version used to determine the Runner's Python runtime (interpreter version)
-      #   USER_PLATFORM_VERSION: ${{ matrix.platform }}  # Platform version used to determine the Runner's OS
+        # next step (of same Job) can use as
+        # ${{ steps.produce_coverage_xml_file.outputs.retval }}
 
-    # - name: "Combine Coverage (dev, sdist, wheel) & make Reports"
-    #   run: tox -e coverage --sitepackages -vv -s false
-
-    # - name: Rename Coverage Files
-    #   shell: bash
-    #   run: |
-    #     mv ./.tox/coverage.xml ./coverage-${{ matrix.platform }}-${{ matrix.python-version }}.xml
     - name: "Upload Test Coverage as Artifacts"
       uses: actions/upload-artifact@v3
       with:
         name: all_coverage_raw
-        path: ${{ env.CI_COVERAGE_XML }}
+        path: ${{ steps.produce_coverage_xml_file.outputs.retval }}
         # path: coverage-${{ matrix.platform }}-${{ matrix.python-version }}.xml
         if-no-files-found: error
 
@@ -178,7 +171,7 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: ${{ env.DIST_DIR }}-${{ matrix.platform }}-${{ matrix.python-version }}
-        path: ${{ env.DIST_DIR }}
+        # path: ${{ env.DIST_DIR }}
         if-no-files-found: error
 
 
