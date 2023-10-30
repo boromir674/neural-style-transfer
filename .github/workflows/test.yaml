@@ -107,7 +107,8 @@ jobs:
           WHEEL_VERSION="${WHEEL_VERSION}0"
         fi
         echo "==== $PARSED_VERSION  -->  $WHEEL_VERSION"
-        echo "PKG_VERSION=$WHEEL_VERSION" >> $GITHUB_ENV  # to be used in the next step
+        # to be used in the next step
+        echo "PKG_VERSION=$WHEEL_VERSION" >> $GITHUB_ENV
         echo "SEMVER_PIP_FORMAT=$WHEEL_VERSION" >> $GITHUB_OUTPUT  # to be used in other jobs
 
   ## TEST SUITE: By Default executes only unit-tests (ie no integration, or network-dependent tests)
@@ -134,13 +135,16 @@ jobs:
         PLATFORM: ${{ matrix.platform }}
         PY_VERSION: ${{ matrix.python-version }}
       run: |
+        tox -e coverage --sitepackages -vv -s false
+        mv ./.tox/coverage.xml "coverage-${PLATFORM}-${PY_VERSION}.xml"
+
         # leverages ./scripts/post-tests-run.sh which returns the path of the XML Aggregated Coverage DataXML Filecoverage report
-        chmod +x ./scripts/post-tests-run.sh
-        RUNNER_COVERAGE_XML_FILE_PATH=$(./scripts/post-tests-run.sh "${PLATFORM}-${PY_VERSION}")
+        # chmod +x ./scripts/post-tests-run.sh
+        # RUNNER_COVERAGE_XML_FILE_PATH=$(./scripts/post-tests-run.sh "${PLATFORM}-${PY_VERSION}")
 
         echo "CI_COVERAGE_XML=$RUNNER_COVERAGE_XML_FILE_PATH" >> $GITHUB_OUTPUT
         # next step (of same Job) can use as
-        # ${{ steps.produce_coverage_xml_file.outputs.retval }}
+        # Example: ${{ steps.produce_coverage_xml_file.outputs.retval }}
 
     - name: "Upload Test Coverage as Artifacts"
       uses: actions/upload-artifact@v3
