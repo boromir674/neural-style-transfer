@@ -125,11 +125,19 @@ jobs:
 
     # "Aggregate Code Coverage data from Test Suite (dev, sdist, wheel) & make Reports"
     # leverages ./scripts/post-tests-run.sh which returns the path of the XML Aggregated Coverage DataXML Filecoverage report
+
     - name: "Aggregate Code Coverage & make XML Reports"
       run: |
+        chmod +x ./scripts/post-tests-run.sh
         RUNNER_COVERAGE_XML_FILE_PATH=$(./scripts/post-tests-run.sh)
-        echo "CI_COVERAGE_XML=$RUNNER_COVERAGE_XML_FILE_PATH" >> $GITHUB_OUTPUT
+
+        # Other Jobs, might use CI_COVERAGE_XML as
+        #
+        # env:
+        #   PACKAGE_DIST_VERSION: ${{ needs.test_suite.outputs.SEMVER_PIP_FORMAT }}
+
         echo "CI_COVERAGE_XML=$RUNNER_COVERAGE_XML_FILE_PATH" >> $GITHUB_ENV
+        echo "CI_COVERAGE_XML=$RUNNER_COVERAGE_XML_FILE_PATH" >> $GITHUB_OUTPUT
       # env:
       #   USER_PYTHON_VERSION: ${{ matrix.python-version }}  # Python version used to determine the Runner's Python runtime (interpreter version)
       #   USER_PLATFORM_VERSION: ${{ matrix.platform }}  # Platform version used to determine the Runner's OS
