@@ -136,7 +136,10 @@ jobs:
         PY_VERSION: ${{ matrix.python-version }}
       run: |
         tox -e coverage --sitepackages -vv -s false
-        mv ./.tox/coverage.xml "coverage-${PLATFORM}-${PY_VERSION}.xml"
+        
+        RUNNER_COVERAGE_XML_FILE_PATH="coverage-${PLATFORM}-${PY_VERSION}.xml"
+
+        mv ./.tox/coverage.xml "${RUNNER_COVERAGE_XML_FILE_PATH}"
 
         # leverages ./scripts/post-tests-run.sh which returns the path of the XML Aggregated Coverage DataXML Filecoverage report
         # chmod +x ./scripts/post-tests-run.sh
