@@ -143,14 +143,14 @@ jobs:
         # RUNNER_COVERAGE_XML_FILE_PATH=$(./scripts/post-tests-run.sh "${PLATFORM}-${PY_VERSION}")
 
         echo "CI_COVERAGE_XML=$RUNNER_COVERAGE_XML_FILE_PATH" >> $GITHUB_OUTPUT
-        # next step (of same Job) can use as
-        # Example: ${{ steps.produce_coverage_xml_file.outputs.retval }}
+        echo "CI_COVERAGE_XML_THIS=$RUNNER_COVERAGE_XML_FILE_PATH" >> $GITHUB_ENV
 
     - name: "Upload Test Coverage as Artifacts"
       uses: actions/upload-artifact@v3
       with:
         name: all_coverage_raw
-        path: ${{ steps.produce_coverage_xml_file.outputs.retval }}
+        path: ${{ env.CI_COVERAGE_XML_THIS }}
+        # steps.produce_coverage_xml_file.outputs.retval
         # path: coverage-${{ matrix.platform }}-${{ matrix.python-version }}.xml
         if-no-files-found: error
 
