@@ -23,7 +23,7 @@ This Python package runs a Neural Style Tranfer algorithm on input `content` and
     :stub-columns: 1
 
     * - tests
-      - | |github_actions_ci| |codecov|
+      - | |ci_pipeline| |codecov|
 
     * - package
       - | |pypi| |wheel| |py_versions| |commits_since|
@@ -157,6 +157,9 @@ and the pretrained model are present. That way you can immediately start creatin
 
     docker run -it --rm -v $NST_OUTPUT:/nst-output boromir674/neural-style-transfer $STYLE $CONTENT --iteratins 200 --location /nst-output
 
+.. |ci_pipeline| image:: https://img.shields.io/github/actions/workflow/status/boromir674/neural-style-transfer/test.yaml?branch=release&label=build&logo=github-actions&logoColor=233392FF
+    :alt: CI Pipeline Status
+    :target: https://github.com/boromir674/neural-style-transfer/actions?query=branch%3Arelease++ 
 
 .. |github_actions_ci|  image:: https://img.shields.io/github/actions/workflow/status/boromir674/neural-style-transfer/test.yaml?link=https%3A%2F%2Fgithub.com%2Fboromir674%2Fneural-style-transfer%2Factionsbranch=release
    :alt: GitHub Workflow Status
@@ -167,11 +170,10 @@ and the pretrained model are present. That way you can immediately start creatin
     :target: https://circleci.com/gh/boromir674/neural-style-transfer/tree/master
 
 
-.. |codecov| image:: https://codecov.io/gh/boromir674/neural-style-transfer/branch/master/graph/badge.svg?token=3POTVNU0L4
+.. |codecov| image:: https://codecov.io/gh/boromir674/neural-style-transfer/branch/release/graph/badge.svg
     :alt: Codecov
-    :target: https://app.codecov.io/gh/boromir674/neural-style-transfer/branch/master
+    :target: https://app.codecov.io/gh/boromir674/neural-style-transfer/tree/release
     
-
 
 .. |pypi| image:: https://img.shields.io/pypi/v/artificial-artwork?color=blue&label=pypi&logo=pypi&logoColor=%23849ed9
     :alt: PyPI
@@ -185,15 +187,14 @@ and the pretrained model are present. That way you can immediately start creatin
     :alt: PyPI - Python Version
     :target: https://pypi.org/project/artificial-artwork
 
+.. |version| image:: https://img.shields.io/pypi/v/artificial-artwork.svg
+    :alt: PyPI Package latest release
+    :target: https://pypi.org/project/artificial-artwork
+
 .. |commits_since| image:: https://img.shields.io/github/commits-since/boromir674/neural-style-transfer/v1.0.0/master?color=blue&logo=Github
     :alt: GitHub commits since tagged version (branch)
     :target: https://github.com/boromir674/neural-style-transfer/compare/v1.0.0..master
 
-
-
-.. |better_code_hub| image:: https://bettercodehub.com/edge/badge/boromir674/neural-style-transfer?branch=master
-    :alt: Better Code Hub
-    :target: https://bettercodehub.com/
 
 .. |codacy| image:: https://app.codacy.com/project/badge/Grade/07b27ac547a94708aefc5e845d2b6d01
     :alt: Codacy
@@ -213,13 +214,7 @@ and the pretrained model are present. That way you can immediately start creatin
 
 
 
-.. |version| image:: https://img.shields.io/pypi/v/topic-modeling-toolkit.svg
-    :alt: PyPI Package latest release
-    :target: https://pypi.org/project/topic-modeling-toolkit
 
-.. |python_versions| image:: https://img.shields.io/pypi/pyversions/artificial-artwork.svg
-    :alt: Supported versions
-    :target: https://pypi.org/project/artificial-artwork/
 
 
 
