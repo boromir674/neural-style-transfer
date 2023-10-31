@@ -1,6 +1,21 @@
 # Changelog
 
 
+## 1.0.1-dev (2023-10-31)
+
+Revive CI Pipeline
+
+### Changes
+
+##### documentation
+- update badges refs and urls
+- add CI Pipeline Status Badge in README
+- show Demo Content Image + Style Image = Generated Image
+
+##### ci
+- Upload Code Coverage Data to Codecov.io, resulted from Test Suite runs
+
+
 ## 1.0.0 (2023-10-29)
 
 - Prototype GUI Client
