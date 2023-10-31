@@ -157,22 +157,22 @@ and the pretrained model are present. That way you can immediately start creatin
 
     docker run -it --rm -v $NST_OUTPUT:/nst-output boromir674/neural-style-transfer $STYLE $CONTENT --iteratins 200 --location /nst-output
 
-.. |ci_pipeline| image:: https://img.shields.io/github/actions/workflow/status/boromir674/neural-style-transfer/test.yaml?branch=release&label=build&logo=github-actions&logoColor=233392FF
+.. |ci_pipeline| image:: https://img.shields.io/github/actions/workflow/status/boromir674/neural-style-transfer/test.yaml?branch=master&label=build&logo=github-actions&logoColor=233392FF
     :alt: CI Pipeline Status
-    :target: https://github.com/boromir674/neural-style-transfer/actions?query=branch%3Arelease++ 
+    :target: https://github.com/boromir674/neural-style-transfer/actions?query=branch%3Amaster++ 
 
-.. |github_actions_ci|  image:: https://img.shields.io/github/actions/workflow/status/boromir674/neural-style-transfer/test.yaml?link=https%3A%2F%2Fgithub.com%2Fboromir674%2Fneural-style-transfer%2Factionsbranch=release
+.. |github_actions_ci|  image:: https://img.shields.io/github/actions/workflow/status/boromir674/neural-style-transfer/test.yaml?link=https%3A%2F%2Fgithub.com%2Fboromir674%2Fneural-style-transfer%2Factionsbranch=master
    :alt: GitHub Workflow Status
-   :target: https://github.com/boromir674/neural-style-transfer/actions?query=branch%3Arelease++
+   :target: https://github.com/boromir674/neural-style-transfer/actions?query=branch%3Amaster++
 
 .. |circleci|  image:: https://img.shields.io/circleci/build/github/boromir674/neural-style-transfer/master?logo=circleci
     :alt: CircleCI
     :target: https://circleci.com/gh/boromir674/neural-style-transfer/tree/master
 
 
-.. |codecov| image:: https://codecov.io/gh/boromir674/neural-style-transfer/branch/release/graph/badge.svg
+.. |codecov| image:: https://codecov.io/gh/boromir674/neural-style-transfer/branch/master/graph/badge.svg
     :alt: Codecov
-    :target: https://app.codecov.io/gh/boromir674/neural-style-transfer/tree/release
+    :target: https://app.codecov.io/gh/boromir674/neural-style-transfer/tree/master
     
 
 .. |pypi| image:: https://img.shields.io/pypi/v/artificial-artwork?color=blue&label=pypi&logo=pypi&logoColor=%23849ed9
@@ -188,7 +188,7 @@ and the pretrained model are present. That way you can immediately start creatin
     :target: https://pypi.org/project/artificial-artwork
 
 .. |version| image:: https://img.shields.io/pypi/v/artificial-artwork.svg
-    :alt: PyPI Package latest release
+    :alt: PyPI Package latest master
     :target: https://pypi.org/project/artificial-artwork
 
 .. |commits_since| image:: https://img.shields.io/github/commits-since/boromir674/neural-style-transfer/v1.0.1-dev/master?color=blue&logo=Github
