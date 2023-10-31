@@ -23,7 +23,7 @@ This Python package runs a Neural Style Tranfer algorithm on input `content` and
     :stub-columns: 1
 
     * - tests
-      - | |codecov|
+      - | |github_actions_ci| |codecov|
 
     * - package
       - | |pypi| |wheel| |py_versions| |commits_since|
@@ -158,7 +158,9 @@ and the pretrained model are present. That way you can immediately start creatin
     docker run -it --rm -v $NST_OUTPUT:/nst-output boromir674/neural-style-transfer $STYLE $CONTENT --iteratins 200 --location /nst-output
 
 
-
+.. |github_actions_ci|  image:: https://img.shields.io/github/actions/workflow/status/boromir674/neural-style-transfer/test.yaml?link=https%3A%2F%2Fgithub.com%2Fboromir674%2Fneural-style-transfer%2Factionsbranch=ci
+   :alt: GitHub Workflow Status
+   :target: https://github.com/boromir674/neural-style-transfer/actions?query=branch%3Aci++
 
 .. |circleci|  image:: https://img.shields.io/circleci/build/github/boromir674/neural-style-transfer/master?logo=circleci
     :alt: CircleCI
