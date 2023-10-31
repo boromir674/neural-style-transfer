@@ -191,9 +191,9 @@ and the pretrained model are present. That way you can immediately start creatin
     :alt: PyPI Package latest release
     :target: https://pypi.org/project/artificial-artwork
 
-.. |commits_since| image:: https://img.shields.io/github/commits-since/boromir674/neural-style-transfer/v1.0.0/master?color=blue&logo=Github
+.. |commits_since| image:: https://img.shields.io/github/commits-since/boromir674/neural-style-transfer/v1.0.1-dev/master?color=blue&logo=Github
     :alt: GitHub commits since tagged version (branch)
-    :target: https://github.com/boromir674/neural-style-transfer/compare/v1.0.0..master
+    :target: https://github.com/boromir674/neural-style-transfer/compare/v1.0.1-dev..master
 
 
 .. |codacy| image:: https://app.codacy.com/project/badge/Grade/07b27ac547a94708aefc5e845d2b6d01
