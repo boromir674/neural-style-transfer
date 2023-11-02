@@ -299,7 +299,7 @@ jobs:
           echo "Sent to Codecov: $file !"
         done
 
-# DOCKER BUILD AND PUBLISH ON DOCKERHUB
+## DOCKER BUILD AND PUBLISH ON DOCKERHUB ##
   docker_build:
     runs-on: ubuntu-latest
     needs: test_suite
@@ -323,8 +323,38 @@ jobs:
         docker logout
         echo "Published in Dockerhub :)"
 
+
+## DEPLOY to PYPI: PROD and STAGING
+# Automated Upload of Builds (.tar.gz, .whl), triggered by git push (aka git ops)
+
+# Deployment happens only IF
+#   - PUBLISH_ON_PYPI == 'true'
+#   - we are on 'master' or 'dev' branch
+#   - the pushed git ref is a tag starting with 'v' ie v1.0.0
+
+ 
+# For Production deployment we use the public pypi.org server.
+# be on master branch, when you push a tag
+
+# For Staging deployment we use the test.pypi.org server.
+# be on dev branch, when you push a tag
+
+# - first make sure PUBLISH_ON_PYPI = true in Worklow test.yaml file
+
+# To trigger automatically building your source code and deploying/uploading to PyPI, so that is becomes pip installable, you need to:
+# - to trigger the automated deployment, push a git tag, that starts with 'v' (eg: v1.0.0, v1.2.3-dev, etc)
+
+
+
 # PUBLISH DISTRIBUTIONS ON PYPI
-# we consider publishing on tags starting with "v"
+# 1st Job
+# Check if PUBLISH_ON_PYPI switch is ON, else do not attempt to deploy to PyPI
+# Check if git ref is a tag, which starts with 'v', and that tag is on master or dev branches,
+# else Signal that we 'do not handle such cases' (eg we want want to avoid accidental automated deployments to happen)
+
+# 2nd Job
+# If the Signal indicates that conditions are met for an Automated Deployment
+# ...
   check_which_git_branch_we_are_on:
     runs-on: ubuntu-latest
     needs: set_github_outputs
