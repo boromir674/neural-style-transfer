@@ -29,11 +29,14 @@ env:
   # On/Off switches for the various CI/CD steps
   # If false the step prevented from running
   # If true the step is allowed to run (it still may be skipped on other runtime conditions)
-  RUN_UNIT_TESTS: "true"
-  RUN_LINT_CHECKS: "false"
+  RUN_UNIT_TESTS: "false"
+  RUN_LINT_CHECKS: "true"
   BUILD_DOCKER: "false"
-  PUBLISH_ON_PYPI: "true"
+  PUBLISH_ON_PYPI: "false"
   DRAW_DEPENDENCIES: "false"
+
+  # Other "global" config
+  STATIC_ANALYSIS_PY: "3.10"
 
 jobs:
   # we use the below to read the workflow env vars and be able to use in "- if:" Job conditionals
@@ -49,6 +52,7 @@ jobs:
       DRAW_DEPS_SVG_GRAPHS: ${{ steps.pass-env-to-output.outputs.DRAW_DEPS_SVG_GRAPHS }}
       RUN_LINT: ${{ steps.pass-env-to-output.outputs.RUN_LINT }}
       PUBLISH_ON_PYPI: ${{ steps.pass-env-to-output.outputs.PUBLISH_ON_PYPI }}
+      # STATIC_ANALYSIS_PY_VERSION: ${{ steps.pass-env-to-output.outputs.STATIC_ANALYSIS_PY_VERSION }}
     steps:
       - name: Pass 'env' section variables to GITHUB_OUTPUT
         id: pass-env-to-output
@@ -65,6 +69,8 @@ jobs:
           echo "TESTS_ENABLED=$RUN_UNIT_TESTS" >> $GITHUB_OUTPUT
           echo "DOCKER_ENABLED=$BUILD_DOCKER" >> $GITHUB_OUTPUT
           echo "PUBLISH_ON_PYPI=$PUBLISH_ON_PYPI" >> $GITHUB_OUTPUT
+
+          # echo "STATIC_ANALYSIS_PY_VERSION=$STATIC_ANALYSIS_PY"  >> $GITHUB_OUTPUT
 
 # RUN TEST SUITE ON ALL PLATFORMS
   test_suite:
@@ -504,8 +510,6 @@ jobs:
         docker logout
         echo "Published in Dockerhub :)"
 
-
-
 # STATIC CODE ANALYSIS & LINTING
   lint:
     name: "Static Code Analysis & Lint"
@@ -513,23 +517,36 @@ jobs:
     needs: set_github_outputs
     if: ${{ needs.set_github_outputs.outputs.RUN_LINT == 'true' }}
     strategy:
-      matrix: ${{fromJson(needs.set_github_outputs.outputs.matrix)}}
+      matrix: ${{fromJSON(needs.set_github_outputs.outputs.matrix)}}
     steps:
       - uses: actions/checkout@v3
-      - name: Set up Python ${{ matrix.python-version }}
+
+      - name: Read Pipe Parameter STATIC_ANALYSIS_PY, to determine Python runtime to use for Static Code Analysis
+        run: echo "MY_STATIC_ANALYSIS_PY_VERSION=$STATIC_ANALYSIS_PY" >> $GITHUB_ENV  #  can be used in a with body of a next step in the Job, as eg: path: ${{ env.DIST_DIR }}
+
+      - name: Set up Python ${{ env.MY_STATIC_ANALYSIS_PY_VERSION }}
         uses: actions/setup-python@v4
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: ${{ env.MY_STATIC_ANALYSIS_PY_VERSION }}
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           python -m pip install tox==3.28 tox-gh-actions
+
+      ## Isort, Black ##
       - name: Lint check code with Isort and Black
         if: ${{ matrix.platform != 'windows-latest' }}
         run: tox -e lint -vv -s false
-      - run: tox -e pylint -vv -s false | tee pylint-result.txt
-      - run: cat pylint-result.txt
-      - name: "Check Pylint Score > 8.2/10"
+
+      ## Pylint ##
+      - name: Run Pylint tool on Python Code Base
+        run: tox -e pylint -vv -s false | tee pylint-result.txt
+
+      - name: Show Pylint output in Terminal
+        run: cat pylint-result.txt
+
+      - name: "Accept Code if Pylint Score > 8.2/10"
         if: ${{ matrix.platform != 'windows-latest' }}
         env:
           PYLINT_THRESHOLD: 8.2
@@ -543,9 +560,12 @@ jobs:
             echo "PyLint Failed | Score: ${SCORE} | Threshold: ${PYLINT_THRESHOLD}"
             exit 1
           fi
-      - name: Run tox -e prospector
+
+      ## Pyflakes, Pyroma, McCabe, DodgyRun ##
+      - name: Check for errors, potential problems, convention violations and complexity, by running tools Pyflakes, Pyroma, McCabe, and DodgyRun
         if: ${{ matrix.platform != 'windows-latest' }}
         run: tox -e prospector -vv -s false
+
 
 # DRAW PYTHON DEPENDENCY GRAPHS
   check_trigger_draw_dependency_graphs:
