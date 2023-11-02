@@ -335,9 +335,6 @@ jobs:
     runs-on: ubuntu-latest
     needs: set_github_outputs
     if: ${{ startsWith(github.event.ref, 'refs/tags/v') && needs.set_github_outputs.outputs.PUBLISH_ON_PYPI == 'true' }}
-    outputs:
-      ENVIRONMENT_NAME: ${{ steps.set_environment_name.outputs.ENVIRONMENT_NAME }}
-      AUTOMATED_DEPLOY: ${{ steps.set_environment_name.outputs.AUTOMATED_DEPLOY }}
     steps:
       - uses: actions/checkout@v3
         with:
@@ -378,10 +375,16 @@ jobs:
       - run: echo " ==== ${AUTOMATED_DEPLOY} ===="
 
       - name: Set Output for other Jobs to receive
+        id: set_job_outputs
         run: |
+          echo " --- Selected ENV NAME: $SELECTED_ENVIRONMENT "
+          echo "ENVIRONMENT_NAME=${SELECTED_ENVIRONMENT}" >> $GITHUB_OUTPUT
           echo " --- Signal OK for Automated Deployment?: $AUTOMATED_DEPLOY "
-          echo "AUTOMATED_DEPLOY=$AUTOMATED_DEPLOY" >> $GITHUB_OUTPUT
-          echo "ENVIRONMENT_NAME=$SELECTED_ENVIRONMENT" >> $GITHUB_OUTPUT
+          echo "AUTOMATED_DEPLOY=${AUTOMATED_DEPLOY}" >> $GITHUB_OUTPUT
+
+    outputs:
+      ENVIRONMENT_NAME: ${{ steps.set_job_outputs.outputs.ENVIRONMENT_NAME }}
+      AUTOMATED_DEPLOY: ${{ steps.set_job_outputs.outputs.AUTOMATED_DEPLOY }}
 
   ### PYPI UPLOAD JOB ###
   pypi_publish:
