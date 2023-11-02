@@ -373,13 +373,18 @@ jobs:
             echo "[DEBUG] ${{ github.ref }}"
             DEPLOY=false
           fi
+          
+          echo "[DEBUG] Branch name: ${GITHUB_REF_NAME}"
+          echo " ==== ${ENVIRONMENT_NAME} ===="
           echo " --- Signal OK for Automated Deployment?: $DEPLOY "
+          
           echo "AUTOMATED_DEPLOY=$DEPLOY" >> $GITHUB_OUTPUT
           echo "ENVIRONMENT_NAME=$ENVIROMENT_NAME" >> $GITHUB_OUTPUT
 
   ### PYPI UPLOAD JOB ###
   pypi_publish:
-    needs: [test_suite, check_which_git_branch_we_are_on]
+    # needs: [test_suite, check_which_git_branch_we_are_on]
+    needs: check_which_git_branch_we_are_on
     runs-on: ubuntu-latest
     # if we are on tag starting with "v" and if we are on master or release branch
     if: ${{ startsWith(github.event.ref, 'refs/tags/v') && needs.check_which_git_branch_we_are_on.outputs.AUTOMATED_DEPLOY == 'true' }}
@@ -456,10 +461,11 @@ jobs:
     - run: echo "Publishing $PACKAGE_DIST_VERSION to $PYPI_SERVER PyPI"
 
     - name: Publish to PyPI
-      run: tox -vv -s false -e deploy
+      # run: tox -vv -s false -e deploy
+      run: tox -vv -s false -e deploy -- upload --non-interactive --skip-existing
+      
       # runs: twine upload --non-interactive --repository testpypi --skip-existing ./dist/PY_PACKAGE-:Version.tar.gz --verbose
       
-      # run: tox -vv -s false -e deploy -- upload --non-interactive --skip-existing
       # runs: twine upload --non-interactive --skip-existing --repository testpypi --skip-existing ./dist/PY_PACKAGE-:Version.tar.gz --verbose
     
     - run: echo "Published :\)"
