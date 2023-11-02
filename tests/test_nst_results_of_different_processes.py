@@ -5,8 +5,10 @@ def test_nst_produces_same_image_when_run_on_different_processes(
     test_suite,
 ):
     from pathlib import Path
-    from numpy.typing import NDArray
+
     import imageio
+    from numpy.typing import NDArray
+
     # GIVEN the Generated Image from the NST algorithm run on a single process
     run_1_gen_img_path: Path = Path(test_suite) / 'data' / \
         'canoe_water_w300-h225.jpg+blue-red_w300-h225.jpg-100-demo-gui-run-1.png'

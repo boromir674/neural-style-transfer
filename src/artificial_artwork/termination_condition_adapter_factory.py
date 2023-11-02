@@ -1,5 +1,5 @@
-from .termination_condition_adapter import TerminationConditionAdapterClassFactory
 from .termination_condition import TerminationConditionFacility
+from .termination_condition_adapter import TerminationConditionAdapterClassFactory
 
 
 class TerminationConditionAdapterFactory:

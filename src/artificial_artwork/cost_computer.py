@@ -1,4 +1,5 @@
 import tensorflow as tf
+
 from .nst_math import gram_matrix
 
 

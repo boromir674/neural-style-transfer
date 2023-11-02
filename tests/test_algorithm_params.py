@@ -1,5 +1,6 @@
 import pytest
 
+
 @pytest.fixture
 def algorithm_parameters():
     from artificial_artwork.algorithm import AlogirthmParameters

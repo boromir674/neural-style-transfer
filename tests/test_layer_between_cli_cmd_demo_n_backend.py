@@ -9,6 +9,7 @@ def test_code_of_layer_bridging_demo_cli_cmd_and_backend(
     monkeypatch,
 ):
     from pathlib import Path
+
     # GIVEN the module that implements the layer which bridges the CLI demo cmd
     # and the backend
     from artificial_artwork import _demo

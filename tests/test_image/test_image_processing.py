@@ -1,10 +1,15 @@
-import pytest
 import numpy as np
+import pytest
 
 
 @pytest.fixture
 def image_operations():
-    from artificial_artwork.image.image_operations import reshape_image, subtract, noisy, convert_to_uint8
+    from artificial_artwork.image.image_operations import (
+        convert_to_uint8,
+        noisy,
+        reshape_image,
+        subtract,
+    )
     return type('Ops', (), {
         'reshape': reshape_image,
         'subtract': subtract,

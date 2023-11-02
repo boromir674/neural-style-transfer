@@ -19,8 +19,9 @@ def test_cli_demo(test_suite, toy_nst_algorithm, isolated_cli_runner, monkeypatc
     stderr are not mixed with the pytest's stdout and stderr.
     """
     from pathlib import Path
-    from artificial_artwork.cli import entry_point as main
+
     from artificial_artwork import _demo
+    from artificial_artwork.cli import entry_point as main
 
     # monkey patch _demo module to trick the _demo module in believing it is
     # inside the Test Suite dir ('tests/'), so that it properly locates the demo
@@ -67,6 +68,7 @@ def test_cli_demo(test_suite, toy_nst_algorithm, isolated_cli_runner, monkeypatc
 def test_cli_main(test_suite,
     toy_nst_algorithm, isolated_cli_runner):
     from pathlib import Path
+
     from artificial_artwork.cli import entry_point as main
 
     # Monkey Patch Prod NST (Prod Pretrained Weights) to use Toy Network (Toy Pretrained Weights)

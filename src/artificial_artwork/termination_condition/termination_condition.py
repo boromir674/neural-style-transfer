@@ -1,6 +1,6 @@
 import attr
-
 from software_patterns import SubclassRegistry
+
 from .termination_condition_interface import TerminationConditionInterface
 
 # Future work: use an Abstract class while also inheriting from a generic

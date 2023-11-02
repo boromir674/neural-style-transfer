@@ -1,8 +1,11 @@
 import pytest
 
+
 @pytest.fixture
 def termination_condition_adapter(termination_condition):
-    from artificial_artwork.termination_condition_adapter_factory import TerminationConditionAdapterFactory
+    from artificial_artwork.termination_condition_adapter_factory import (
+        TerminationConditionAdapterFactory,
+    )
     return TerminationConditionAdapterFactory.create('max-iterations', 4)
 
 

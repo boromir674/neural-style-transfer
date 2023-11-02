@@ -1,6 +1,8 @@
 
-import numpy.typing as npt
 from typing import Union
+
+import numpy.typing as npt
+
 ImSaveFormatParamType = Union[str, None]
 
 

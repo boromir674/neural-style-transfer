@@ -2,7 +2,8 @@
 utilize a pretrained model and its weights"""
 
 from abc import ABC, abstractmethod
-from typing import Tuple, Dict
+from typing import Dict, Tuple
+
 from numpy.typing import NDArray
 
 

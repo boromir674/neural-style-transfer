@@ -1,4 +1,5 @@
-from typing import List, Tuple, Iterable, Protocol
+from typing import Iterable, List, Protocol, Tuple
+
 import attr
 
 

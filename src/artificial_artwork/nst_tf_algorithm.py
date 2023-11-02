@@ -1,13 +1,14 @@
+import typing as t
 from time import time
 from typing import Dict
-import typing as t
+
 import attr
 import tensorflow as tf
 from software_patterns import Subject
 
-from .tf_session_runner import TensorflowSessionRunner
-from .style_model import graph_factory
 from .cost_computer import NSTContentCostComputer, NSTStyleCostComputer
+from .style_model import graph_factory
+from .tf_session_runner import TensorflowSessionRunner
 
 # Represents a Layer (cloned from a pretrained model network)
 # of the non-constant network we optimize weights for

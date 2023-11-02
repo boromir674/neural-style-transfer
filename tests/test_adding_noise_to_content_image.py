@@ -1,14 +1,16 @@
 import pytest
 
+
 # TEST that when adding random noise to the same image, twice in a row, the
 # result is different
 def test_adding_noise_results_in_random_image(
     test_suite,
 ):
     import typing as t
-    from numpy.typing import NDArray
     from pathlib import Path
-    
+
+    from numpy.typing import NDArray
+
     # CONSTANTS #
     expected_content_image_shape = (
         225,  # Height
@@ -40,6 +42,7 @@ def test_adding_noise_results_in_random_image(
 
 def test_numpy_random_generator_stochastic_process_is_reproducable():
     import numpy as np
+
     # Expected 1st Sample from RNG with seed 1234
     expected_array_1 = np.array([
         [[19.067991, -4.7921705, 16.92985],
@@ -99,14 +102,13 @@ def test_verify_if_production_uses_the_same_seed_on_restart():
 @pytest.fixture
 def prod_read_image_from_disk():
     import typing as t
+
     import numpy as np
     from numpy.typing import NDArray
-    from artificial_artwork.image.image_operations import (
-        reshape_image,
-        subtract,
-    )
-    from artificial_artwork.image.image_factory import ImageFactory
+
     from artificial_artwork.disk_operations import Disk
+    from artificial_artwork.image.image_factory import ImageFactory
+    from artificial_artwork.image.image_operations import reshape_image, subtract
 
     def _prod_read_image_from_disk(image_path: str) -> NDArray:
         means = np.array([123.68, 116.779, 103.939]).reshape((1,1,1,3))  # means
@@ -131,9 +133,10 @@ def test_adding_noise_with_the_same_seed_results_in_same_image(
     prod_read_image_from_disk,
 ):
     import typing as t
-    from numpy.typing import NDArray
     from pathlib import Path
+
     import numpy as np
+    from numpy.typing import NDArray
     rng = np.random.default_rng(seed=42)
 
     # CONSTANTS #
@@ -185,9 +188,11 @@ def test_adding_noise_with_the_same_seed_results_in_same_image(
     # THEN the first noisy image is the same as the prerecorded generated-with-noise image
     # produced with the same seed
     from artificial_artwork.image.image_operations import convert_to_uint8
+
     # if we have shape of form (1, Width, Height, Number_of_Color_Channels)
     if first_noisy_content_image_matrix.ndim == 4 and first_noisy_content_image_matrix.shape[0] == 1:
         import numpy as np
+
         # reshape to (Width, Height, Number_of_Color_Channels)
         first_noisy_content_image_matrix = np.reshape(first_noisy_content_image_matrix, tuple(first_noisy_content_image_matrix.shape[1:]))
     if str(first_noisy_content_image_matrix.dtype) != 'uint8':
@@ -205,6 +210,7 @@ def test_adding_noise_with_the_same_seed_results_in_same_image(
 
 def test_prod_noise():
     import numpy as np
+
     from artificial_artwork.image.image_operations import ImageNoiseAdder
 
     # Expected 1st Sample from RNG with seed 1234
@@ -252,6 +258,7 @@ def test_prod_noise():
 
 def test_changing_seeds_prod_noise():
     import numpy as np
+
     from artificial_artwork.image.image_operations import ImageNoiseAdder
 
     # Expected 1st Sample from RNG with seed 1234

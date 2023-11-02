@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import Dict, Protocol, Tuple
+
 from numpy.typing import NDArray
 
 

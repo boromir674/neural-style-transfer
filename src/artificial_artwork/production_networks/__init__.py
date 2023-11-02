@@ -1,7 +1,9 @@
 from typing import Iterable, Tuple
+
 from attr import define, field
 
 from .style_layer_selector import NSTLayersSelection
+
 
 # just to be compatible with current mypy
 def style_layers(tuples: Iterable[Tuple[str, float]]):

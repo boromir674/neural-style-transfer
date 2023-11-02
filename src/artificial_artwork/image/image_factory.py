@@ -1,9 +1,10 @@
-from typing import Protocol, Callable, List
+from typing import Callable, List, Protocol
+
 import attr
 from numpy.typing import NDArray
 
-from .image_processor import ImageProcessor
 from .image import Image
+from .image_processor import ImageProcessor
 
 
 # Define type aliases

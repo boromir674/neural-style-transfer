@@ -3,13 +3,17 @@ import pytest
 
 @pytest.fixture
 def style_layer_class():
-    from artificial_artwork.production_networks.style_layer_selector import NSTStyleLayer
+    from artificial_artwork.production_networks.style_layer_selector import (
+        NSTStyleLayer,
+    )
     return NSTStyleLayer
 
 
 @pytest.fixture
 def layers_selection_class():
-    from artificial_artwork.production_networks.style_layer_selector import NSTLayersSelection
+    from artificial_artwork.production_networks.style_layer_selector import (
+        NSTLayersSelection,
+    )
     return NSTLayersSelection
 
 

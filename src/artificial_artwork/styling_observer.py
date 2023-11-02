@@ -1,9 +1,9 @@
 import os
 from typing import Callable
-from attr import define, field, Factory
+
 import numpy as np
 import numpy.typing as npt
-
+from attr import Factory, define, field
 from software_patterns import Observer
 
 

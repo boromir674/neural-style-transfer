@@ -1,6 +1,6 @@
 from typing import TypeVar
-import tensorflow as tf
 
+import tensorflow as tf
 
 # future work: narrow down the type pf matrix argument
 # VolumeType = Union[NDArray, Type[tf.python.framework.ops.Tensor]]

@@ -17,6 +17,7 @@ def image_file_names():
 def image_manager(image_manager_class):
     """Production ImageManager instance."""
     import numpy as np
+
     from artificial_artwork.image.image_operations import reshape_image, subtract
     means = np.array([123.68, 116.779, 103.939]).reshape((1,1,1,3))
     return image_manager_class([
@@ -27,7 +28,9 @@ def image_manager(image_manager_class):
 
 @pytest.fixture
 def max_iterations_adapter_factory_method():
-    from artificial_artwork.termination_condition_adapter_factory import TerminationConditionAdapterFactory
+    from artificial_artwork.termination_condition_adapter_factory import (
+        TerminationConditionAdapterFactory,
+    )
     def create_max_iterations_termination_condition_adapter(iterations):
         return TerminationConditionAdapterFactory.create('max-iterations', iterations)
     return create_max_iterations_termination_condition_adapter
@@ -61,10 +64,10 @@ def create_algorithm(algorithm, tmpdir):
 
 @pytest.fixture
 def create_production_algorithm_runner():
-    from artificial_artwork.nst_tf_algorithm import NSTAlgorithmRunner
-    from artificial_artwork.image.image_operations import noisy, convert_to_uint8
-    from artificial_artwork.styling_observer import StylingObserver
     from artificial_artwork.disk_operations import Disk
+    from artificial_artwork.image.image_operations import convert_to_uint8, noisy
+    from artificial_artwork.nst_tf_algorithm import NSTAlgorithmRunner
+    from artificial_artwork.styling_observer import StylingObserver
     
     noisy_ratio = 0.6
     def _create_production_algorithm_runner(termination_condition_adapter, max_iterations):

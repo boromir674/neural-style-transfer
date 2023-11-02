@@ -1,17 +1,17 @@
 import os
 import sys
 
-from .disk_operations import Disk
-from .styling_observer import StylingObserver
-from .algorithm import NSTAlgorithm, AlogirthmParameters
-from .nst_tf_algorithm import NSTAlgorithmRunner
-from .termination_condition_adapter_factory import TerminationConditionAdapterFactory
-from .nst_image import noisy, convert_to_uint8
-from .production_networks import NetworkDesign
-from .pretrained_model import ModelHandlerFacility
-from .utils import load_pretrained_model_functions, read_images
-
 from artificial_artwork import __version__
+
+from .algorithm import AlogirthmParameters, NSTAlgorithm
+from .disk_operations import Disk
+from .nst_image import convert_to_uint8, noisy
+from .nst_tf_algorithm import NSTAlgorithmRunner
+from .pretrained_model import ModelHandlerFacility
+from .production_networks import NetworkDesign
+from .styling_observer import StylingObserver
+from .termination_condition_adapter_factory import TerminationConditionAdapterFactory
+from .utils import load_pretrained_model_functions, read_images
 
 this_file_location = os.path.dirname(os.path.realpath(os.path.abspath(__file__)))
 
@@ -44,12 +44,11 @@ def create_algo_runner(
 
 def _create_algo_runner(termination_condition, noisy_ratio=0.6):
     import tensorflow as tf
+
+    from artificial_artwork.image import noisy
     from artificial_artwork.tf_session_runner import (
-        TensorflowSessionRunnerSubject,
         TensorflowSessionRunner,
-    )
-    from artificial_artwork.image import (
-        noisy
+        TensorflowSessionRunnerSubject,
     )
     tf.compat.v1.reset_default_graph()
     tf.compat.v1.disable_eager_execution()

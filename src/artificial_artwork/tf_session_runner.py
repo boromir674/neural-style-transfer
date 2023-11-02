@@ -1,7 +1,7 @@
 
 from typing import List
-import tensorflow as tf
 
+import tensorflow as tf
 from software_patterns import Proxy
 
 

@@ -1,10 +1,10 @@
 from typing import Protocol
+
 import attr
 from numpy.typing import NDArray
 
-from .image import ImageFactory, reshape_image, subtract, noisy, convert_to_uint8
 from .disk_operations import Disk
-
+from .image import ImageFactory, convert_to_uint8, noisy, reshape_image, subtract
 
 __all__ = ['ImageManager', 'noisy', 'convert_to_uint8']
 

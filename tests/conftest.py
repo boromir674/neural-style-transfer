@@ -1,4 +1,5 @@
 import typing as t
+
 import pytest
 
 from artificial_artwork.pretrained_model import model_handler
@@ -65,15 +66,20 @@ def image_factory():
     Returns:
         ImageFactory: an instance of the ImageFactory class
     """
-    from artificial_artwork.image.image_factory import ImageFactory
     from artificial_artwork.disk_operations import Disk
+    from artificial_artwork.image.image_factory import ImageFactory
     return ImageFactory(Disk.load_image)
 
 
 @pytest.fixture
 def termination_condition_module():
-    from artificial_artwork.termination_condition.termination_condition import TerminationConditionFacility, \
-        TerminationConditionInterface, MaxIterations, TimeLimit, Convergence
+    from artificial_artwork.termination_condition.termination_condition import (
+        Convergence,
+        MaxIterations,
+        TerminationConditionFacility,
+        TerminationConditionInterface,
+        TimeLimit,
+    )
 
     # all tests require that the Facility already contains some implementations of TerminationCondition
     assert TerminationConditionFacility.class_registry.subclasses == {
@@ -203,23 +209,30 @@ def vgg_layers():
 
 
 import os
+
 PRODUCTION_IMAGE_MODEL = os.environ.get('AA_VGG_19', 'PRETRAINED_MODEL_NOT_FOUND')
 
 
 @pytest.fixture
 def pre_trained_models_1(vgg_layers, toy_model_data, toy_network_design):
     import typing as t
+
     from numpy.typing import NDArray
-    from artificial_artwork.production_networks import NetworkDesign
+
     from artificial_artwork.pretrained_model import ModelHandlerFacility
+    from artificial_artwork.production_networks import NetworkDesign
 
     toy_layers_loader: t.Callable[..., NDArray] = toy_model_data[0]
     pretrained_toy_model_layers: t.List[str] = toy_model_data[1]
 
     # equip ModelHandlerFacility with the 'vgg' class implementation
     from artificial_artwork.pre_trained_models import vgg
+
     # equip ModelHandlerFacility with the 'toy' class implementation
-    from artificial_artwork.pre_trained_models.vgg import VggModelRoutines, VggModelHandler
+    from artificial_artwork.pre_trained_models.vgg import (
+        VggModelHandler,
+        VggModelRoutines,
+    )
     class ToyModelRoutines(VggModelRoutines):
         # override only critical operations integrating with Prod Pretrained Stored Layers/Weights
         def load_layers(self, file_path: str):
@@ -275,9 +288,10 @@ def model(pre_trained_models_1):
 # CONSTANT DATA Representing Layers Information (ie weight values) of Toy Network
 @pytest.fixture
 def toy_model_data():
+    from functools import reduce
+
     import numpy as np
 
-    from functools import reduce
     # This data format emulates the format the production pretrained VGG layer
     # IDs are stored in
     model_layers = (
@@ -331,17 +345,21 @@ def toy_nst_algorithm(toy_model_data, toy_network_design, monkeypatch):
     def _monkeypatch():
 
         return_toy_layers, _ = toy_model_data
-        from artificial_artwork.production_networks import NetworkDesign
-        from artificial_artwork.pretrained_model import ModelHandlerFacility
+        import scipy.io
+
         # equip Handler Facility Facory with the 'vgg' implementation
         from artificial_artwork.pre_trained_models import vgg
-        import scipy.io
+        from artificial_artwork.pretrained_model import ModelHandlerFacility
+        from artificial_artwork.production_networks import NetworkDesign
 
         # if prod VGG Handler tries to load VGG Prod Weights, return Toy Weights instead
         # 1st we patch the scipy.io.loadmat, which is used by the production VGG Handler
         monkeypatch.setattr(scipy.io, 'loadmat', return_toy_layers)  # Patch/replace-with-mock
 
-        from artificial_artwork.pre_trained_models.vgg import VggModelRoutines, VggModelHandler
+        from artificial_artwork.pre_trained_models.vgg import (
+            VggModelHandler,
+            VggModelRoutines,
+        )
         class ToyModelRoutines(VggModelRoutines):
             # override only critical operations integrating with Prod Pretrained Stored Layers/Weights
             def load_layers(self, file_path: str):

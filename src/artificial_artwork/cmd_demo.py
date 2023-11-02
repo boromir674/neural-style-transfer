@@ -1,5 +1,6 @@
-from pathlib import Path
 import typing as t
+from pathlib import Path
+
 import click
 
 from ._demo import create_algo_runner as init_algo_infra

@@ -1,4 +1,5 @@
 import sys
+
 import numpy as np
 
 from .nst_image import ImageManager

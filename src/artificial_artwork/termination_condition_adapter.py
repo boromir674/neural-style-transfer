@@ -1,6 +1,6 @@
 from abc import ABC
-from typing import Callable, Protocol, Dict, Any
 from types import MethodType
+from typing import Any, Callable, Dict, Protocol
 
 from software_patterns import ObjectsPool
 

@@ -9,8 +9,8 @@ def nb_iterations():
 @pytest.fixture
 def nst_observer(disk, nb_iterations):
     """An instance object of StylingObserver class."""
-    from artificial_artwork.styling_observer import StylingObserver
     from artificial_artwork.image.image_operations import convert_to_uint8
+    from artificial_artwork.styling_observer import StylingObserver
     return StylingObserver(disk.save_image, convert_to_uint8, nb_iterations)
 
 

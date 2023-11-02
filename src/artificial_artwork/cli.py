@@ -1,9 +1,13 @@
-import typing as t
 import os
 import sys
+import typing as t
+
 import click
-from ._main import create_algo_runner
+
 from artificial_artwork import __version__
+
+from ._main import create_algo_runner
+
 
 class WithStateAttribute(t.Protocol):
     """Protocol for classes that have a state attribute."""
@@ -57,4 +61,5 @@ def run(content_image, style_image, iterations, location):
 # ATTACH CMDs
 entry_point.add_command(run)
 from .cmd_demo import demo
+
 entry_point.add_command(demo)

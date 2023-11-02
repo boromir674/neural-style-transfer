@@ -1,7 +1,11 @@
 import os
-import pytest
 import typing as t
-from artificial_artwork.pretrained_model.model_handler_interface import ModelHandlerInterface
+
+import pytest
+
+from artificial_artwork.pretrained_model.model_handler_interface import (
+    ModelHandlerInterface,
+)
 from artificial_artwork.production_networks import NetworkDesign
 
 
@@ -29,7 +33,9 @@ def graph_factory():
 
 def test_pretrained_model(model: NSTTestingModelProtocol, graph_factory):
     import sys
+
     from numpy.typing import NDArray
+
     # TYPE CHECKING
     TensorflowTensor = t.TypeVar('TensorflowTensor',
         # bound=tf.Tensor
@@ -83,7 +89,9 @@ def test_code_builds_layers_expected_to_be_found_in_prod_image_model(
 ):
     # GIVEN the catalog of layers selected by default by the algorithm to build
     # (ie wrap with tf tensors)
-    from artificial_artwork.production_networks.image_model import LAYERS as DEFAULT_VGG_LAYERS_TO_BUILD
+    from artificial_artwork.production_networks.image_model import (
+        LAYERS as DEFAULT_VGG_LAYERS_TO_BUILD,
+    )
 
     # GIVEN the known / expected Layers to be found stored in the Production
     # pretrained Image Model, used by our NST algorithm

@@ -1,10 +1,10 @@
-from typing import Tuple, Dict
-from numpy.typing import NDArray
+from typing import Dict, Tuple
+
 import scipy.io
+from numpy.typing import NDArray
 
-
+from artificial_artwork.pretrained_model import Modelhandler, ModelHandlerFacility
 from artificial_artwork.pretrained_model.model_routines import PretrainedModelRoutines
-from artificial_artwork.pretrained_model import ModelHandlerFacility, Modelhandler
 
 
 class VggModelRoutines(PretrainedModelRoutines):

@@ -1,10 +1,11 @@
 import os
-from typing import Tuple, Protocol
-from numpy.typing import NDArray
+from typing import Protocol, Tuple
 
+from numpy.typing import NDArray
 from software_patterns import SubclassRegistry
-from .model_handler_interface import ModelHandlerInterface
+
 from .layers_getter import ModelReporter
+from .model_handler_interface import ModelHandlerInterface
 
 
 class ReporterProtocol(Protocol):

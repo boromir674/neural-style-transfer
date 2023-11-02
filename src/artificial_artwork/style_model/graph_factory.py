@@ -1,10 +1,10 @@
 import re
-from typing import Dict, Protocol, Any, Iterable
+from typing import Any, Dict, Iterable, Protocol
+
 import attr
 from numpy.typing import NDArray
 
 from .graph_builder import GraphBuilder
-
 
 ModelParameters = Dict[str, NDArray]
 
