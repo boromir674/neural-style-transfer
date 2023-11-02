@@ -96,17 +96,84 @@ jobs:
       shell: bash
       id: parse_version
       run: |
+        # The Developer must have specified the necessary information in their pyproject.toml:
+        # - Pyproject.toml MUST have the `[tool.software-release]` section.
+        #   - The Section MUST have the `version_variable` key
+        #   - The Key value MUST follow format: "<path_to_file_with_sem_ver_value>:<symbol_name>"
+        # - <path_to_file_with_sem_ver_value> MUST be relative to pyproject.toml
+        #    - File MUST have a row starting with the <symbol_name> followed by a "=" and a String Value
+        #      - String Value MUST be quoted, with either double (") or single (') quotes
+        #      - MUST match Reg Ex: \s*=\s*[\'\"]([^\'\"]*)[\'\"]
+
+        # Use Case: Single Source of Truth for Code Sem Ver
+        # A Python Dev wants to have Source of Truth for their Software Semantic Version, to benefit from:
+        #  - Having only one "thing" to maintain, rather than many, reducing work, semantic load, probability of human error
+        
+        # We assume the Dev opts for storing and mainting this information inside a .py file (which belongs to their source distribution)
+        # We assume they simply define a python (str) variable, in global scope, and assign the Sem Ver string directly.
+        # Eg: __version__ = "0.0.1", or __version__ = '1.0.1-dev'
+
+        # That way they can also read the Sem Ver of the software at runtime, by importing the value since it is inside a python file
+        
+        ## EXAMPLE Valid Setup ##
+        
+        ## File pyproject.toml:
+        
+        # [tool.software-release]
+        # version_variable = "src/artificial_artwork/__version__.py:__version__"
+
+        ## File src/artificial_artwork/__version__.py:
+
+        # __version__ = "0.0.1"  # or __version__ = '1.0.1-dev'
+
+        ## EXAMPLE END ##
+
+        # The below Parser requires all above MUST Conditions to be met, and will fail if not.
         PARSER="scripts/parse_version.py"
         PARSED_VERSION=$(python "${PARSER}")
-        # transform version (ie 1.7.4-rc.1) to match the name of the wheel produced (ie 1.7.4rc1)
-        WHEEL_VERSION=$(echo $PARSED_VERSION | sed -E 's/([^.]*)\.([^.]*)\.([^-]*)-(rc)\.?(.*)/\1.\2.\3\4\5/')
+        
+        echo "==== Version Parsed: ${PARSED_VERSION} ===="
+
+        echo "[INFO] String: ${PARSED_VERSION} parsed"
+        echo "[DEBUG] We expect it to be Sem Ver 2.0 compliant"
+
+        # handle cases where user sem ver has prerelease info
+        # these cases result in artifacts (ie products of doing an 'sdist' or 'wheel' build)
+        # having names (in filesystem), that are slightly different then the ones our tool chain
+        # produces when sem ver is stricly only Major.minor.Patch 
+        
+        # ie if user supplied sem ver 1.7.4-rc.1), building a wheel produces a file with '1.7.4rc1' in its name
+        # ie if user supplied sem ver 1.7.4-dev), building a wheel produces a file with '1.7.4-dev0' in its name
+        
+
         # manually append the 0 to index the release candidate
         # we account for wheel building that automatically does the above
-        last_two=${WHEEL_VERSION: -2}
-        if [[ $last_two == "rc" ]]; then
-          WHEEL_VERSION="${WHEEL_VERSION}0"
+
+        # OPT 1, performs inpput validation and shows rich output and troubleshooting messages, in case of error
+        PROCESS_SEM_VER="scripts/process_sem_ver.py"
+        WHEEL_VERSION=$(python "${PROCESS_SEM_VER}" "${PARSED_VERSION}")
+        
+        # OPT 2, the smaller the better
+        # WHEEL_VERSION=$(python -c 'import sys; s = sys.argv[1]; print( s if "-" not in sys.argv[1] else s.replace("-", ".") + "0" ); ' "${PARSED_VERSION}")
+
+        # OPT 3, the smallest, and use shell as entrpoint, but least readable
+        # WHEEL_VERSION=$(echo $PARSED_VERSION | sed -E 's/([^.]*)\.([^.]*)\.([^-]*)-(rc)\.?(.*)/\1.\2.\3\4\5/')
+        # last_two=${WHEEL_VERSION: -2}
+        # if [[ $last_two == "rc" ]]; then
+        #   WHEEL_VERSION="${WHEEL_VERSION}0"
+        # fi
+       
+        echo "==== Distribution Version $WHEEL_VERSION derived from $PARSED_VERSION ===="
+
+        if [[ -z "$WHEEL_VERSION" ]]; then
+          echo "[ERROR] Failed to derive Distribution Version from $PARSED_VERSION"
+          exit 1
         fi
-        echo "==== $PARSED_VERSION  -->  $WHEEL_VERSION"
+
+        # WHEEL_VERSION is required by:
+        #  - 'twine' tool, running in Step below, locate the tar.gz for testing
+        #  - deploy command to locate the tar.gz and wheel(s) file to publish to pypi
+
         # to be used in the next step
         echo "PKG_VERSION=$WHEEL_VERSION" >> $GITHUB_ENV
         echo "SEMVER_PIP_FORMAT=$WHEEL_VERSION" >> $GITHUB_OUTPUT  # to be used in other jobs
@@ -163,6 +230,25 @@ jobs:
         DIST_DIR=dist
         echo "DIST_DIR=dist" >> $GITHUB_ENV  #  can be uesd in a with body of a next step in the Job, as eg: path: ${{ env.DIST_DIR }}
         mkdir ${DIST_DIR}
+        
+        TOXENV_DIST_DIR=".tox/${DIST_DIR}"
+
+        # Sanity check of files inside
+        echo "[DEBUG] ls -la ${TOXENV_DIST_DIR}"
+        ls -la ${TOXENV_DIST_DIR}
+
+        # Sanity check that among all files there onle one tar.gz and one .whl
+        # if not, Fail Job (aka exit with 1)
+
+        # if [[ $(find ${TOXENV_DIST_DIR} -type f -name "*.tar.gz" | wc -l) -ne 1 ]]; then
+        #   echo "ERROR: Expected to find 1 tar.gz file in ${TOXENV_DIST_DIR}, but found $(find ${TOXENV_DIST_DIR} -type f -name "*.tar.gz" | wc -l)"
+        #   exit 1
+        # fi
+        # if [[ $(find ${TOXENV_DIST_DIR} -type f -name "*.whl" | wc -l) -ne 1 ]]; then
+        #   echo "ERROR: Expected to find 1 .whl file in ${TOXENV_DIST_DIR}, but found $(find ${TOXENV_DIST_DIR} -type f -name "*.whl" | wc -l)"
+        #   exit 1
+        # fi
+
         mv ".tox/${DIST_DIR}/artificial_artwork-${PKG_VERSION}.tar.gz" "${DIST_DIR}"
         # mv ".tox/${DIST_DIR}/artificial_artwork-${PKG_VERSION}-py3-none-any.whl" "${DIST_DIR}"
         tox -e check -vv -s false
@@ -181,12 +267,11 @@ jobs:
         path: ${{ env.DIST_DIR }}
         if-no-files-found: error
 
-
   codecov_coverage_host:
     runs-on: ubuntu-latest
     needs: test_suite
-    env:
-      PACKAGE_DIST_VERSION: ${{ needs.test_suite.outputs.SEMVER_PIP_FORMAT }}
+    # env:
+    #   PACKAGE_DIST_VERSION: ${{ needs.test_suite.outputs.SEMVER_PIP_FORMAT }}
     steps:
     - uses: actions/checkout@v3
     - name: Get Codecov binary
