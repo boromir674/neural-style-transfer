@@ -1,6 +1,22 @@
 # Changelog
 
 
+## 1.0.1 (2023-11-02)
+
+### Changes
+
+##### documentation
+- document ci pipeline configuration file
+
+##### ci
+- deploy (built .tar.gz and/or .whl) 'v*' tags; dev: test.pypi.org, master: pypi.org
+- update workflow
+- fix envs/scripts
+
+##### release
+- bump version to 1.0.1
+
+
 ## 1.0.1-dev (2023-10-31)
 
 Revive CI Pipeline
