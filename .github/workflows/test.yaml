@@ -380,7 +380,7 @@ jobs:
       name: ${{ needs.check_which_git_branch_we_are_on.outputs.ENVIRONMENT_NAME }}
     env:
       DIST_DIR: dist
-      PACKAGE_DIST_VERSION: ${{ needs.test_suite.outputs.SEMVER_PIP_FORMAT }}  # required env var by deploy script (tox -e deploy)
+      DISTRO_SEMVER: ${{ needs.test_suite.outputs.SEMVER_PIP_FORMAT }}  # required env var by deploy script (tox -e deploy)
       TWINE_USERNAME: ${{ secrets.TWINE_USERNAME }}
       TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
       PYPI_SERVER: ${{ vars.PYPI_SERVER }}
@@ -393,13 +393,30 @@ jobs:
     - name: Get Publishable files from the Artifacts
       run: |
         TAG="${GITHUB_REF_NAME}"
-        SEM_VER="${TAG:1}"  # remove the first character (v)
-        PARSER="scripts/parse_version.py"
-        PARSED_VERSION=$(python "${PARSER}")
-        if [[ "${PARSED_VERSION}" != "${SEM_VER}" ]]; then
-          echo "ERROR: Version in __init__.py (${PARSED_VERSION}) does not match tag (${SEM_VER})"
-          exit 1
+        TAG_SEM_VER="${TAG:1}"  # remove the first character (v)
+
+        # Make sure the distro semver ($DISTRO_SEMVER), which is identical
+        # to the version string in the source code, when its format is
+        # Major.Minor.Patch (and slightly different when its format is M.m.p-prerelase),
+        # is simillarly either identical or slightly different
+        # when compared to the git tag ($TAG_SEM_VER)
+
+        # for now MUST match only the Major.Minor.Patch part
+        
+        # Extract Major.Minor.Patch parts from DISTRO_SEMVER and TAG_SEM_VER
+        DISTRO_MMP=$(echo "$DISTRO_SEMVER" | grep -oE '^[0-9]+\.[0-9]+\.[0-9]+')
+        TAG_MMP=$(echo "$TAG_SEM_VER" | grep -oE '^[0-9]+\.[0-9]+\.[0-9]+')
+        if [ "$DISTRO_MMP" = "$TAG_MMP" ]; then
+            echo "Major.Minor.Patch part of DISTRO_SEMVER matches TAG_SEM_VER"
+        else
+            echo "[ERROR] Major.Minor.Patch part of DISTRO_SEMVER does not match TAG_SEM_VER"
+            echo "DISTRO_SEMVER=$DISTRO_SEMVER"
+            echo "TAG_SEM_VER=$TAG_SEM_VER"
+            echo "DISTRO_MMP=$DISTRO_MMP"
+            echo "TAG_MMP=$TAG_MMP"
+            exit 1
         fi
+        echo "PACKAGE_DIST_VERSION=$DISTRO_SEMVER" >> $GITHUB_ENV
     - run: mkdir ${DIST_DIR}
     - run: |
         # Get Source Distribution (tar.gz of source code)

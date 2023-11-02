@@ -138,3 +138,27 @@ assert sys.argv[1] == semver
 print(
     sys.argv[1] if "-" not in sys.argv[1] else sys.argv[1].replace("-", ".") + "0"
 )
+
+# ALT Format 1
+# we provide oneliner with exa same print statement, except we skip all checks
+
+# print(sys.argv[1] if "-" not in sys.argv[1] else sys.argv[1].replace("-", ".") + "0")
+
+
+# ALT Format 2
+# We provide python script, as shell command, with same input and output as this script
+# ( we skip all the checks, and provide the shell starting with python -c '' )
+
+# python -c 'import sys; print(sys.argv[1] if "-" not in sys.argv[1] else sys.argv[1].replace("-", ".") + "0")' 1.0.0-dev
+
+
+        # PARSED_DISTRO_SEMVER=$(python -c 'import sys; print(sys.argv[1] if "-" not in sys.argv[1] else sys.argv[1].replace("-", ".") + "0")' "${PARSED_VERSION}")
+
+        #         if [[ "${PARSED_DISTRO_SEMVER}" != "${TAG_SEM_VER}" ]]; then
+        #   echo "ERROR: Version in __init__.py (${PARSED_DISTRO_SEMVER}) does not match tag (${TAG_SEM_VER})"
+        #   exit 1
+        # fi
+
+
+        # PARSER="scripts/parse_version.py"
+        # PARSED_VERSION=$(python "${PARSER}")
