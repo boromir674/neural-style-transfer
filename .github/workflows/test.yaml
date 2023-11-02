@@ -358,28 +358,30 @@ jobs:
         id: set_environment_name
         run: |
           DEPLOY=true
-          echo "[DEBUG] "
           if [[ "${{ steps.main_contains_tag.outputs.retval }}" == "true" ]]; then
-          # Github Environment designed for Deploying to Production: DEPLOYMENT_PYPI_PROD
-            echo "[DEBUG] Tag found on master branch, so we will deploy to Staging"
-            echo "ENVIRONMENT_NAME=DEPLOYMENT_PYPI_PROD" >> $GITHUB_OUTPUT
+            # Github Environment designed for Deploying to Production: DEPLOYMENT_PYPI_PROD
+            ENVIRONMENT_NAME=DEPLOYMENT_PYPI_PROD
           elif [[ "${{ steps.release_contains_tag.outputs.retval }}" == "true" ]]; then
             # Github Environment designed for Deploying to Staging: DEPLOYMENT_PYPI_STAGING
-            echo "[DEBUG] Tag found on release branch, so we will deploy to Staging"
-            echo "ENVIRONMENT_NAME=DEPLOYMENT_PYPI_STAGING" >> $GITHUB_OUTPUT
+            ENVIRONMENT_NAME=DEPLOYMENT_PYPI_STAGING
           else
             echo "A tag was pushed but not on master or release branch. No deployment will be done."
             echo "[DEBUG] Branch name: ${GITHUB_REF_NAME}"
             echo "[DEBUG] ${{ github.ref }}"
             DEPLOY=false
           fi
-          
-          echo "[DEBUG] Branch name: ${GITHUB_REF_NAME}"
-          echo " ==== ${ENVIRONMENT_NAME} ===="
-          echo " --- Signal OK for Automated Deployment?: $DEPLOY "
-          
-          echo "AUTOMATED_DEPLOY=$DEPLOY" >> $GITHUB_OUTPUT
-          echo "ENVIRONMENT_NAME=$ENVIROMENT_NAME" >> $GITHUB_OUTPUT
+          echo "SELECTED_ENVIRONMENT=$ENVIRONMENT_NAME" >> $GITHUB_ENV
+          echo "AUTOMATED_DEPLOY=$DEPLOY" >> $GITHUB_ENV
+
+      - run: echo "[DEBUG] Branch name ${GITHUB_REF_NAME}"
+      - run: echo " ==== ${SELECTED_ENVIRONMENT} ===="
+      - run: echo " ==== ${AUTOMATED_DEPLOY} ===="
+
+      - name: Set Output for other Jobs to receive
+        run: |
+          echo " --- Signal OK for Automated Deployment?: $AUTOMATED_DEPLOY "
+          echo "AUTOMATED_DEPLOY=$AUTOMATED_DEPLOY" >> $GITHUB_OUTPUT
+          echo "ENVIRONMENT_NAME=$SELECTED_ENVIRONMENT" >> $GITHUB_OUTPUT
 
   ### PYPI UPLOAD JOB ###
   pypi_publish:
@@ -461,8 +463,12 @@ jobs:
     - run: echo "Publishing $PACKAGE_DIST_VERSION to $PYPI_SERVER PyPI"
 
     - name: Publish to PyPI
-      # run: tox -vv -s false -e deploy
-      run: tox -vv -s false -e deploy -- upload --non-interactive --skip-existing
+      # env:
+      #   TWINE_USERNAME: ${{ vars.TWINE_USERNAME }}
+      #   TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
+      #   PYPI_SERVER: ${{ vars.PYPI_SERVER }}
+      run: tox -vv -s false -e deploy
+      # run: tox -vv -s false -e deploy -- upload --non-interactive --skip-existing
       
       # runs: twine upload --non-interactive --repository testpypi --skip-existing ./dist/PY_PACKAGE-:Version.tar.gz --verbose
       
