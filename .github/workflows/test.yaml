@@ -383,8 +383,8 @@ jobs:
 
   ### PYPI UPLOAD JOB ###
   pypi_publish:
-    # needs: [test_suite, check_which_git_branch_we_are_on]
-    needs: check_which_git_branch_we_are_on
+    needs: [test_suite, check_which_git_branch_we_are_on]
+    # needs: check_which_git_branch_we_are_on
     runs-on: ubuntu-latest
     # if we are on tag starting with "v" and if we are on master or release branch
     if: ${{ startsWith(github.event.ref, 'refs/tags/v') && needs.check_which_git_branch_we_are_on.outputs.AUTOMATED_DEPLOY == 'true' }}
