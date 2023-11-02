@@ -366,6 +366,8 @@ jobs:
             echo "ENVIRONMENT_NAME=DEPLOYMENT_PYPI_STAGING" >> $GITHUB_OUTPUT
           else
             echo "A tag was pushed but not on master or release branch. No deployment will be done."
+            echo "[DEBUG] Branch name: ${GITHUB_REF_NAME}"
+            echo "[DEBUG] ${{ github.ref }}"
             DEPLOY=false
           fi
           echo "AUTOMATED_DEPLOY=$DEPLOY" >> $GITHUB_OUTPUT
@@ -432,8 +434,10 @@ jobs:
             exit 1
           fi
         done
+        echo " -- Will Upload : $source_distribution_name -- "
         echo "source_distribution=$source_distribution" >> $GITHUB_ENV
-    - run: cp "$source_distribution" ${DIST_DIR}
+        cp "$source_distribution" ${DIST_DIR}
+
     - run: |
         # Get all built Wheels and copy to dist folder
         for f in `find downloaded-artifacts -type f -name artificial_artwork*.whl`; do
@@ -448,7 +452,11 @@ jobs:
 
     - name: Publish to PyPI
       run: tox -vv -s false -e deploy
+      # runs: twine upload --non-interactive --repository testpypi --skip-existing ./dist/PY_PACKAGE-:Version.tar.gz --verbose
+      
       # run: tox -vv -s false -e deploy -- upload --non-interactive --skip-existing
+      # runs: twine upload --non-interactive --skip-existing --repository testpypi --skip-existing ./dist/PY_PACKAGE-:Version.tar.gz --verbose
+    
     - run: echo "Published :\)"
 
 
