@@ -32,7 +32,7 @@ env:
   RUN_UNIT_TESTS: "true"
   RUN_LINT_CHECKS: "false"
   BUILD_DOCKER: "false"
-  PUBLISH_ON_PYPI: "false"
+  PUBLISH_ON_PYPI: "true"
   DRAW_DEPENDENCIES: "false"
 
 jobs:
@@ -96,17 +96,84 @@ jobs:
       shell: bash
       id: parse_version
       run: |
+        # The Developer must have specified the necessary information in their pyproject.toml:
+        # - Pyproject.toml MUST have the `[tool.software-release]` section.
+        #   - The Section MUST have the `version_variable` key
+        #   - The Key value MUST follow format: "<path_to_file_with_sem_ver_value>:<symbol_name>"
+        # - <path_to_file_with_sem_ver_value> MUST be relative to pyproject.toml
+        #    - File MUST have a row starting with the <symbol_name> followed by a "=" and a String Value
+        #      - String Value MUST be quoted, with either double (") or single (') quotes
+        #      - MUST match Reg Ex: \s*=\s*[\'\"]([^\'\"]*)[\'\"]
+
+        # Use Case: Single Source of Truth for Code Sem Ver
+        # A Python Dev wants to have Source of Truth for their Software Semantic Version, to benefit from:
+        #  - Having only one "thing" to maintain, rather than many, reducing work, semantic load, probability of human error
+        
+        # We assume the Dev opts for storing and mainting this information inside a .py file (which belongs to their source distribution)
+        # We assume they simply define a python (str) variable, in global scope, and assign the Sem Ver string directly.
+        # Eg: __version__ = "0.0.1", or __version__ = '1.0.1-dev'
+
+        # That way they can also read the Sem Ver of the software at runtime, by importing the value since it is inside a python file
+        
+        ## EXAMPLE Valid Setup ##
+        
+        ## File pyproject.toml:
+        
+        # [tool.software-release]
+        # version_variable = "src/artificial_artwork/__version__.py:__version__"
+
+        ## File src/artificial_artwork/__version__.py:
+
+        # __version__ = "0.0.1"  # or __version__ = '1.0.1-dev'
+
+        ## EXAMPLE END ##
+
+        # The below Parser requires all above MUST Conditions to be met, and will fail if not.
         PARSER="scripts/parse_version.py"
         PARSED_VERSION=$(python "${PARSER}")
-        # transform version (ie 1.7.4-rc.1) to match the name of the wheel produced (ie 1.7.4rc1)
-        WHEEL_VERSION=$(echo $PARSED_VERSION | sed -E 's/([^.]*)\.([^.]*)\.([^-]*)-(rc)\.?(.*)/\1.\2.\3\4\5/')
+        
+        echo "==== Version Parsed: ${PARSED_VERSION} ===="
+
+        echo "[INFO] String: ${PARSED_VERSION} parsed"
+        echo "[DEBUG] We expect it to be Sem Ver 2.0 compliant"
+
+        # handle cases where user sem ver has prerelease info
+        # these cases result in artifacts (ie products of doing an 'sdist' or 'wheel' build)
+        # having names (in filesystem), that are slightly different then the ones our tool chain
+        # produces when sem ver is stricly only Major.minor.Patch 
+        
+        # ie if user supplied sem ver 1.7.4-rc.1), building a wheel produces a file with '1.7.4rc1' in its name
+        # ie if user supplied sem ver 1.7.4-dev), building a wheel produces a file with '1.7.4-dev0' in its name
+        
+
         # manually append the 0 to index the release candidate
         # we account for wheel building that automatically does the above
-        last_two=${WHEEL_VERSION: -2}
-        if [[ $last_two == "rc" ]]; then
-          WHEEL_VERSION="${WHEEL_VERSION}0"
+
+        # OPT 1, performs inpput validation and shows rich output and troubleshooting messages, in case of error
+        PROCESS_SEM_VER="scripts/process_sem_ver.py"
+        WHEEL_VERSION=$(python "${PROCESS_SEM_VER}" "${PARSED_VERSION}")
+        
+        # OPT 2, the smaller the better
+        # WHEEL_VERSION=$(python -c 'import sys; s = sys.argv[1]; print( s if "-" not in sys.argv[1] else s.replace("-", ".") + "0" ); ' "${PARSED_VERSION}")
+
+        # OPT 3, the smallest, and use shell as entrpoint, but least readable
+        # WHEEL_VERSION=$(echo $PARSED_VERSION | sed -E 's/([^.]*)\.([^.]*)\.([^-]*)-(rc)\.?(.*)/\1.\2.\3\4\5/')
+        # last_two=${WHEEL_VERSION: -2}
+        # if [[ $last_two == "rc" ]]; then
+        #   WHEEL_VERSION="${WHEEL_VERSION}0"
+        # fi
+       
+        echo "==== Distribution Version $WHEEL_VERSION derived from $PARSED_VERSION ===="
+
+        if [[ -z "$WHEEL_VERSION" ]]; then
+          echo "[ERROR] Failed to derive Distribution Version from $PARSED_VERSION"
+          exit 1
         fi
-        echo "==== $PARSED_VERSION  -->  $WHEEL_VERSION"
+
+        # WHEEL_VERSION is required by:
+        #  - 'twine' tool, running in Step below, locate the tar.gz for testing
+        #  - deploy command to locate the tar.gz and wheel(s) file to publish to pypi
+
         # to be used in the next step
         echo "PKG_VERSION=$WHEEL_VERSION" >> $GITHUB_ENV
         echo "SEMVER_PIP_FORMAT=$WHEEL_VERSION" >> $GITHUB_OUTPUT  # to be used in other jobs
@@ -163,8 +230,35 @@ jobs:
         DIST_DIR=dist
         echo "DIST_DIR=dist" >> $GITHUB_ENV  #  can be uesd in a with body of a next step in the Job, as eg: path: ${{ env.DIST_DIR }}
         mkdir ${DIST_DIR}
+        
+        TOXENV_DIST_DIR=".tox/${DIST_DIR}"
+
+        # Sanity check of files inside
+        echo "[DEBUG] ls -la ${TOXENV_DIST_DIR}"
+        ls -la ${TOXENV_DIST_DIR}
+
+        # Sanity check that among all files there onle one tar.gz and one .whl
+        # if not, Fail Job (aka exit with 1)
+
+        # if [[ $(find ${TOXENV_DIST_DIR} -type f -name "*.tar.gz" | wc -l) -ne 1 ]]; then
+        #   echo "ERROR: Expected to find 1 tar.gz file in ${TOXENV_DIST_DIR}, but found $(find ${TOXENV_DIST_DIR} -type f -name "*.tar.gz" | wc -l)"
+        #   exit 1
+        # fi
+        # if [[ $(find ${TOXENV_DIST_DIR} -type f -name "*.whl" | wc -l) -ne 1 ]]; then
+        #   echo "ERROR: Expected to find 1 .whl file in ${TOXENV_DIST_DIR}, but found $(find ${TOXENV_DIST_DIR} -type f -name "*.whl" | wc -l)"
+        #   exit 1
+        # fi
+
+        # REQUIRED existing 'Source Distribution' (SD) aka .tar.gz file, has already been built from source code
+        # ie previous code/step ran a tox env, such as with cmd `tox -e py38-sdist-linux`, or any `sdist` tox env,
+        # which runs Unit Tests against the .tar.gz (sdist installation), after building it from source code,
+
+        # move .tar.gz
         mv ".tox/${DIST_DIR}/artificial_artwork-${PKG_VERSION}.tar.gz" "${DIST_DIR}"
+
+        # move .whl
         # mv ".tox/${DIST_DIR}/artificial_artwork-${PKG_VERSION}-py3-none-any.whl" "${DIST_DIR}"
+
         tox -e check -vv -s false
 
     # - name: Install documentation test dependencies
@@ -181,12 +275,11 @@ jobs:
         path: ${{ env.DIST_DIR }}
         if-no-files-found: error
 
-
   codecov_coverage_host:
     runs-on: ubuntu-latest
     needs: test_suite
-    env:
-      PACKAGE_DIST_VERSION: ${{ needs.test_suite.outputs.SEMVER_PIP_FORMAT }}
+    # env:
+    #   PACKAGE_DIST_VERSION: ${{ needs.test_suite.outputs.SEMVER_PIP_FORMAT }}
     steps:
     - uses: actions/checkout@v3
     - name: Get Codecov binary
@@ -206,32 +299,38 @@ jobs:
           echo "Sent to Codecov: $file !"
         done
 
-# DOCKER BUILD AND PUBLISH ON DOCKERHUB
-  docker_build:
-    runs-on: ubuntu-latest
-    needs: test_suite
-    if: needs.set_github_outputs.outputs.DOCKER_ENABLED == 'true'
-    env:
-      DOCKER_USER: ${{ secrets.DOCKER_USER }}
-    steps:
-    - uses: actions/checkout@v3
-    - name: Build 'n Push Docker Image to DockerHub
-      run: |
-        # workflow enabled for branches and v* tags
-        IMAGE_TAG="${GITHUB_REF_NAME}"  # this is branch name or tag name
-        echo "IMAGE_REF=neural-style-transfer:${IMAGE_TAG}" >> $GITHUB_ENV
-        docker build -t "${DOCKER_USER}/neural-style-transfer:${IMAGE_TAG}" .
-    - name: Publish Docker Image to DockerHub
-      env:
-        DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-      run: |
-        echo "${DOCKER_PASSWORD}" | docker login --username "${DOCKER_USER}" --password-stdin
-        docker push "${DOCKER_USER}/${IMAGE_REF}"
-        docker logout
-        echo "Published in Dockerhub :)"
+
+## DEPLOY to PYPI: PROD and STAGING
+# Automated Upload of Builds (.tar.gz, .whl), triggered by git push (aka git ops)
+
+# Deployment happens only IF
+#   - PUBLISH_ON_PYPI == 'true'
+#   - we are on 'master' or 'dev' branch
+#   - the pushed git ref is a tag starting with 'v' ie v1.0.0
+
+ 
+# For Production deployment we use the public pypi.org server.
+# be on master branch, when you push a tag
+
+# For Staging deployment we use the test.pypi.org server.
+# be on release branch, when you push a tag
+
+# - first make sure PUBLISH_ON_PYPI = true in Worklow test.yaml file
+
+# To trigger automatically building your source code and deploying/uploading to PyPI, so that is becomes pip installable, you need to:
+# - to trigger the automated deployment, push a git tag, that starts with 'v' (eg: v1.0.0, v1.2.3-dev, etc)
+
+
 
 # PUBLISH DISTRIBUTIONS ON PYPI
-# we consider publishing on tags starting with "v"
+# 1st Job
+# Check if PUBLISH_ON_PYPI switch is ON, else do not attempt to deploy to PyPI
+# Check if git ref is a tag, which starts with 'v', and that tag is on master or dev branches,
+# else Signal that we 'do not handle such cases' (eg we want want to avoid accidental automated deployments to happen)
+
+# 2nd Job
+# If the Signal indicates that conditions are met for an Automated Deployment
+# ...
   check_which_git_branch_we_are_on:
     runs-on: ubuntu-latest
     needs: set_github_outputs
@@ -260,25 +359,28 @@ jobs:
         run: |
           DEPLOY=true
           if [[ "${{ steps.main_contains_tag.outputs.retval }}" == "true" ]]; then
-            echo "ENVIRONMENT_NAME=PROD_DEPLOYMENT" >> $GITHUB_OUTPUT
+          # Github Environment designed for Deploying to Production: DEPLOYMENT_PYPI_PROD
+            echo "ENVIRONMENT_NAME=DEPLOYMENT_PYPI_PROD" >> $GITHUB_OUTPUT
           elif [[ "${{ steps.release_contains_tag.outputs.retval }}" == "true" ]]; then
-            echo "ENVIRONMENT_NAME=TEST_DEPLOYMENT" >> $GITHUB_OUTPUT
+            # Github Environment designed for Deploying to Staging: DEPLOYMENT_PYPI_STAGING
+            echo "ENVIRONMENT_NAME=DEPLOYMENT_PYPI_STAGING" >> $GITHUB_OUTPUT
           else
             echo "A tag was pushed but not on master or release branch. No deployment will be done."
             DEPLOY=false
           fi
           echo "AUTOMATED_DEPLOY=$DEPLOY" >> $GITHUB_OUTPUT
 
+  ### PYPI UPLOAD JOB ###
   pypi_publish:
     needs: [test_suite, check_which_git_branch_we_are_on]
     runs-on: ubuntu-latest
-    # if we are on tag starting with "v" and if we are on master or dev branch
+    # if we are on tag starting with "v" and if we are on master or release branch
     if: startsWith(github.event.ref, 'refs/tags/v') && ${{ needs.check_which_git_branch_we_are_on.outputs.AUTOMATED_DEPLOY == 'true' }}
     environment:
       name: ${{ needs.check_which_git_branch_we_are_on.outputs.ENVIRONMENT_NAME }}
     env:
       DIST_DIR: dist
-      PACKAGE_DIST_VERSION: ${{ needs.test_suite.outputs.SEMVER_PIP_FORMAT }}  # required env var by deploy script (tox -e deploy)
+      DISTRO_SEMVER: ${{ needs.test_suite.outputs.SEMVER_PIP_FORMAT }}  # required env var by deploy script (tox -e deploy)
       TWINE_USERNAME: ${{ secrets.TWINE_USERNAME }}
       TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
       PYPI_SERVER: ${{ vars.PYPI_SERVER }}
@@ -291,13 +393,30 @@ jobs:
     - name: Get Publishable files from the Artifacts
       run: |
         TAG="${GITHUB_REF_NAME}"
-        SEM_VER="${TAG:1}"  # remove the first character (v)
-        PARSER="scripts/parse_version.py"
-        PARSED_VERSION=$(python "${PARSER}")
-        if [[ "${PARSED_VERSION}" != "${SEM_VER}" ]]; then
-          echo "ERROR: Version in __init__.py (${PARSED_VERSION}) does not match tag (${SEM_VER})"
-          exit 1
+        TAG_SEM_VER="${TAG:1}"  # remove the first character (v)
+
+        # Make sure the distro semver ($DISTRO_SEMVER), which is identical
+        # to the version string in the source code, when its format is
+        # Major.Minor.Patch (and slightly different when its format is M.m.p-prerelase),
+        # is simillarly either identical or slightly different
+        # when compared to the git tag ($TAG_SEM_VER)
+
+        # for now MUST match only the Major.Minor.Patch part
+        
+        # Extract Major.Minor.Patch parts from DISTRO_SEMVER and TAG_SEM_VER
+        DISTRO_MMP=$(echo "$DISTRO_SEMVER" | grep -oE '^[0-9]+\.[0-9]+\.[0-9]+')
+        TAG_MMP=$(echo "$TAG_SEM_VER" | grep -oE '^[0-9]+\.[0-9]+\.[0-9]+')
+        if [ "$DISTRO_MMP" = "$TAG_MMP" ]; then
+            echo "Major.Minor.Patch part of DISTRO_SEMVER matches TAG_SEM_VER"
+        else
+            echo "[ERROR] Major.Minor.Patch part of DISTRO_SEMVER does not match TAG_SEM_VER"
+            echo "DISTRO_SEMVER=$DISTRO_SEMVER"
+            echo "TAG_SEM_VER=$TAG_SEM_VER"
+            echo "DISTRO_MMP=$DISTRO_MMP"
+            echo "TAG_MMP=$TAG_MMP"
+            exit 1
         fi
+        echo "PACKAGE_DIST_VERSION=$DISTRO_SEMVER" >> $GITHUB_ENV
     - run: mkdir ${DIST_DIR}
     - run: |
         # Get Source Distribution (tar.gz of source code)
@@ -324,10 +443,40 @@ jobs:
         done
     - name: Install Dependencies
       run: pip install tox==3.28
+
     - run: echo "Publishing $PACKAGE_DIST_VERSION to $PYPI_SERVER PyPI"
+
     - name: Publish to PyPI
-      run: tox -vv -s false -e deploy -- upload --non-interactive --skip-existing
+      run: tox -vv -s false -e deploy
+      # run: tox -vv -s false -e deploy -- upload --non-interactive --skip-existing
     - run: echo "Published :\)"
+
+
+## AUTOMATED DOCKER BUILD and PUBLISH ON DOCKERHUB ##
+  docker_build:
+    runs-on: ubuntu-latest
+    needs: test_suite
+    if: needs.set_github_outputs.outputs.DOCKER_ENABLED == 'true'
+    env:
+      DOCKER_USER: ${{ secrets.DOCKER_USER }}
+    steps:
+    - uses: actions/checkout@v3
+    - name: Build 'n Push Docker Image to DockerHub
+      run: |
+        # workflow enabled for branches and v* tags
+        IMAGE_TAG="${GITHUB_REF_NAME}"  # this is branch name or tag name
+        echo "IMAGE_REF=neural-style-transfer:${IMAGE_TAG}" >> $GITHUB_ENV
+        docker build -t "${DOCKER_USER}/neural-style-transfer:${IMAGE_TAG}" .
+    - name: Publish Docker Image to DockerHub
+      env:
+        DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      run: |
+        echo "${DOCKER_PASSWORD}" | docker login --username "${DOCKER_USER}" --password-stdin
+        docker push "${DOCKER_USER}/${IMAGE_REF}"
+        docker logout
+        echo "Published in Dockerhub :)"
+
+
 
 # STATIC CODE ANALYSIS & LINTING
   lint:
