@@ -32,7 +32,7 @@ env:
   RUN_UNIT_TESTS: "true"
   RUN_LINT_CHECKS: "false"
   BUILD_DOCKER: "false"
-  PUBLISH_ON_PYPI: "false"
+  PUBLISH_ON_PYPI: "true"
   DRAW_DEPENDENCIES: "false"
 
 jobs:
