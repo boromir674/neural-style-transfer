@@ -15,13 +15,16 @@ from .tf_session_runner import TensorflowSessionRunner
 
 LayerID = str
 
+
 class NSTStyleLayerType(t.Protocol):
     id: LayerID
     coefficient: float
     neurons: t.Any
 
+
 class NSTLayerSelectionType(t.Protocol):
-    def __iter__(self) -> t.Iterable[t.Tuple[LayerID, NSTStyleLayerType]]: ...
+    def __iter__(self) -> t.Iterable[t.Tuple[LayerID, NSTStyleLayerType]]:
+        ...
 
 
 class NetworkDesignType(t.Protocol):
@@ -29,14 +32,15 @@ class NetworkDesignType(t.Protocol):
     style_layers: NSTLayerSelectionType
     output_layer: LayerID
 
+
 class ModelDesignType(t.Protocol):
     pretrained_model: t.Any
     network_design: NetworkDesignType
 
 
-
 # define custom Layer type for type checking
 Layer = t.Union[t.Any, tf.Tensor]
+
 
 @attr.s
 class NSTAlgorithmRunner:
@@ -67,7 +71,8 @@ class NSTAlgorithmRunner:
         session_runner = TensorflowSessionRunner.with_default_graph_reset()
         return NSTAlgorithmRunner(session_runner, apply_noise)
 
-    def run(self,
+    def run(
+        self,
         nst_algorithm,
         model_design: ModelDesignType,
     ):
@@ -77,20 +82,25 @@ class NSTAlgorithmRunner:
         c_image = nst_algorithm.parameters.content_image
         s_image = nst_algorithm.parameters.style_image
 
-        image_specs = type('ImageSpecs', (), {
-            'height': c_image.matrix.shape[1],
-            'width': c_image.matrix.shape[2],
-            'color_channels': c_image.matrix.shape[3]
-        })()
+        image_specs = type(
+            "ImageSpecs",
+            (),
+            {
+                "height": c_image.matrix.shape[1],
+                "width": c_image.matrix.shape[2],
+                "color_channels": c_image.matrix.shape[3],
+            },
+        )()
 
-        print(' --- Loading CV Image Model ---')
+        print(" --- Loading CV Image Model ---")
 
         style_network = graph_factory.create(
             image_specs,  # Input tensor is designed to match images dimensions
-            model_design,  # 
+            model_design,  #
         )
         # One-Time Operation: APPLY NOISE to Content Image, with a ratio
         from artificial_artwork.image.image_operations import ImageNoiseAdder
+
         noise_adder = ImageNoiseAdder(seed=1234)
         ratio = 0.6
         apply_noise = lambda x: noise_adder(x, ratio)
@@ -102,12 +112,9 @@ class NSTAlgorithmRunner:
         #     self.nst_algorithm.parameters.content_image.matrix
         # )
 
-        print(' --- Building Computations ---')
+        print(" --- Building Computations ---")
 
-        self.nn_builder = NeuralNetBuilder(
-            style_network,
-            self.session_runner.session
-        )
+        self.nn_builder = NeuralNetBuilder(style_network, self.session_runner.session)
 
         ### Practically, we PASS the Content Image throught Graph
         # indicate content_image and the output layer of the Neural Network
@@ -166,7 +173,7 @@ class NSTAlgorithmRunner:
 
         ## Run Iterative Learning Algorithm ##
 
-        print(' --- Preparing Iterative Learning Algorithm ---')
+        print(" --- Preparing Iterative Learning Algorithm ---")
 
         # Take Input Content Image (as 3-color channel 4D tensor with means already subtracted)
         # and generate a random noise image as a starting for the Generated
@@ -184,11 +191,11 @@ class NSTAlgorithmRunner:
         # initialize the Generated Image (a_G) with the Noisy Content Image
         # and make the network produce the activations required for all the Cost Computing operations
         # and performing Weight Optimization (learning)
-        self.session_runner.run(style_network['input'].assign(input_image))
+        self.session_runner.run(style_network["input"].assign(input_image))
         self.perform_nst(style_network)
 
     def perform_nst(self, style_network):
-        print(' --- Running Iterative Algorithm ---')
+        print(" --- Running Iterative Algorithm ---")
 
         # Evaluation of Costs Frequency
         cost_eval_freq = 20
@@ -198,22 +205,26 @@ class NSTAlgorithmRunner:
         while not self.nst_algorithm.parameters.termination_condition.satisfied:
             # We pass the Curernt Gen Image throguh the Graph and get the next iteration of gen Image
             generated_image = self.iterate(style_network)
-            progress = self._progress(generated_image, completed_iterations=i+1)
+            progress = self._progress(generated_image, completed_iterations=i + 1)
             # Evaluate Cost scalars every cost_eval_freq iters
             if i % cost_eval_freq == 0:
                 self.Jt, self.Jc, self.Js = self._eval_cost()
-                progress['metrics'].update({
-                    'cost': self.Jt,
-                    'content-cost': self.Jc,
-                    'style-cost': self.Js,
-                    'content-cost-weighted': self.nn_cost_builder.content_cost_weight * self.Jc,
-                    'style-cost-weighted': self.nn_cost_builder.style_cost_weight * self.Js,
-                })
+                progress["metrics"].update(
+                    {
+                        "cost": self.Jt,
+                        "content-cost": self.Jc,
+                        "style-cost": self.Js,
+                        "content-cost-weighted": self.nn_cost_builder.content_cost_weight
+                        * self.Jc,
+                        "style-cost-weighted": self.nn_cost_builder.style_cost_weight
+                        * self.Js,
+                    }
+                )
                 self._print_to_std(progress)
             if i % 20 == 0:
                 self._notify_persistance(progress)
                 self._print_to_std(progress)
-            progress['metrics']['duration'] = time() - self.time_started  # in seconds
+            progress["metrics"]["duration"] = time() - self.time_started  # in seconds
             self._notify_progress(progress)
             i += 1
 
@@ -221,12 +232,12 @@ class NSTAlgorithmRunner:
             self._notify_persistance(progress)
         except NameError as progress_not_evaluated_error:
             raise NoIterationsDoneError(
-                'The algorithm did not iterate. Probably the '
+                "The algorithm did not iterate. Probably the "
                 'f"{self.nst_algorithm.parameters.termination_condition}"'
-                ' termination condition is too "strict."') \
-                    from progress_not_evaluated_error
+                ' termination condition is too "strict."'
+            ) from progress_not_evaluated_error
 
-        print(' --- Finished Learning Algorithm :) ---')
+        print(" --- Finished Learning Algorithm :) ---")
 
     def iterate(self, image_model: t.Dict[str, Layer]):
         # Run the session on the train_step to minimize the total cost
@@ -237,76 +248,80 @@ class NSTAlgorithmRunner:
         ## Practically, PASS the current version of the Generated Image through
         # the Graph
         # Compute the generated image by running the session on the current model['input']
-        generated_image = self.session_runner.run(image_model['input'])
+        generated_image = self.session_runner.run(image_model["input"])
         return generated_image
 
     def _print_to_std(self, progress):
         weighted_Jc = self.nn_cost_builder.content_cost_weight * self.Jc
         weighted_Js = self.nn_cost_builder.style_cost_weight * self.Js
-        iteration_index: int = progress['metrics']['iterations']-1
+        iteration_index: int = progress["metrics"]["iterations"] - 1
         print(
-            f' Iteration: {iteration_index}\n'
-            f' Jc + Js = {self.Js + self.Jc}\n'
-            f'  Total Cost     : {self.Jt}\n'
-            f' a * Jc + b * Js = {weighted_Jc + weighted_Js}\n'
-            f'  Weighted Content Cost : {weighted_Jc}\n'
-            f'  Weighted Style Cost   : {weighted_Js}\n'
-            f'   Content cost : {self.Jc}\n'
-            f'   Style cost   : {self.Js}\n'
+            f" Iteration: {iteration_index}\n"
+            f" Jc + Js = {self.Js + self.Jc}\n"
+            f"  Total Cost     : {self.Jt}\n"
+            f" a * Jc + b * Js = {weighted_Jc + weighted_Js}\n"
+            f"  Weighted Content Cost : {weighted_Jc}\n"
+            f"  Weighted Style Cost   : {weighted_Js}\n"
+            f"   Content cost : {self.Jc}\n"
+            f"   Style cost   : {self.Js}\n"
         )
 
     def _progress(self, generated_image, completed_iterations: int) -> Dict:
         return {
-            'metrics': {
-                'iterations': completed_iterations,  # number of iterations completed
+            "metrics": {
+                "iterations": completed_iterations,  # number of iterations completed
             },
-            'content_image_path': self.nst_algorithm.parameters.content_image.file_path,
-            'style_image_path': self.nst_algorithm.parameters.style_image.file_path,
-            'output_path': self.nst_algorithm.parameters.output_path,
-            'matrix': generated_image,
+            "content_image_path": self.nst_algorithm.parameters.content_image.file_path,
+            "style_image_path": self.nst_algorithm.parameters.style_image.file_path,
+            "output_path": self.nst_algorithm.parameters.output_path,
+            "matrix": generated_image,
         }
 
     def _notify_persistance(self, progress):
-        self.persistance_subject.state = type('SubjectState', (), progress)
+        self.persistance_subject.state = type("SubjectState", (), progress)
         self.persistance_subject.notify()
 
     def _notify_progress(self, progress):
         # set subject with the appropriate state to broadcast
-        self.progress_subject.state = type('SubjectState', (), progress)
+        self.progress_subject.state = type("SubjectState", (), progress)
         # notify all observers/listeners that have 'subscribed'
         self.progress_subject.notify()
 
     def _eval_cost(self):
         """Evaluate Total (Style + Constent) Cost"""
         # pass cost objects in session to evaluate them
-        Jt, Jc, Js = self.session_runner.run([
-            self.nn_cost_builder.cost,
-            self.nn_cost_builder.content_cost,
-            self.nn_cost_builder.style_cost,
-        ])
+        Jt, Jc, Js = self.session_runner.run(
+            [
+                self.nn_cost_builder.cost,
+                self.nn_cost_builder.content_cost,
+                self.nn_cost_builder.style_cost,
+            ]
+        )
         return Jt, Jc, Js
 
     def _print_cost(self, iteration_index):
         weighted_Jc = self.nn_cost_builder.content_cost_weight * self.Jc
         weighted_Js = self.nn_cost_builder.style_cost_weight * self.Js
         print(
-            f' Iteration: {iteration_index}\n'
-            f' Jc + Js = {self.Js + self.Jc}\n'
-            f'  Total Cost    : {self.Jt}\n'
-            f' a * Jc + b * Js = {weighted_Jc + weighted_Js}\n'
-            f'  Weighted Content Cost : {weighted_Jc}\n'
-            f'  Weighted Style Cost   : {weighted_Js}\n'
-            f'   Content cost : {self.Jc}\n'
-            f'   Style cost   : {self.Js}\n'
+            f" Iteration: {iteration_index}\n"
+            f" Jc + Js = {self.Js + self.Jc}\n"
+            f"  Total Cost    : {self.Jt}\n"
+            f" a * Jc + b * Js = {weighted_Jc + weighted_Js}\n"
+            f"  Weighted Content Cost : {weighted_Jc}\n"
+            f"  Weighted Style Cost   : {weighted_Js}\n"
+            f"   Content cost : {self.Jc}\n"
+            f"   Style cost   : {self.Js}\n"
         )
 
 
-class NoIterationsDoneError(Exception): pass
+class NoIterationsDoneError(Exception):
+    pass
 
 
 @attr.s
 class NeuralNetBuilder:
     """Configure a pretrained image model to facilitate nst algorithm."""
+
     model = attr.ib()
     session = attr.ib()
     output_neurons = attr.ib(init=False, default=None)
@@ -315,7 +330,7 @@ class NeuralNetBuilder:
 
     def assign_input(self, image):
         # Assign the content image to be the input of the VGG model.
-        self.session.run(self.model['input'].assign(image))
+        self.session.run(self.model["input"].assign(image))
 
     def build_activations(self, content_image, model_layer_id: str):
         self.assign_input(content_image)
@@ -359,8 +374,7 @@ class CostBuilder:
     def build_content_cost(self, content_image_activations, generated_image_activations):
         # Compute the content cost
         self.content_cost = self.compute_content_cost(
-            content_image_activations,
-            generated_image_activations
+            content_image_activations, generated_image_activations
         )
 
     def build_style_cost(self, tf_session, style_layers):
@@ -389,8 +403,8 @@ class CostBuilder:
             alpha (float, optional): hyperparameter to weight content cost. Defaults to 10.
             beta (float, optional): hyperparameter to weight style cost. Defaults to 40.
         """
-        alpha = kwargs.get('alpha', self.content_cost)
-        beta = kwargs.get('beta', self.style_cost)
+        alpha = kwargs.get("alpha", self.content_cost)
+        beta = kwargs.get("beta", self.style_cost)
 
         self.content_cost_weight = alpha
         self.style_cost_weight = beta

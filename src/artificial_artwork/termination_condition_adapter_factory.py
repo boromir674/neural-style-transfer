@@ -3,7 +3,6 @@ from .termination_condition_adapter import TerminationConditionAdapterClassFacto
 
 
 class TerminationConditionAdapterFactory:
-
     @classmethod
     def create(cls, adapter_type: str, *args):
         dynamic_class = TerminationConditionAdapterClassFactory.create(adapter_type)

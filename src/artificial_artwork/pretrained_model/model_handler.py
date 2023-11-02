@@ -9,7 +9,8 @@ from .model_handler_interface import ModelHandlerInterface
 
 
 class ReporterProtocol(Protocol):
-    def get_weights(self, layer_id: str) -> Tuple[NDArray, NDArray]: ...
+    def get_weights(self, layer_id: str) -> Tuple[NDArray, NDArray]:
+        ...
 
 
 class Modelhandler(ModelHandlerInterface):
@@ -24,7 +25,9 @@ class Modelhandler(ModelHandlerInterface):
     Returns:
         [type]: [description]
     """
+
     _reporter: ReporterProtocol
+
     def __init__(self):
         self._reporter = None
 
@@ -43,8 +46,7 @@ class Modelhandler(ModelHandlerInterface):
 
     def _create_reporter(self, layers: NDArray) -> ReporterProtocol:
         return ModelReporter(
-            self.model_routines.get_layers_dict(layers),
-            self.model_routines.get_weights
+            self.model_routines.get_layers_dict(layers), self.model_routines.get_weights
         )
 
     def load_model_layers(self) -> NDArray:
@@ -56,17 +58,21 @@ class Modelhandler(ModelHandlerInterface):
         try:
             return self.model_routines.load_layers(os.environ[self.environment_variable])
         except KeyError as variable_not_found:
-            raise NoImageModelSpesifiedError(self.model_load_exception_text) \
-                from variable_not_found
+            raise NoImageModelSpesifiedError(
+                self.model_load_exception_text
+            ) from variable_not_found
 
 
-class NoImageModelSpesifiedError(Exception): pass
+class NoImageModelSpesifiedError(Exception):
+    pass
 
 
-class ModelHandlerFactoryMeta(SubclassRegistry[Modelhandler]): pass
+class ModelHandlerFactoryMeta(SubclassRegistry[Modelhandler]):
+    pass
 
 
-class ModelHandlerFactory(metaclass=ModelHandlerFactoryMeta): pass
+class ModelHandlerFactory(metaclass=ModelHandlerFactoryMeta):
+    pass
 
 
 class ModelHandlerFacility:

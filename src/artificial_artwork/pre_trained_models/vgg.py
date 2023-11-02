@@ -8,9 +8,8 @@ from artificial_artwork.pretrained_model.model_routines import PretrainedModelRo
 
 
 class VggModelRoutines(PretrainedModelRoutines):
-
     def load_layers(self, file_path: str) -> NDArray:
-        return scipy.io.loadmat(file_path)['layers'][0]
+        return scipy.io.loadmat(file_path)["layers"][0]
 
     def get_id(self, layer: NDArray) -> str:
         return layer[0][0][0][0]
@@ -25,12 +24,11 @@ class VggModelRoutines(PretrainedModelRoutines):
 vgg_model_routines = VggModelRoutines()
 
 
-@ModelHandlerFacility.factory.register_as_subclass('vgg')
+@ModelHandlerFacility.factory.register_as_subclass("vgg")
 class VggModelHandler(Modelhandler):
-
     @property
     def environment_variable(self) -> str:
-        return 'AA_VGG_19'
+        return "AA_VGG_19"
 
     @property
     def model_routines(self) -> VggModelRoutines:
@@ -38,7 +36,9 @@ class VggModelHandler(Modelhandler):
 
     @property
     def model_load_exception_text(self) -> str:
-        return 'No pretrained image model found. ' \
-            f'Please download it and set the {self.environment_variable} ' \
-            'environment variable with the path where you stored the model ' \
-            '(*.mat file), to instruct the program where to locate and load it'
+        return (
+            "No pretrained image model found. "
+            f"Please download it and set the {self.environment_variable} "
+            "environment variable with the path where you stored the model "
+            "(*.mat file), to instruct the program where to locate and load it"
+        )

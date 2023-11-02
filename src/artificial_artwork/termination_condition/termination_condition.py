@@ -17,23 +17,25 @@ class TerminationFactory(metaclass=TerminationFactoryMeta):
 
 
 @attr.s
-@TerminationFactory.register_as_subclass('max-iterations')
+@TerminationFactory.register_as_subclass("max-iterations")
 class MaxIterations(TerminationConditionInterface[int]):
     max_iterations: int = attr.ib()
 
     def satisfied(self, iterations: int) -> bool:
         return self.max_iterations <= iterations
 
+
 @attr.s
-@TerminationFactory.register_as_subclass('convergence')
+@TerminationFactory.register_as_subclass("convergence")
 class Convergence(TerminationConditionInterface[float]):
     min_improvement: float = attr.ib()
 
     def satisfied(self, last_loss_improvement: float) -> bool:
         return last_loss_improvement < self.min_improvement
 
+
 @attr.s
-@TerminationFactory.register_as_subclass('time-limit')
+@TerminationFactory.register_as_subclass("time-limit")
 class TimeLimit(TerminationConditionInterface[float]):
     time_limit: float = attr.ib()
 
@@ -45,5 +47,7 @@ class TerminationConditionFacility:
     class_registry: SubclassRegistry = TerminationFactory
 
     @classmethod
-    def create(cls, termination_condition_type: str, *args, **kwargs) -> TerminationConditionInterface:
+    def create(
+        cls, termination_condition_type: str, *args, **kwargs
+    ) -> TerminationConditionInterface:
         return cls.class_registry.create(termination_condition_type, *args, **kwargs)

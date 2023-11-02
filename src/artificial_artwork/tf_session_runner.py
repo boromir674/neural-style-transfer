@@ -1,4 +1,3 @@
-
 from typing import List
 
 import tensorflow as tf
@@ -31,7 +30,7 @@ class TensorflowSessionRunner(Proxy):
         # Using the context manager.
         with tf.compat.v1.Session() as sess:
         sess.run(...)
-        """        
+        """
         session_run_callable = self._proxy_subject.run
         args_str = f"[{', '.join((str(_) for _ in args))}]"
         kwargs_str = f"[{', '.join((f'{k}={v}' for k, v in kwargs.items()))}]"
@@ -39,8 +38,10 @@ class TensorflowSessionRunner(Proxy):
         try:
             return session_run_callable(*args, **kwargs)
         except Exception as tensorflow_error:
-            raise TensorflowSessionRunError('Tensorflow error occured, when'
-            f'running session with input args {args_str} and kwargs {kwargs_str}') from tensorflow_error        
+            raise TensorflowSessionRunError(
+                "Tensorflow error occured, when"
+                f"running session with input args {args_str} and kwargs {kwargs_str}"
+            ) from tensorflow_error
 
     @property
     def session(self):
@@ -50,8 +51,10 @@ class TensorflowSessionRunner(Proxy):
     def with_default_graph_reset(cls):
         tf.compat.v1.reset_default_graph()
         tf.compat.v1.disable_eager_execution()
-        return TensorflowSessionRunner(TensorflowSessionRunnerSubject(
-            tf.compat.v1.InteractiveSession()))
+        return TensorflowSessionRunner(
+            TensorflowSessionRunnerSubject(tf.compat.v1.InteractiveSession())
+        )
 
 
-class TensorflowSessionRunError(Exception): pass
+class TensorflowSessionRunError(Exception):
+    pass

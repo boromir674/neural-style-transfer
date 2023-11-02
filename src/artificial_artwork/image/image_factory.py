@@ -12,6 +12,7 @@ class ImageProtocol(Protocol):
     file_path: str
     matrix: NDArray
 
+
 # define type alias for a callable that takes any number of arguments
 ImageLoaderFunctionType = Callable[..., NDArray]
 
@@ -21,7 +22,9 @@ class ImageFactory:
     image_loader: ImageLoaderFunctionType = attr.ib()
     image_processor: ImageProcessor = attr.ib(default=attr.Factory(ImageProcessor))
 
-    def from_disk(self, image_path: str, pipeline: List[Callable[[NDArray], NDArray]]=[], **kwargs) -> ImageProtocol:
+    def from_disk(
+        self, image_path: str, pipeline: List[Callable[[NDArray], NDArray]] = [], **kwargs
+    ) -> ImageProtocol:
         matrix = self.image_loader(image_path, **kwargs)
         matrix = self.image_processor.process(matrix, pipeline)
         return Image(image_path, matrix)
