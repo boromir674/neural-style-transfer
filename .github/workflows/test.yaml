@@ -388,7 +388,7 @@ jobs:
     env:
       DIST_DIR: dist
       DISTRO_SEMVER: ${{ needs.test_suite.outputs.SEMVER_PIP_FORMAT }}  # required env var by deploy script (tox -e deploy)
-      TWINE_USERNAME: ${{ env.TWINE_USERNAME }}
+      TWINE_USERNAME: ${{ vars.TWINE_USERNAME }}
       TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
       PYPI_SERVER: ${{ vars.PYPI_SERVER }}
     steps:
