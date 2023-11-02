@@ -30,7 +30,7 @@ env:
   # If false the step prevented from running
   # If true the step is allowed to run (it still may be skipped on other runtime conditions)
   RUN_UNIT_TESTS: "false"
-  RUN_LINT_CHECKS: "false"
+  RUN_LINT_CHECKS: "true"
   BUILD_DOCKER: "false"
   PUBLISH_ON_PYPI: "false"
   DRAW_DEPENDENCIES: "false"
