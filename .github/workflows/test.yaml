@@ -443,9 +443,12 @@ jobs:
         done
     - name: Install Dependencies
       run: pip install tox==3.28
+
     - run: echo "Publishing $PACKAGE_DIST_VERSION to $PYPI_SERVER PyPI"
+
     - name: Publish to PyPI
-      run: tox -vv -s false -e deploy -- upload --non-interactive --skip-existing
+      run: tox -vv -s false -e deploy
+      # run: tox -vv -s false -e deploy -- upload --non-interactive --skip-existing
     - run: echo "Published :\)"
 
 
