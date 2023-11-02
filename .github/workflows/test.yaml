@@ -249,8 +249,16 @@ jobs:
         #   exit 1
         # fi
 
+        # REQUIRED existing 'Source Distribution' (SD) aka .tar.gz file, has already been built from source code
+        # ie previous code/step ran a tox env, such as with cmd `tox -e py38-sdist-linux`, or any `sdist` tox env,
+        # which runs Unit Tests against the .tar.gz (sdist installation), after building it from source code,
+
+        # move .tar.gz
         mv ".tox/${DIST_DIR}/artificial_artwork-${PKG_VERSION}.tar.gz" "${DIST_DIR}"
+
+        # move .whl
         # mv ".tox/${DIST_DIR}/artificial_artwork-${PKG_VERSION}-py3-none-any.whl" "${DIST_DIR}"
+
         tox -e check -vv -s false
 
     # - name: Install documentation test dependencies
