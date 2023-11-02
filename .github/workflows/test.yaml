@@ -358,11 +358,14 @@ jobs:
         id: set_environment_name
         run: |
           DEPLOY=true
+          echo "[DEBUG] "
           if [[ "${{ steps.main_contains_tag.outputs.retval }}" == "true" ]]; then
           # Github Environment designed for Deploying to Production: DEPLOYMENT_PYPI_PROD
+            echo "[DEBUG] Tag found on master branch, so we will deploy to Staging"
             echo "ENVIRONMENT_NAME=DEPLOYMENT_PYPI_PROD" >> $GITHUB_OUTPUT
           elif [[ "${{ steps.release_contains_tag.outputs.retval }}" == "true" ]]; then
             # Github Environment designed for Deploying to Staging: DEPLOYMENT_PYPI_STAGING
+            echo "[DEBUG] Tag found on release branch, so we will deploy to Staging"
             echo "ENVIRONMENT_NAME=DEPLOYMENT_PYPI_STAGING" >> $GITHUB_OUTPUT
           else
             echo "A tag was pushed but not on master or release branch. No deployment will be done."
@@ -370,7 +373,9 @@ jobs:
             echo "[DEBUG] ${{ github.ref }}"
             DEPLOY=false
           fi
+          echo " --- Signal OK for Automated Deployment?: $DEPLOY "
           echo "AUTOMATED_DEPLOY=$DEPLOY" >> $GITHUB_OUTPUT
+          echo "ENVIRONMENT_NAME=$ENVIROMENT_NAME" >> $GITHUB_OUTPUT
 
   ### PYPI UPLOAD JOB ###
   pypi_publish:
