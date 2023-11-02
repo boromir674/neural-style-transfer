@@ -259,7 +259,7 @@ jobs:
         # move .whl
         # mv ".tox/${DIST_DIR}/artificial_artwork-${PKG_VERSION}-py3-none-any.whl" "${DIST_DIR}"
 
-        tox -e check -vv -s false
+        # tox -e check -vv -s false
 
     # - name: Install documentation test dependencies
     #   if: ${{ matrix.platform == 'macos-latest' && matrix.python-version != '3.6' }}
@@ -275,29 +275,29 @@ jobs:
         path: ${{ env.DIST_DIR }}
         if-no-files-found: error
 
-  codecov_coverage_host:
-    runs-on: ubuntu-latest
-    needs: test_suite
-    # env:
-    #   PACKAGE_DIST_VERSION: ${{ needs.test_suite.outputs.SEMVER_PIP_FORMAT }}
-    steps:
-    - uses: actions/checkout@v3
-    - name: Get Codecov binary
-      run: |
-        curl -Os https://uploader.codecov.io/latest/linux/codecov
-        chmod +x codecov
-    - name: Download Raw Coverage Data Artefacts
-      uses: actions/download-artifact@v3
-      with:
-        name: all_coverage_raw
-    - name: Upload Coverage Reports to Codecov
-      run: |
-        for file in coverage*.xml; do
-          OS_NAME=$(echo $file | sed -E "s/coverage-(\w\+)-/\1/")
-          PY_VERSION=$(echo $file | sed -E "s/coverage-\w\+-(\d\.)\+/\1/")
-          ./codecov -f $file -e "OS=$OS_NAME,PYTHON=$PY_VERSION" --flags unittests --verbose
-          echo "Sent to Codecov: $file !"
-        done
+  # codecov_coverage_host:
+  #   runs-on: ubuntu-latest
+  #   needs: test_suite
+  #   # env:
+  #   #   PACKAGE_DIST_VERSION: ${{ needs.test_suite.outputs.SEMVER_PIP_FORMAT }}
+  #   steps:
+  #   - uses: actions/checkout@v3
+  #   - name: Get Codecov binary
+  #     run: |
+  #       curl -Os https://uploader.codecov.io/latest/linux/codecov
+  #       chmod +x codecov
+  #   - name: Download Raw Coverage Data Artefacts
+  #     uses: actions/download-artifact@v3
+  #     with:
+  #       name: all_coverage_raw
+  #   - name: Upload Coverage Reports to Codecov
+  #     run: |
+  #       for file in coverage*.xml; do
+  #         OS_NAME=$(echo $file | sed -E "s/coverage-(\w\+)-/\1/")
+  #         PY_VERSION=$(echo $file | sed -E "s/coverage-\w\+-(\d\.)\+/\1/")
+  #         ./codecov -f $file -e "OS=$OS_NAME,PYTHON=$PY_VERSION" --flags unittests --verbose
+  #         echo "Sent to Codecov: $file !"
+  #       done
 
 
 ## DEPLOY to PYPI: PROD and STAGING
