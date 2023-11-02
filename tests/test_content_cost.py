@@ -5,6 +5,7 @@ import tensorflow as tf
 @pytest.fixture
 def compute_cost():
     from artificial_artwork.cost_computer import NSTContentCostComputer
+
     return NSTContentCostComputer.compute
 
 

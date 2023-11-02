@@ -5,23 +5,28 @@ import pytest
 # Currently the Production Weight Matrices come from  the pretrained VGG19 model
 # and the Toy Weight Matrices come from the Toy Model
 
+
 # when using pytest as Test Runner
 # this test case requires the --run-integration flag to be picked
 @pytest.mark.integration
-def test_prod_weight_matrices_memory_consumption_is_expected_one(
-
-):
+def test_prod_weight_matrices_memory_consumption_is_expected_one():
     # GIVEN the default layers our NST algorithm requires to build as part of
     # its Computational Graph, which require to load weight matrices from the
     # pretrained model (ie A, b matrices)
     from artificial_artwork.production_networks.image_model import (
         LAYERS as DEFAULT_VGG_LAYERS_TO_BUILD,
     )
-    layer_types_with_weights = {'conv'}
+
+    layer_types_with_weights = {"conv"}
     from artificial_artwork.style_model.graph_factory import LayerMaker
+
     regex = LayerMaker(None, None).regex
 
-    runtime_layers_with_weights = [l for l in DEFAULT_VGG_LAYERS_TO_BUILD if regex.match(l) and regex.match(l).group(1) in layer_types_with_weights]
+    runtime_layers_with_weights = [
+        l
+        for l in DEFAULT_VGG_LAYERS_TO_BUILD
+        if regex.match(l) and regex.match(l).group(1) in layer_types_with_weights
+    ]
 
     # GIVEN a method to extract A and b matrices from the loaded layers of a
     # pretrained model
@@ -31,7 +36,7 @@ def test_prod_weight_matrices_memory_consumption_is_expected_one(
     from artificial_artwork.pretrained_model import ModelHandlerFacility
 
     # create object to delegate all vgg related operations
-    vgg_ops = ModelHandlerFacility.create('vgg')
+    vgg_ops = ModelHandlerFacility.create("vgg")
 
     # GIVEN all the pretrained model layers are loaded in memory
     _layers = vgg_ops.load_model_layers()
