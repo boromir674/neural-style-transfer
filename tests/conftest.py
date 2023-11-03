@@ -230,7 +230,6 @@ def vgg_layers():
     return tuple((layer_id for _, layer_id in VGG_LAYERS))
 
 
-
 PRODUCTION_IMAGE_MODEL = os.environ.get("AA_VGG_19", "PRETRAINED_MODEL_NOT_FOUND")
 
 
