@@ -102,15 +102,15 @@ class NSTAlgorithmRunner:
         from artificial_artwork.image.image_operations import ImageNoiseAdder
 
         noise_adder = ImageNoiseAdder(seed=1234)
-        ratio = 0.6
-        apply_noise = lambda x: noise_adder(x, ratio)
-        noisy_content_image_matrix = apply_noise(
-            self.nst_algorithm.parameters.content_image.matrix
-        )
 
-        # noisy_content_image_matrix = self.apply_noise(
-        #     self.nst_algorithm.parameters.content_image.matrix
-        # )
+        RATIO_VALUE_OF_ORIGINAL_PROTOTYPE = 0.6
+
+        noisy_content_image_matrix = noise_adder(
+            # image as numpy ndarry (numpy.typing.NDArray)
+            self.nst_algorithm.parameters.content_image.matrix,
+            # ratio in [0, 1], 0 means no noise, 1 means all noise
+            RATIO_VALUE_OF_ORIGINAL_PROTOTYPE,
+        )
 
         print(" --- Building Computations ---")
 

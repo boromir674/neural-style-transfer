@@ -1,5 +1,3 @@
-import pytest
-
 
 def test_nst_produces_same_image_when_run_on_different_processes(
     test_suite,

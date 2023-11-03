@@ -7,6 +7,7 @@ import click
 from artificial_artwork import __version__
 
 from ._main import create_algo_runner
+from .cmd_demo import demo
 
 
 class WithStateAttribute(t.Protocol):
@@ -65,7 +66,9 @@ def run(content_image, style_image, iterations, location):
 ### NST CLI Entrypoint ###
 
 # ATTACH CMDs
-entry_point.add_command(run)
-from .cmd_demo import demo
 
+# 1st sub command: `nst run`
+entry_point.add_command(run)
+
+# 2nd sub command: `nst demo`
 entry_point.add_command(demo)

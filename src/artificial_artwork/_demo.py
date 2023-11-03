@@ -22,8 +22,6 @@ def create_algo_runner(
 ):
     print("[DEBUG] output type: {}".format(type(output_folder)))
 
-    current_directory = Path.cwd()
-
     termination_condition = "max-iterations"
 
     content_img_file = (

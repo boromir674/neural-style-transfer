@@ -1,8 +1,7 @@
+import os
 import typing as t
 
 import pytest
-
-from artificial_artwork.pretrained_model import model_handler
 
 
 @pytest.fixture
@@ -231,7 +230,6 @@ def vgg_layers():
     return tuple((layer_id for _, layer_id in VGG_LAYERS))
 
 
-import os
 
 PRODUCTION_IMAGE_MODEL = os.environ.get("AA_VGG_19", "PRETRAINED_MODEL_NOT_FOUND")
 
@@ -248,10 +246,8 @@ def pre_trained_models_1(vgg_layers, toy_model_data, toy_network_design):
     toy_layers_loader: t.Callable[..., NDArray] = toy_model_data[0]
     pretrained_toy_model_layers: t.List[str] = toy_model_data[1]
 
-    # equip ModelHandlerFacility with the 'vgg' class implementation
-    from artificial_artwork.pre_trained_models import vgg
-
-    # equip ModelHandlerFacility with the 'toy' class implementation
+    # help implement the ModelHandler Interface for the toy handler
+    # by using parts of production code, that we don't need to mock
     from artificial_artwork.pre_trained_models.vgg import (
         VggModelHandler,
         VggModelRoutines,
@@ -346,7 +342,7 @@ def toy_model_data():
         """
         # here we use pytest to emit some text, leveraging pytest, so that the test code using this fixture
         # can somehow verify that the text appeared in the expected place (ie console, log or sth)
-        print(f"VGG Mat Weights Mock Loader Called")
+        print("VGG Mat Weights Mock Loader Called")
 
         return {
             "layers": [
