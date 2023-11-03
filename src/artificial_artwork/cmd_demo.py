@@ -1,3 +1,4 @@
+import os
 import typing as t
 from pathlib import Path
 
@@ -101,7 +102,14 @@ def demo(iterations, output_folder):
     # The other Observer configured by the backend receives updates less frequently
     # and it saves a snapshot of the Generated image during the current iteration
     # to the output folder
-    backend_objects = init_algo_infra(iterations=iterations, output_folder=output_folder)
+    backend_objects = init_algo_infra(
+        iterations=iterations,
+        output_folder=output_folder,
+        # if None then default works only on editable installation
+        # ie if code was install with `pip install -e`, or if was added manually to PATH
+        content_img_file=os.environ.get('CONTENT_IMAGE_DEMO'),
+        style_img_file=os.environ.get('STYLE_IMAGE_DEMO'),
+    )
 
     # destructuring the backend objects
     run_algorithm: t.Callable[[], None] = backend_objects["run"]
