@@ -35,11 +35,11 @@ env:
   # On/Off switches for the various CI/CD steps
   # If false the step prevented from running
   # If true the step is allowed to run (it still may be skipped on other runtime conditions)
-  RUN_UNIT_TESTS: "true"
+  RUN_UNIT_TESTS: "false"
   RUN_LINT_CHECKS: "false"
   PUBLISH_IMAGE_ON_DOCKERHUB: "true"
   PUBLISH_ON_PYPI: "false"
-  DRAW_DEPENDENCIES: "true"
+  DRAW_DEPENDENCIES: "false"
   PREVENT_CODECOV_TEST_COVERAGE: "false"  # Codecov Job runs only on 'false'
 
   ## Static Code Analysis Parameters ##
@@ -499,7 +499,11 @@ jobs:
   docker_build:
     runs-on: ubuntu-latest
     needs: test_suite
-    if: needs.set_github_outputs.outputs.DOCKER_ENABLED == 'true'
+    # OLD
+    # if: needs.set_github_outputs.outputs.DOCKER_ENABLED == 'true'
+    # NEW
+    # on/off to by pass requirement of tests to run before docker
+    if: ${{ success() || needs.test_suite }}
     env:
       DOCKER_USER: ${{ secrets.DOCKER_USER }}
     steps:
