@@ -6,7 +6,7 @@
 	//----------------------
 	"dockerComposeFile": [
 		"docker-compose-dev-container.yml",
-		"docker-compose-tensorboard.yml"
+		// "docker-compose-tensorboard.yml"
 	],
 	// set the service to connect to, out of all the "composed" services
 	// this will be the environment (in the dev-container) that the developer will be operain

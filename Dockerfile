@@ -25,42 +25,68 @@ COPY README.rst .
 FROM source AS prod
 
 # Install dependencies
-# Install the Build Backend for the pip Frontend
-# poetry-core 1.8.1
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir poetry-core
-
-# tools for building tensorflow, numpy, scipy
-# RUN apt-get update && \
-#     apt-get install -y --no-install-recommends build-essential && \
-#     pip install -U pip && \
-#     apt-get clean && \
-#     rm -rf /var/lib/apt/lists/*
 
 # Build Wheels for package and its python dependencies
 RUN pip wheel --wheel-dir /app/dist /app
 
-# Keep only wheels from previous Stage and install ###
+
 FROM base AS prod_install
+
+# this Stage does not need Source Code
 
 WORKDIR /app
 
+# we extract the wheels built in 'prod'
 COPY --from=prod /app/dist dist
 
+# Install wheels for python package and its deps
+# in user site-packages (ie /root/.local/lib/python3.8/site-packages)
 RUN pip install --no-cache-dir --user ./dist/*.whl
 
-# Add now the user's bin folder to PATH
-ENV PATH="/root/.local/bin:$PATH"
-
-# Now the App CLI is available as `nst`
 # all code-wise has been successfully built (wheels) and installed
 
-# END of IMAGE v1 (prod)
+# Distribution installed (prod wheels)
+
+# Optionaly, add the CLI executable to the PATH
+# to make the `nst` CLI available in the image
+# ENV PATH="/root/.local/bin:$PATH"
+
+## This is a Builder kind of Stage
+## Consider using the docker feature on-build
+
+### END of Prod BUILD ###
+
 
 
 ### Stage: Bake Model Weights into Image ###
 
-# Responsible for baking into the image the pre-trained model weights
+FROM prod_install AS prod_ready
+
+ENV PATH="/root/.local/bin:$PATH"
+# Now the App CLI is available as `nst`
+
+
+## USAGE: as a dev you want to create images with baked in weights
+
+# VGG weights must be in the 'build context', when running `docker build`
+
+# Use Case 1
+# the file with vgg weights are in (relative) path
+# ./pretrained_model_bundle/imagenet-vgg-verydeep-19.mat
+
+# docker build -t nst-vgg --target prod_ready .
+
+# Use Case 2
+# the file with vgg weights are in (relative) path
+# ./deep-neural-nets/imagenet-vgg-verydeep-19.mat
+
+# docker build --build-arg REPO_DIR="${PWD}/deep-neural-nets" -t nst-vgg --target prod_ready .
+
+# the file with vgg weights are in (absolute) path
+# /my_filesystem/data/repos/neural-style-transfer/pretrained_model_bundle/imagenet-vgg-verydeep-19.mat
+
 
 # USE examples:
 
@@ -80,26 +106,6 @@ ENV PATH="/root/.local/bin:$PATH"
 #      --build-arg BUILD_TIME_VGG="/data/repos/neural-style-transfer/pretrained_model_bundle/imagenet-vgg-verydeep-19.mat" \
 #      .
 
-
-FROM prod AS prod_ready
-
-## USAGE: as a dev you want to create images with baked in weights
-
-# Use Case 1
-# the file with vgg weights are in (relative) path
-# ./pretrained_model_bundle/imagenet-vgg-verydeep-19.mat
-
-# docker build -t nst-vgg --target prod_ready .
-
-# Use Case 2
-# the file with vgg weights are in (relative) path
-# ./deep-neural-nets/imagenet-vgg-verydeep-19.mat
-
-# docker build --build-arg REPO_DIR="${PWD}/deep-neural-nets" -t nst-vgg --target prod_ready .
-
-# the file with vgg weights are in (absolute) path
-# /my_filesystem/data/repos/neural-style-transfer/pretrained_model_bundle/imagenet-vgg-verydeep-19.mat
-
 # POC for persisting a variable as env var available in the image after build
 # ARG CONT_IMG_VER
 # ENV CONT_IMG_VER=${CONT_IMG_VER:-v1.0.0}
@@ -111,46 +117,70 @@ ARG VGG_NAME="imagenet-vgg-verydeep-19.mat"
 
 # Overide most probably
 ARG DEFAULT_VGG_DIR_NAME="pretrained_model_bundle"
+
 # Overide most probably
-ARG DEFAULT_REPO_DIR="/data/repos/neural-style-transfer"
+# ARG DEFAULT_REPO_DIR="/data/repos/neural-style-transfer"
+# ARG IMAGE_MODEL="${DEFAULT_REPO_DIR}/${DEFAULT_VGG_DIR_NAME}/${VGG_NAME}"
 
+# IMAGE_MODEL in 'build context'; relative path to the context of the build
+# ie `docker build -t im .` means context is $PWD
+ARG IMAGE_MODEL="${DEFAULT_VGG_DIR_NAME}/${VGG_NAME}"
 
-# IMAGE_MODEL references the Host's Filesystem, with default value
-ARG IMAGE_MODEL="${DEFAULT_REPO_DIR}/${DEFAULT_VGG_DIR_NAME}/${VGG_NAME}"
-
-# ARG IMAGE_MODEL="/data/repos/neural-style-transfer/pretrained_model_bundle/imagenet-vgg-verydeep-19.mat"
-
-# Print variable values for debugging
-RUN echo "IMAGE_MODEL: ${IMAGE_MODEL}" > aa
-RUN echo "DEFAULT_VGG_DIR_NAME: ${DEFAULT_VGG_DIR_NAME}" >> aa
-RUN echo "DEFAULT_REPO_DIR: ${DEFAULT_REPO_DIR}" >> aa
-RUN echo "VGG_NAME: ${VGG_NAME}" >> aa
-
-
-# WORKDIR $MY_WORKDIR
-# WORKDIR /app
+WORKDIR /app
 
 # # Copy a file from the host system to the image
 # # preserving same folder structure. It is optional, but for purposes of clarity
-# COPY ${IMAGE_MODEL} ${DEFAULT_VGG_DIR_NAME}
+COPY ${IMAGE_MODEL} "${DEFAULT_VGG_DIR_NAME}/"
+
+# ie if on host is pretrained_model_bundle/imagenet-vgg-verydeep-19.mat
+# then in image it will be /app/pretrained_model_bundle/imagenet-vgg-verydeep-19.mat
+
 
 # # Make Image Model's VGG wieghts avalilable to NST code/app
-# ENV AA_VGG_19=/app/${DEFAULT_VGG_DIR_NAME}/VGG_NAME
+ENV AA_VGG_19="/app/${DEFAULT_VGG_DIR_NAME}/${VGG_NAME}"
+
+# CMD that verifies file exist in image with default build args:
+CMD ["python", "-c", "import os; print(os.path.exists(os.environ['AA_VGG_19']))"]
 
 
-# ### Stage: Bake Model Weights into Image ###
-# FROM prod_ready AS prod_ready_with_demo
+### Stage: Bake into image the Demo Content and Style Images
 
-# WORKDIR /app
+FROM prod_ready AS prod_demo
 
-# # Bake into image the Demo Content and Style Images
-# COPY tests/data/blue-red_w300-h225.jpg /app/tests/data/blue-red_w300-h225.jpg
-# COPY tests/data/canoe_water_w300-h225.jpg /app/tests/data/canoe_water_w300-h225.jpg
 
-# # Define default command, that when run, a python process is spawned, which
-# # runs the NST Algorithm on the Demo Content and Style Images for a few iterations
+ARG REPO_DEMO_IMAGES_LOCATION="tests/data"
 
-# CMD ["nst", "demo"]
+ARG DEMO_CONTENT_IMAGE="${REPO_DEMO_IMAGES_LOCATION}/blue-red_w300-h225.jpg"
+ARG DEMO_STYLE_IMAGE="${REPO_DEMO_IMAGES_LOCATION}/canoe_water_w300-h225.jpg"
+
+WORKDIR /app
+
+COPY ${DEMO_CONTENT_IMAGE} "${REPO_DEMO_IMAGES_LOCATION}/"
+COPY ${DEMO_STYLE_IMAGE} "${REPO_DEMO_IMAGES_LOCATION}/"
+# ie if on host is tests/data/blue-red_w300-h225.jpg
+# then in image it will be /app/tests/data/blue-red_w300-h225.jpg
+
+# Indicate that these are valid Content and Style Images for Demo
+# Show nst where to find the Demo Content and Style Images
+ENV CONTENT_IMAGE_DEMO="/app/${DEMO_CONTENT_IMAGE}"
+ENV STYLE_IMAGE_DEMO="/app/${DEMO_STYLE_IMAGE}"
+
+
+# Define default command, that when run, a python process is spawned, which
+# runs the NST Algorithm on the Demo Content and Style Images for a few iterations
+CMD ["nst", "demo"]
+
+
+### Stage: Default Target (for Production)
+# Just to allow `docker buil` use this as target if not specified
+
+FROM prod_ready as default
+
+# Define ENTRYPOINT, so that this is the default 
+# runs the NST Algorithm on the Demo Content and Style Images for a few iterations
+
+ENTRYPOINT [ "nst" ]
+# overwrite: docker run --entrypoint /bin/bash -it --rm nst-prod-runtime
 
 
 
@@ -202,5 +232,5 @@ RUN echo "VGG_NAME: ${VGG_NAME}" >> aa
 
 # COPY tests tests
 
-# ENV AA_VGG_19 /app/pretrained_model_bundle/imagenet-vgg-verydeep-19.mat
 # ENTRYPOINT [ "neural-style-transfer" ]
+

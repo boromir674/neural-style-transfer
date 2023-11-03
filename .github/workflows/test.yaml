@@ -20,6 +20,7 @@ on:
     tags:
       - v*
 
+# from gh docs: "A map of variables that are available to the steps of all jobs in the workflow."
 env:
   ## Pipeline Constants ##
 
@@ -29,7 +30,7 @@ env:
   TEST_STRATEGY: "{\"platform\":[\"ubuntu-latest\", \"macos-latest\", \"windows-latest\"], \"python-version\":[\"3.9\"]}"
 
 
-  ## Pipeline Parameters ##
+  ## Pipeline Settings ##
 
   # On/Off switches for the various CI/CD steps
   # If false the step prevented from running
@@ -39,12 +40,12 @@ env:
   BUILD_DOCKER: "false"
   PUBLISH_ON_PYPI: "false"
   DRAW_DEPENDENCIES: "false"
+  PREVENT_CODECOV_TEST_COVERAGE: "false"  # Codecov Job runs only on 'false'
 
   ## Static Code Analysis Parameters ##
-  
+
   # Python Runtime version to set the Job runner with
   STATIC_ANALYSIS_PY: "3.8"  # since our pyproject is tested to support 3.8 builds
-
   # Pylint Score Threshold, if the score is below this value the Job will fail
   # If pylint rated our code below that score, the Job fails
   PYLINT_SCORE_THRESHOLD: "8.2"
@@ -63,7 +64,8 @@ jobs:
       DRAW_DEPS_SVG_GRAPHS: ${{ steps.pass-env-to-output.outputs.DRAW_DEPS_SVG_GRAPHS }}
       RUN_LINT: ${{ steps.pass-env-to-output.outputs.RUN_LINT }}
       PUBLISH_ON_PYPI: ${{ steps.pass-env-to-output.outputs.PUBLISH_ON_PYPI }}
-      # STATIC_ANALYSIS_PY_VERSION: ${{ steps.pass-env-to-output.outputs.STATIC_ANALYSIS_PY_VERSION }}
+      PREVENT_CODECOV_TEST_COVERAGE: ${{ steps.pass-env-to-output.outputs.PREVENT_CODECOV_TEST_COVERAGE }}
+
     steps:
       - name: Pass 'env' section variables to GITHUB_OUTPUT
         id: pass-env-to-output
@@ -80,8 +82,7 @@ jobs:
           echo "TESTS_ENABLED=$RUN_UNIT_TESTS" >> $GITHUB_OUTPUT
           echo "DOCKER_ENABLED=$BUILD_DOCKER" >> $GITHUB_OUTPUT
           echo "PUBLISH_ON_PYPI=$PUBLISH_ON_PYPI" >> $GITHUB_OUTPUT
-
-          # echo "STATIC_ANALYSIS_PY_VERSION=$STATIC_ANALYSIS_PY"  >> $GITHUB_OUTPUT
+          echo "PREVENT_CODECOV_TEST_COVERAGE=$PREVENT_CODECOV_TEST_COVERAGE" >> $GITHUB_OUTPUT
 
 # RUN TEST SUITE ON ALL PLATFORMS
   test_suite:
@@ -92,11 +93,6 @@ jobs:
       matrix: ${{fromJSON(needs.set_github_outputs.outputs.matrix)}}
     outputs:
       SEMVER_PIP_FORMAT: ${{ steps.parse_version.outputs.SEMVER_PIP_FORMAT }}
-      # CI_COVERAGE_XML: ${{ steps.produce_coverage_xml_file.outputs.CI_COVERAGE_XML }}
-      # can be used in Other Jobs as for example
-        # needs: [test_suite]
-        # environment:
-        #  name: ${{ needs.test_suite.outputs.CI_COVERAGE_XML }}
     steps:
     - run: echo "[INFO] Platform/OS ${{ matrix.platform }} , Python -> ${{ matrix.python-version }}"
     - uses: actions/checkout@v3
@@ -292,29 +288,31 @@ jobs:
         path: ${{ env.DIST_DIR }}
         if-no-files-found: error
 
-  # codecov_coverage_host:
-  #   runs-on: ubuntu-latest
-  #   needs: test_suite
-  #   # env:
-  #   #   PACKAGE_DIST_VERSION: ${{ needs.test_suite.outputs.SEMVER_PIP_FORMAT }}
-  #   steps:
-  #   - uses: actions/checkout@v3
-  #   - name: Get Codecov binary
-  #     run: |
-  #       curl -Os https://uploader.codecov.io/latest/linux/codecov
-  #       chmod +x codecov
-  #   - name: Download Raw Coverage Data Artefacts
-  #     uses: actions/download-artifact@v3
-  #     with:
-  #       name: all_coverage_raw
-  #   - name: Upload Coverage Reports to Codecov
-  #     run: |
-  #       for file in coverage*.xml; do
-  #         OS_NAME=$(echo $file | sed -E "s/coverage-(\w\+)-/\1/")
-  #         PY_VERSION=$(echo $file | sed -E "s/coverage-\w\+-(\d\.)\+/\1/")
-  #         ./codecov -f $file -e "OS=$OS_NAME,PYTHON=$PY_VERSION" --flags unittests --verbose
-  #         echo "Sent to Codecov: $file !"
-  #       done
+
+### JOB: UPLOAD COVERAGE REPORTS TO CODECOV ###
+
+  codecov_coverage_host:
+    runs-on: ubuntu-latest
+    needs: test_suite
+    if: ${{ needs.set_github_outputs.outputs.PREVENT_CODECOV_TEST_COVERAGE == 'false' }}
+    steps:
+    - uses: actions/checkout@v3
+    - name: Get Codecov binary
+      run: |
+        curl -Os https://uploader.codecov.io/latest/linux/codecov
+        chmod +x codecov
+    - name: Download XML Test Coverage Results, from CI Artifacts
+      uses: actions/download-artifact@v3
+      with:
+        name: all_coverage_raw
+    - name: Upload Coverage Reports to Codecov
+      run: |
+        for file in coverage*.xml; do
+          OS_NAME=$(echo $file | sed -E "s/coverage-(\w\+)-/\1/")
+          PY_VERSION=$(echo $file | sed -E "s/coverage-\w\+-(\d\.)\+/\1/")
+          ./codecov -f $file -e "OS=$OS_NAME,PYTHON=$PY_VERSION" --flags unittests --verbose
+          echo "Sent to Codecov: $file !"
+        done
 
 
 ## DEPLOY to PYPI: PROD and STAGING
