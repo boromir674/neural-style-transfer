@@ -43,7 +43,7 @@ env:
   ## Static Code Analysis Parameters ##
   
   # Python Runtime version to set the Job runner with
-  STATIC_ANALYSIS_PY: "3.10"
+  STATIC_ANALYSIS_PY: "3.8"  # since our pyproject is tested to support 3.8 builds
 
   # Pylint Score Threshold, if the score is below this value the Job will fail
   # If pylint rated our code below that score, the Job fails
