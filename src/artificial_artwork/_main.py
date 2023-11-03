@@ -1,11 +1,10 @@
+"""Bridges the Backend code with the CLI's main (aka run) cmd
+"""
 import os
-import sys
-
-from artificial_artwork import __version__
 
 from .algorithm import AlogirthmParameters, NSTAlgorithm
 from .disk_operations import Disk
-from .nst_image import convert_to_uint8, noisy
+from .nst_image import convert_to_uint8
 from .nst_tf_algorithm import NSTAlgorithmRunner
 from .pretrained_model import ModelHandlerFacility
 from .production_networks import NetworkDesign
