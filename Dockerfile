@@ -51,12 +51,19 @@ RUN pip install --no-cache-dir --user ./dist/*.whl
 
 # Optionaly, add the CLI executable to the PATH
 # to make the `nst` CLI available in the image
-# ENV PATH="/root/.local/bin:$PATH"
+ENV PATH="/root/.local/bin:$PATH"
 
 ## This is a Builder kind of Stage
 ## Consider using the docker feature on-build
 
-### END of Prod BUILD ###
+# build: docker build --target prod_install -t nst_cli .
+# Usable as: docker run -it --rm nst_cli --entrypoint nst
+
+# EG: docker run -it --rm nst_cli nst --help
+
+CMD [ "nst" ]
+
+### END of Prod Build Installation ###
 
 
 

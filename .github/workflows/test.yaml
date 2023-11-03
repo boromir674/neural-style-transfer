@@ -512,8 +512,13 @@ jobs:
       run: |
         # workflow enabled for branches and v* tags
         IMAGE_TAG="${GITHUB_REF_NAME}"  # this is branch name or tag name
-        echo "IMAGE_REF=neural-style-transfer:${IMAGE_TAG}" >> $GITHUB_ENV
-        docker build -t "${DOCKER_USER}/neural-style-transfer:${IMAGE_TAG}" .
+
+        echo "IMAGE_REF=neural-style-transfer-cli:${IMAGE_TAG}" >> $GITHUB_ENV
+
+        # build an image that does not have vgg model weights
+        # TODO: add image model weights file in this env somehow
+        
+        docker build --target prod_install -t "${DOCKER_USER}/neural-style-transfer:${IMAGE_TAG}" .
     - name: Publish Docker Image to DockerHub
       env:
         DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
