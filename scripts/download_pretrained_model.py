@@ -1,12 +1,10 @@
 #!/usr/bin/env python
 import os
 
-my_dir = os.path.dirname(os.path.realpath(__file__))
-
-
 from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
+# from selenium.webdriver.common.keys import Keys
 
+my_dir = os.path.dirname(os.path.realpath(__file__))
 driver = webdriver.Chrome(os.path.join(my_dir, "../chromedriver"))
 
 driver.get("https://drive.protonmail.com/urls/7RXGN23ZRR#hsw4STil0Hgc")

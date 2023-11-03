@@ -12,7 +12,7 @@ import sys
 
 if len(sys.argv) != 2:
     print("Usage: process_sem_ver.py <version>")
-    print(f"Example: process_sem_ver.py 1.0.0-dev")
+    print("Example: process_sem_ver.py 1.0.0-dev")
     sys.exit(1)
 
 semver: str = sys.argv[1]
@@ -68,7 +68,7 @@ if "-" not in semver:  # if no Sem Ver 2.0 prerelease separator found in the str
             "Please try again with a version string that ends with a patch or pre-release metadata"
         )
         print(
-            f"EXPLANATION: Since we did not find a dash (-) in the input, we expect to",
+            "EXPLANATION: Since we did not find a dash (-) in the input, we expect to",
             " the Input Version String to be of 'Major.Minor.Patch' format."
             " So, 'Patch' must be the last part of the string, thus the last digit must be a number."
             f"But we found {semver[-0]} instead\n."
@@ -99,7 +99,7 @@ else:  # if Sem Ver 2.0 prerelease separator found in the string
         print(f"Your input has {semver.count('-')} dashes")
         print("Please try again with a version string that has exactly 1 dash (-)")
         print(
-            f"EXPLANATION: Since, we found a dash (-) in the input, and given the script 'Limitation' that we do not support build-metadata, we expect",
+            "EXPLANATION: Since, we found a dash (-) in the input, and given the script 'Limitation' that we do not support build-metadata, we expect",
             " the Input Version String to be of 'Major.Minor.Patch-Prerelease' format.",
         )
         sys.exit(1)
@@ -110,12 +110,12 @@ else:  # if Sem Ver 2.0 prerelease separator found in the string
         # ERROR: Should be dealing with M.m.p-prerelase case, but prerelease substring is empty
         print("[ERROR]: Version string must have a non-empty prerelease substring")
         print(f"Your input: {semver}")
-        print(f"Your input has an empty prerelease substring")
+        print("Your input has an empty prerelease substring")
         print(
             "Please try again with a version string that has a non-empty prerelease substring"
         )
         print(
-            f"EXPLANATION: Since, we found a dash (-) in the input, and given the script 'Limitation' that we do not support build-metadata, we expect",
+            "EXPLANATION: Since, we found a dash (-) in the input, and given the script 'Limitation' that we do not support build-metadata, we expect",
             " the Input Version String to be of 'Major.Minor.Patch-Prerelease' format.",
         )
         sys.exit(1)
@@ -131,7 +131,7 @@ else:  # if Sem Ver 2.0 prerelease separator found in the string
             "Please try again with a version string that has only [a-z] characters in prerelease substring"
         )
         print(
-            f"EXPLANATION: Since we found a dash (-) in the input, we expect to",
+            "EXPLANATION: Since we found a dash (-) in the input, we expect to",
             " the Input Version String to be of 'Major.Minor.Patch-Prerelease' format.",
         )
         sys.exit(1)
