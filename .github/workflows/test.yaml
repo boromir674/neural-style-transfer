@@ -35,12 +35,12 @@ env:
   # On/Off switches for the various CI/CD steps
   # If false the step prevented from running
   # If true the step is allowed to run (it still may be skipped on other runtime conditions)
-  RUN_UNIT_TESTS: "false"
+  RUN_UNIT_TESTS: "true"
   RUN_LINT_CHECKS: "true"
-  BUILD_DOCKER: "false"
+  BUILD_DOCKER: "true"
   PUBLISH_ON_PYPI: "false"
-  DRAW_DEPENDENCIES: "false"
-  PREVENT_CODECOV_TEST_COVERAGE: "false"  # Codecov Job runs only on 'false'
+  DRAW_DEPENDENCIES: "true"
+  PREVENT_CODECOV_TEST_COVERAGE: "true"  # Codecov Job runs only on 'false'
 
   ## Static Code Analysis Parameters ##
 
