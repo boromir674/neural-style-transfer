@@ -652,7 +652,8 @@ jobs:
 
         push_success=1
 
-        docker push "${IMAGE_REF}" || push_success=0
+        # docker push "${IMAGE_REF}" || push_success=0
+        ls i_cause_push_success_to_become_0 || push_success=0
 
         if [ $push_success -eq 1 ]; then
           echo "Docker Image "${IMAGE_REF}" pushed to DockerHub!"
