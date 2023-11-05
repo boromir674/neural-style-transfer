@@ -30,17 +30,86 @@ env:
   TEST_STRATEGY: "{\"platform\":[\"ubuntu-latest\", \"macos-latest\", \"windows-latest\"], \"python-version\":[\"3.9\"]}"
 
 
-  ## Pipeline Settings ##
+  ##### Pipeline Settings ####
 
   # On/Off switches for the various CI/CD steps
   # If false the step prevented from running
   # If true the step is allowed to run (it still may be skipped on other runtime conditions)
   RUN_UNIT_TESTS: "false"
   RUN_LINT_CHECKS: "false"
-  PUBLISH_IMAGE_ON_DOCKERHUB: "true"
   PUBLISH_ON_PYPI: "false"
   DRAW_DEPENDENCIES: "false"
   PREVENT_CODECOV_TEST_COVERAGE: "false"  # Codecov Job runs only on 'false'
+
+  # Hard switch to turn on/off the Docker build and publish to Dockerhub
+  DOCKER_JOB_ON: "true"
+
+
+  #### Behaviour - Docker build and Publich ####
+  
+  # Override policy-dependent decision-making and
+  # Accept any ALL (branch/build) to Publish to Dockerhub
+  ALWAYS_BUILD_N_PUBLSIH_DOCKER: "false"
+
+  # Docker Policy
+
+  ## Continous Integration / Continuous Deployment
+  ## CDeployment : Builds and Publishes only if Tests ran and passed
+  # DOCKER_JOB_POLICY: "CDeployment"
+  
+  ## Continous Integration / Continuous Delivery
+  ## CDelivery : Builds and Publishes if Tests Passed or if Tests were Skipped 
+  DOCKER_JOB_POLICY: "CDelivery"
+
+
+  ## Lower level config ##
+
+  # 2 bit state machine
+  # 0 0  pure CI/CD mode, aka Admit if Pass, Require Pass, guarantee quality
+  # 0 1  Always build and publish, aka Admit All
+  # 1 0  CI/CD with Bypass Opt, aka Admit Tested and when Test is OFF, Admit when Test OFF
+  # 1 1  Never build and publish, aka No Admitance, guarantee NO Dockerhub publish
+
+  # alternative 2 bits representations:
+  # 1. Accept all for Docker 1/0 (1bit), Mode (CICD, or CICD + allow if test OFF) (1bit)
+  # 2. No Docker Bypass 0/1 (1 bit), Accept all 0/1 (1 bit). 
+
+  # Define the Policy that our Job uses to decide whether to run the Docker build and publish to Dockerhub
+  
+  # Pol 1: Run Docker build and publish to Dockerhub only if Tests passed (and ran!)
+  # aka: Continous Integration / Continuous Deployment
+  # aka: guranteed quality, everything published is tested
+  # aka: 'required succesful evaluation', 'accept only a Pass'
+
+  # accepted criteria (any of which suffices): [PASS]
+  # if Docker Job is 
+
+  # DOCKER_JOB_POLICY: "CI_CD"
+
+  # Pol 2: Always run Docker build and publish to Dockerhub
+  # aka 'Free Admitance', 'No Entry Barrier', 'Free Entrance'
+  
+  # DOCKER_JOB_POLICY: "ALWAYS_RUN"
+
+  # Pol 3: Run Docker build and publish to Dockerhub, if Tests ran and passed, but also if Tests were skipped
+  # aka: Continous Integration / Continuous Delivery
+  # aka: 'accepted_when_Test_OFF', 'accept a Pass or a Skip'
+  # aka: 
+
+  # accepted criteria (any of which suffices): [PASS, TESTS_SKIPPED]
+
+  # DOCKER_JOB_POLICY: "RUN_ON_TEST_PASS_OR_SKIP"
+
+  # WIP Pol 4: Never run Docker build and publish to Dockerhub
+  # aka: garantee that nothing is published
+  # aka: 'Shutdown', 'No Admitance'
+
+  # DOCKER_JOB_POLICY: "NEVER_RUN"
+
+  #### End Behaviour ####
+
+  ##### END Pipeline Settings ######
+
 
   ## Static Code Analysis Parameters ##
 
@@ -60,7 +129,8 @@ jobs:
     outputs:
       matrix: ${{ steps.pass-env-to-output.outputs.matrix }}
       TESTS_ENABLED: ${{ steps.pass-env-to-output.outputs.TESTS_ENABLED }}
-      DOCKER_ENABLED: ${{ steps.pass-env-to-output.outputs.DOCKER_ENABLED }}
+      # DOCKER_JOB_ON: ${{ steps.pass-env-to-output.outputs.DOCKER_JOB_ON }}
+      DOCKER_POLICY: ${{ steps.pass-env-to-output.outputs.DOCKER_POLICY }}
       DRAW_DEPS_SVG_GRAPHS: ${{ steps.pass-env-to-output.outputs.DRAW_DEPS_SVG_GRAPHS }}
       RUN_LINT: ${{ steps.pass-env-to-output.outputs.RUN_LINT }}
       PUBLISH_ON_PYPI: ${{ steps.pass-env-to-output.outputs.PUBLISH_ON_PYPI }}
@@ -80,9 +150,34 @@ jobs:
           echo "DRAW_DEPS_SVG_GRAPHS=$DRAW_DEPENDENCIES" >> $GITHUB_OUTPUT
           echo "RUN_LINT=$RUN_LINT_CHECKS" >> $GITHUB_OUTPUT
           echo "TESTS_ENABLED=$RUN_UNIT_TESTS" >> $GITHUB_OUTPUT
-          echo "DOCKER_ENABLED=$PUBLISH_IMAGE_ON_DOCKERHUB" >> $GITHUB_OUTPUT
           echo "PUBLISH_ON_PYPI=$PUBLISH_ON_PYPI" >> $GITHUB_OUTPUT
           echo "PREVENT_CODECOV_TEST_COVERAGE=$PREVENT_CODECOV_TEST_COVERAGE" >> $GITHUB_OUTPUT
+
+
+          ## Lower level config ##
+
+          # 2 bit state machine
+          # 0 0  = 0: pure CI/CD mode, aka Admit if Pass, Require Pass, guarantee quality
+          # 0 1  = 1: Always build and publish, aka Admit All
+          # 1 0  = 2: CI/CD with Bypass Opt, aka Admit Tested and when Test is OFF, Admit when Test OFF
+          # 1 1  = 3: Never build and publish, aka No Admitance, guarantee NO Dockerhub publish
+
+          if [[ $DOCKER_JOB_ON == "true" ]]; then
+
+            if [[ $DOCKER_JOB_POLICY == "ALWAYS_BUILD_N_PUBLSIH_DOCKER" ]]; then
+              echo "DOCKER_POLICY=1" >> $GITHUB_OUTPUT
+            
+            if [[ $DOCKER_JOB_POLICY == "CDeployment" ]]; then
+              echo "DOCKER_POLICY=0" >> $GITHUB_OUTPUT
+
+            elif [[ $DOCKER_JOB_POLICY == "CDelivery" ]]; then
+              echo "DOCKER_POLICY=2" >> $GITHUB_OUTPUT
+            fi
+          else
+
+            echo "DOCKER_POLICY=3" >> $GITHUB_OUTPUT
+          fi
+
 
 # RUN TEST SUITE ON ALL PLATFORMS
   test_suite:
@@ -499,11 +594,15 @@ jobs:
   docker_build:
     runs-on: ubuntu-latest
     needs: test_suite
-    # OLD
-    # if: needs.set_github_outputs.outputs.DOCKER_ENABLED == 'true'
-    # NEW
-    # on/off to by pass requirement of tests to run before docker
-    if: ${{ success() || needs.test_suite }}
+    if: ${{ needs.set_github_outputs.outputs.DOCKER_POLICY == '1' || (
+          needs.test_suite.result == 'success' ||
+          needs.test_suite.result == 'skipped' && needs.set_github_outputs.outputs.DOCKER_JOB_POLICY == '2'
+        ) }}
+    # if: ${{ needs.set_github_outputs.outputs.DOCKER_POLICY == '1' && (
+    #       needs.set_github_outputs.outputs.always_run == 'true' ||
+    #       needs.test_suite.result == 'success' || 
+    #       needs.test_suite.result == 'skipped' && needs.set_github_outputs.outputs.DOCKER_JOB_POLICY == 'RUN_ON_TEST_PASS_OR_SKIP'
+    #     ) }}
     env:
       DOCKER_USER: ${{ secrets.DOCKER_USER }}
     steps:
