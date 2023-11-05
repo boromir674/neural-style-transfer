@@ -654,12 +654,12 @@ jobs:
 
         docker push "${IMAGE_REF}" || push_success=0
 
-        if [ $push_success -eq `1` ]; then
-          echo " -- DOCKER PUSH SUCCESS ! -- "
-          echo " -- IMAGE: ${IMAGE_REF} --"
+        if [ $push_success -eq 1 ]; then
+          echo "Docker Image "${IMAGE_REF}" pushed to DockerHub!"
         else
           echo "[ERROR] Docker push failed!"
         fi
+        
         echo "push_success=$push_success" >> $GITHUB_ENV
 
     - name: Logout from Dockerhub
