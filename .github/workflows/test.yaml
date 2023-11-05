@@ -617,11 +617,11 @@ jobs:
   docker_build:
     runs-on: ubuntu-latest
     needs: test_suite
-    # V1 below, works as expected
-    # if: always() && (needs.test_suite.result == 'success' || needs.set_github_outputs.outputs.DOCKER_POLICY == '2')
-    #
-    # Trial
-    if: (needs.test_suite.result == 'success' || needs.set_github_outputs.outputs.DOCKER_POLICY == '2')
+    # always() is REQUIREd to implement any run if skipped, thing!
+    if: always() && (needs.set_github_outputs.outputs.DOCKER_POLICY == '1' || (
+        needs.test_suite.result == 'success' || needs.set_github_outputs.outputs.DOCKER_POLICY == '2')
+      )
+
     
     # if: |
     #   always() &&
