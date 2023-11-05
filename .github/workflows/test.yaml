@@ -49,7 +49,7 @@ env:
   
   # Override policy-dependent decision-making and
   # Accept any ALL (branch/build) to Publish to Dockerhub
-  ALWAYS_BUILD_N_PUBLSIH_DOCKER: "false"
+  ALWAYS_BUILD_N_PUBLSIH_DOCKER: "true"
 
   # Docker Policy
 
