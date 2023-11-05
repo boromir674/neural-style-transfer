@@ -629,7 +629,7 @@ jobs:
         echo " == Image Slug: $IMAGE_SLUG == "
         echo " == Image Ref: $IMAGE_REF == "
 
-        echo "IMAGE_REF=${DOCKER_USER}/${IMAGE_SLUG}:${IMAGE_TAG}" >> $GITHUB_ENV
+        echo "IMAGE_REF=${IMAGE_REF}" >> $GITHUB_ENV
 
         docker build --target source -t "${IMAGE_REF}" .
         # docker build --target prod_install -t "${DOCKER_USER}/neural-style-transfer:${IMAGE_TAG}" .
@@ -644,8 +644,17 @@ jobs:
 
     - name: Publish to DockerHub; Push Docker Image
       run: |
-        docker push "${IMAGE_REF}" && job_status=0 || echo "[ERROR] Docker push failed!" && job_status=1
-        echo "job_status=$job_status" >> $GITHUB_ENV
+        # docker push "${IMAGE_REF}" && job_status=0 || echo "[ERROR] Docker push failed!" && job_status=1
+        # echo "job_status=$job_status" >> $GITHUB_ENV
+
+        push_success=0
+        docker push "${IMAGE_REF}" || push_success=1
+        if [ $push_success -eq 0 ]; then
+          echo " ==== Docker push successful! ==== "
+        else
+          echo "[ERROR] Docker push failed!"
+        fi
+        echo "push_success=$push_success" >> $GITHUB_ENV
 
     - name: Logout from Dockerhub
       run: docker logout
@@ -653,7 +662,17 @@ jobs:
     - name: Exit Job, with status code 0 if push was successful
       run: |
         # show success message or exit with non-zero if push Failed
-        [ "$job_status" = 0 ] && echo "Docker Image "${IMAGE_REF}" pushed to DockerHub!" || exit $job_status
+        if [ $push_success -eq 0 ]; then
+          # echo "Docker Image "${IMAGE_REF}" pushed to DockerHub!"
+          job_status=0
+        else
+          # echo "[ERROR] Docker push failed!"
+          job_status=1
+        fi
+        echo "Exiting with status code: $job_status"
+        exit $job_status
+
+        # [ "$job_status" = 0 ] && echo "Docker Image "${IMAGE_REF}" pushed to DockerHub!" || exit $job_status
 
 
 
