@@ -124,9 +124,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: run sth that might fail
-        run: echo "compute" && job_status=0
-      - run: |
+        run: |
+          echo "compute" && job_status=0
+          echo  "job_status: $job_status"
           [ "$job_status" = 0 ] && echo "Command Succeeded!" || exit 1
+      # - run: |
+      #     [ "$job_status" = 0 ] && echo "Command Succeeded!" || exit 1
 
   # we use the below to read the workflow env vars and be able to use in "- if:" Job conditionals
   # now we can do -> if: ${{ needs.set_github_outputs.outputs.TESTS_ENABLED == 'true' }}
