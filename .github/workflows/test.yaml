@@ -165,21 +165,38 @@ jobs:
           echo "++++ $DOCKER_POLICY ++++"
           echo $DOCKER_JOB_POLICY
 
-          if [[ $DOCKER_JOB_ON == "true" ]]; then
+          # if [[ $DOCKER_JOB_ON == "true" ]]; then
 
-            if [[ $DOCKER_JOB_POLICY == "ALWAYS_BUILD_N_PUBLSIH_DOCKER" ]]; then
-              echo "DOCKER_POLICY=1" >> $GITHUB_OUTPUT
+          #   if [[ $DOCKER_JOB_POLICY == "ALWAYS_BUILD_N_PUBLSIH_DOCKER" ]]; then
+          #     echo "DOCKER_POLICY=1" >> $GITHUB_OUTPUT
             
-            elif [[ $DOCKER_JOB_POLICY == "CDeployment" ]]; then
-              echo "DOCKER_POLICY=0" >> $GITHUB_OUTPUT
+          #   elif [[ $DOCKER_JOB_POLICY == "CDeployment" ]]; then
+          #     echo "DOCKER_POLICY=0" >> $GITHUB_OUTPUT
 
+          #   elif [[ $DOCKER_JOB_POLICY == "CDelivery" ]]; then
+          #     echo "DOCKER_POLICY=2" >> $GITHUB_OUTPUT
+          #   fi
+          # else
+
+          #   echo "DOCKER_POLICY=3" >> $GITHUB_OUTPUT
+          # fi
+          if [[ $DOCKER_JOB_ON == "true" ]]; then
+            if [[ $DOCKER_JOB_POLICY == "ALWAYS_BUILD_N_PUBLISH_DOCKER" ]]; then
+              echo "Setting DOCKER_POLICY to 1"
+              DOCKER_POLICY=1
+            elif [[ $DOCKER_JOB_POLICY == "CDeployment" ]]; then
+              echo "Setting DOCKER_POLICY to 0"
+              DOCKER_POLICY=0
             elif [[ $DOCKER_JOB_POLICY == "CDelivery" ]]; then
-              echo "DOCKER_POLICY=2" >> $GITHUB_OUTPUT
+              echo "Setting DOCKER_POLICY to 2"
+              DOCKER_POLICY=2
             fi
           else
-
-            echo "DOCKER_POLICY=3" >> $GITHUB_OUTPUT
+            echo "Setting DOCKER_POLICY to 3"
+            DOCKER_POLICY=3
           fi
+
+          echo "DOCKER_POLICY: $DOCKER_POLICY"
 
           echo "++++ $DOCKER_POLICY ++++"
 
@@ -599,15 +616,23 @@ jobs:
   docker_build:
     runs-on: ubuntu-latest
     needs: test_suite
-    if: ${{ needs.set_github_outputs.outputs.DOCKER_POLICY == '1' || (
-          needs.test_suite.result == 'success' ||
-          needs.test_suite.result == 'skipped' && needs.set_github_outputs.outputs.DOCKER_JOB_POLICY == '2'
-        ) }}
+    if: |
+      always() &&
+      needs.build-and-publish-web.result == 'success' &&
+      (needs.deploy-api.result == 'success' || needs.deploy-api.result == 'skipped') &&
+      (needs.deploy-sync.result == 'success' || needs.deploy-sync.result == 'skipped'
+
+    # if: ${{ needs.set_github_outputs.outputs.DOCKER_POLICY == '1' || (
+    #       needs.test_suite.result == 'success' ||
+    #       needs.test_suite.result == 'skipped' && needs.set_github_outputs.outputs.DOCKER_JOB_POLICY == '2'
+    #     ) }}
+
     # if: ${{ needs.set_github_outputs.outputs.DOCKER_POLICY == '1' && (
     #       needs.set_github_outputs.outputs.always_run == 'true' ||
     #       needs.test_suite.result == 'success' || 
     #       needs.test_suite.result == 'skipped' && needs.set_github_outputs.outputs.DOCKER_JOB_POLICY == 'RUN_ON_TEST_PASS_OR_SKIP'
     #     ) }}
+
     env:
       DOCKER_USER: ${{ secrets.DOCKER_USER }}
     steps:
