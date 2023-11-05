@@ -625,7 +625,7 @@ jobs:
     if: always() && needs.set_github_outputs.outputs.DOCKER_POLICY == '1' || (
           needs.test_suite.result == 'success' ||
           needs.test_suite.result == 'skipped' && needs.set_github_outputs.outputs.DOCKER_JOB_POLICY == '2'
-        ) }}
+        )
 
     # if: ${{ needs.set_github_outputs.outputs.DOCKER_POLICY == '1' && (
     #       needs.set_github_outputs.outputs.always_run == 'true' ||
