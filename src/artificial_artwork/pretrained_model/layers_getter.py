@@ -1,6 +1,7 @@
-from typing import Callable, Tuple, Dict
-from numpy.typing import NDArray
+from typing import Callable, Dict, Tuple
+
 from attr import define
+from numpy.typing import NDArray
 
 
 @define

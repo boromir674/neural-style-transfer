@@ -1,18 +1,63 @@
-version: '3.7'
+## Compose runtime parametrization through env vars
+# if NST_HOST_MOUNT is set to a valid path, then the container will mount that path
+
+version: '3'
 
 services:
-  tensorboard_dev:
-    # How to BUILD the tensorboard_dev image
+
+  nst_demo:
     build:
-      context: .  # Path to the directory containing your Dockerfile
-      dockerfile: ./Dockerfile.tensorboard
-      args:
-        - TENSORBOARD_PORT=6006  # Change this value to set the TensorBoard port
-        # configures where the running tensorboard service will listen/look for logs
-        - LOGS_DIR=/logs
-    # How to RUN the tensorboard_dev image
-    ports:
-      - "${TENSORBOARD_PORT:-6006}:6006"
+      context: ./
+      target: prod_demo
+      dockerfile: Dockerfile
+
+  # NST_HOST_MOUNT=/custom/nst-output docker-compose up
     volumes:
-      - ./logs-tensorboard:/logs  # Mount your log directory
-    # command: ["tensorboard", "--logdir=/tmp/logs-tensorboard", "--port=6006", "--bind_all"]
+      - ${NST_HOST_MOUNT:-./nst-algo-output}:/app/demo-output
+
+
+## NST Service, where the Pretrained Model Weights are made available to it (so that
+# the code can read it), at build time (at docker build)
+  # nst-service:
+  #   build:
+  #     context: ./
+  #     target: prod_ready
+  #     dockerfile: Dockerfile
+  #     # at build time we can override the default location (in host) from where the builder tries to copy the to image    
+  #     args:
+  #       - IMAGE_MODEL=./pretrained_model_bundle/imagenet-vgg-verydeep-19.mat
+
+    # ports:
+    #   - "5000:5000"
+    # volumes:
+    #   - ./gen-images:/app/gen-images
+
+    # networks:
+    #   - nst-network
+
+
+
+### OPT 2
+## NST Service, where the Pretrained Model Weights are made available to it (so that
+# the code can read it) at runtime (at docker run -e).
+
+# So, at runtime, when we sping up the container, we mount a directory from local
+# filesystem, where the model weights are stored, to a directory inside the container.
+
+# We also make sure that at runtime we set the AA_VGG_19 variable to the path to the
+# model weights inside the container's filesystem. That way, the code can read the
+# model weights from the container's filesystem.
+
+# Note, that changes in mounted Volumes have two-way effectL local and in-container
+# In other words as, the directory of the model weights is in a "live" mode.
+# That might be an unwanting side-effect, but it is not a problem for this project.
+
+  # nst-service:
+  #   build:
+  #     context: .
+  #     target: prod_install
+  #     dockerfile: Dockerfile
+  #   environment:
+  #     AA_VGG_19: pretrained_model_bundle/imagenet-vgg-verydeep-19.mat
+  #   volumes:
+  #     - ./pretrained_model_bundle:/app/pretrained_model_bundle

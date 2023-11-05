@@ -1,7 +1,8 @@
 from typing import Tuple
+
 import numpy as np
-from numpy.typing import NDArray
 import tensorflow as tf
+from numpy.typing import NDArray
 
 
 class GraphBuilder:
@@ -11,7 +12,7 @@ class GraphBuilder:
         - input
         - relu_conv_2d
         - avg_pool
-    
+
     Client code must first call the 'input' method to provide the input image
     specifications (ie width, height, color_channels), which is necessary for
     the first layer of the Graph.
@@ -23,6 +24,7 @@ class GraphBuilder:
     The Graph is stored in the 'graph' instance attribute, which is a dict of
     layer_id to the layer's output tensor.
     """
+
     def __init__(self):
         self.__init()
 
@@ -37,12 +39,23 @@ class GraphBuilder:
 
     def input(self, image_specs):
         self.__init()
-        return self._build_layer('input', tf.Variable(np.zeros(
-            (1, image_specs.height, image_specs.width, image_specs.color_channels)), dtype='float32'))
+        return self._build_layer(
+            "input",
+            tf.Variable(
+                np.zeros(
+                    (1, image_specs.height, image_specs.width, image_specs.color_channels)
+                ),
+                dtype="float32",
+            ),
+        )
 
     def avg_pool(self, layer_id: str):
-        return self._build_layer(layer_id,
-            tf.nn.avg_pool(self._prev_layer, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME'))
+        return self._build_layer(
+            layer_id,
+            tf.nn.avg_pool(
+                self._prev_layer, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding="SAME"
+            ),
+        )
 
     def relu_conv_2d(self, layer_id: str, layer_weights: Tuple[NDArray, NDArray]):
         """A Relu wrapped around a convolutional layer.
@@ -58,9 +71,9 @@ class GraphBuilder:
     def _conv_2d(self, W: NDArray, b: NDArray):
         W = tf.constant(W)
         b = tf.constant(np.reshape(b, (b.size)))
-        return tf.compat.v1.nn.conv2d(
-            self._prev_layer,
-            filter=W,
-            strides=[1, 1, 1, 1],
-            padding='SAME'
-        ) + b
+        return (
+            tf.compat.v1.nn.conv2d(
+                self._prev_layer, filter=W, strides=[1, 1, 1, 1], padding="SAME"
+            )
+            + b
+        )

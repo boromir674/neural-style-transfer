@@ -1,4 +1,3 @@
-from .model_handler import ModelHandlerFacility, Modelhandler
+from .model_handler import Modelhandler, ModelHandlerFacility
 
-
-__all__ = ['ModelHandlerFacility', 'Modelhandler']
+__all__ = ["ModelHandlerFacility", "Modelhandler"]
