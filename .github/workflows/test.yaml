@@ -163,6 +163,7 @@ jobs:
           # 1 1  = 3: Never build and publish, aka No Admitance, guarantee NO Dockerhub publish
 
           echo "++++ $DOCKER_POLICY ++++"
+          echo $DOCKER_JOB_POLICY
 
           if [[ $DOCKER_JOB_ON == "true" ]]; then
 
