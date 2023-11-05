@@ -619,8 +619,9 @@ jobs:
     needs: test_suite
     # always() is REQUIREd to implement any run if skipped, thing!
     if: always() && (needs.set_github_outputs.outputs.DOCKER_POLICY == '1' || (
-        needs.test_suite.result == 'success' || needs.set_github_outputs.outputs.DOCKER_POLICY == '2')
-      )
+        !contains(needs.test_suite.result, 'failure') && !contains(needs.test_suite.result, 'cancelled') && needs.test_suite.result == 'success' ||
+        needs.set_github_outputs.outputs.DOCKER_POLICY == '2' && !contains(needs.test_suite.result, 'failure') && needs.test_suite.result == 'skipped'
+        )
 
     
     # if: |
