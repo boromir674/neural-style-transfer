@@ -42,7 +42,7 @@ env:
   PREVENT_CODECOV_TEST_COVERAGE: "false"  # Codecov Job runs only on 'false'
 
   # Hard switch to turn on/off the Docker build and publish to Dockerhub
-  DOCKER_JOB_ON: "true"
+  DOCKER_JOB_ON: "false"
 
 
   #### Behaviour - Docker build and Publich ####
@@ -623,24 +623,6 @@ jobs:
         (needs.set_github_outputs.outputs.DOCKER_POLICY == '2' && !contains(needs.test_suite.result, 'failure') && needs.test_suite.result == 'skipped')
         ))
 
-    
-    # if: |
-    #   always() &&
-    #   needs.build-and-publish-web.result == 'success' &&
-    #   (needs.deploy-api.result == 'success' || needs.deploy-api.result == 'skipped') &&
-    #   (needs.deploy-sync.result == 'success' || needs.deploy-sync.result == 'skipped'
-
-    # if: always() && needs.set_github_outputs.outputs.DOCKER_POLICY == '1' || (
-    #       needs.test_suite.result == 'success' ||
-    #       needs.test_suite.result == 'skipped' && needs.set_github_outputs.outputs.DOCKER_JOB_POLICY == '2'
-    #     )
-
-    # if: ${{ needs.set_github_outputs.outputs.DOCKER_POLICY == '1' && (
-    #       needs.set_github_outputs.outputs.always_run == 'true' ||
-    #       needs.test_suite.result == 'success' || 
-    #       needs.test_suite.result == 'skipped' && needs.set_github_outputs.outputs.DOCKER_JOB_POLICY == 'RUN_ON_TEST_PASS_OR_SKIP'
-    #     ) }}
-
     env:
       DOCKER_USER: ${{ secrets.DOCKER_USER }}
     steps:
@@ -650,22 +632,22 @@ jobs:
         echo " DOCKER JOB TRIGGERED "
         exit 0
         # workflow enabled for branches and v* tags
-        IMAGE_TAG="${GITHUB_REF_NAME}"  # this is branch name or tag name
+        # IMAGE_TAG="${GITHUB_REF_NAME}"  # this is branch name or tag name
 
-        echo "IMAGE_REF=neural-style-transfer-cli:${IMAGE_TAG}" >> $GITHUB_ENV
+        # echo "IMAGE_REF=neural-style-transfer-cli:${IMAGE_TAG}" >> $GITHUB_ENV
 
         # build an image that does not have vgg model weights
         # TODO: add image model weights file in this env somehow
         
-        docker build --target prod_install -t "${DOCKER_USER}/neural-style-transfer:${IMAGE_TAG}" .
-    - name: Publish Docker Image to DockerHub
-      env:
-        DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-      run: |
-        echo "${DOCKER_PASSWORD}" | docker login --username "${DOCKER_USER}" --password-stdin
-        docker push "${DOCKER_USER}/${IMAGE_REF}"
-        docker logout
-        echo "Published in Dockerhub :)"
+        # docker build --target prod_install -t "${DOCKER_USER}/neural-style-transfer:${IMAGE_TAG}" .
+    # - name: Publish Docker Image to DockerHub
+    #   env:
+    #     DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+    #   run: |
+    #     echo "${DOCKER_PASSWORD}" | docker login --username "${DOCKER_USER}" --password-stdin
+    #     docker push "${DOCKER_USER}/${IMAGE_REF}"
+    #     docker logout
+    #     echo "Published in Dockerhub :)"
 
 
 # STATIC CODE ANALYSIS & LINTING
