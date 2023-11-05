@@ -622,7 +622,10 @@ jobs:
         # assuming workflow is enabled for branches and v* tags
         IMAGE_TAG="${GITHUB_REF_NAME}"  # this is branch name or tag name
 
-        IMAGE_SLUG=neural-style-transfer-source
+        # --target prod_install --> Image with NST CLI (no vgg baked in)
+        PREFIX=cli
+
+        IMAGE_SLUG=neural-style-transfer-${PREFIX}
         IMAGE_REF="${DOCKER_USER}/${IMAGE_SLUG}:${IMAGE_TAG}"
 
         echo " == Image Tag from Git Ref: $IMAGE_TAG == "
@@ -631,7 +634,7 @@ jobs:
 
         echo "IMAGE_REF=${IMAGE_REF}" >> $GITHUB_ENV
 
-        docker build --target source -t "${IMAGE_REF}" .
+        docker build --target prod_install -t "${IMAGE_REF}" .
         # docker build --target prod_install -t "${DOCKER_USER}/neural-style-transfer:${IMAGE_TAG}" .
 
         # build an image that does not have vgg model weights
@@ -652,8 +655,7 @@ jobs:
 
         push_success=1
 
-        # docker push "${IMAGE_REF}" || push_success=0
-        ls i_cause_push_success_to_become_0 || push_success=0
+        docker push "${IMAGE_REF}" || push_success=0
 
         if [ $push_success -eq 1 ]; then
           echo "Docker Image "${IMAGE_REF}" pushed to DockerHub!"
