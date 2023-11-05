@@ -167,7 +167,7 @@ jobs:
             if [[ $DOCKER_JOB_POLICY == "ALWAYS_BUILD_N_PUBLSIH_DOCKER" ]]; then
               echo "DOCKER_POLICY=1" >> $GITHUB_OUTPUT
             
-            if [[ $DOCKER_JOB_POLICY == "CDeployment" ]]; then
+            elif [[ $DOCKER_JOB_POLICY == "CDeployment" ]]; then
               echo "DOCKER_POLICY=0" >> $GITHUB_OUTPUT
 
             elif [[ $DOCKER_JOB_POLICY == "CDelivery" ]]; then
