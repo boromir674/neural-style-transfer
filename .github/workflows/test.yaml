@@ -212,6 +212,7 @@ jobs:
     outputs:
       SEMVER_PIP_FORMAT: ${{ steps.parse_version.outputs.SEMVER_PIP_FORMAT }}
     steps:
+    - run: exit 1
     - run: echo "[INFO] Platform/OS ${{ matrix.platform }} , Python -> ${{ matrix.python-version }}"
     - uses: actions/checkout@v3
     - name: Set up Python ${{ matrix.python-version }}
