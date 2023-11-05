@@ -42,7 +42,7 @@ env:
   PREVENT_CODECOV_TEST_COVERAGE: "false"  # Codecov Job runs only on 'false'
 
   # Hard switch to turn on/off the Docker build and publish to Dockerhub
-  DOCKER_JOB_ON: "false"
+  DOCKER_JOB_ON: "true"
 
 
   #### Behaviour - Docker build and Publich ####
