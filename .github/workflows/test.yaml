@@ -615,14 +615,14 @@ jobs:
       DOCKER_USER: ${{ secrets.DOCKER_USER }}
     steps:
     - uses: actions/checkout@v3
-    - name: Build 'n Push Docker Image to DockerHub
+    - name: Build Docker Image
       run: |
         echo " DOCKER JOB TRIGGERED "
 
         # assuming workflow is enabled for branches and v* tags
         IMAGE_TAG="${GITHUB_REF_NAME}"  # this is branch name or tag name
 
-        IMAGE_SLUG=neural-style-transfer-cli
+        IMAGE_SLUG=neural-style-transfer-source
         IMAGE_REF="${DOCKER_USER}/${IMAGE_SLUG}:${IMAGE_TAG}"
 
         echo " == Image Tag from Git Ref: $IMAGE_TAG == "
@@ -631,21 +631,30 @@ jobs:
 
         echo "IMAGE_REF=${DOCKER_USER}/${IMAGE_SLUG}:${IMAGE_TAG}" >> $GITHUB_ENV
 
-        docker build --target prod_install -t "${IMAGE_REF}" .
+        docker build --target source -t "${IMAGE_REF}" .
         # docker build --target prod_install -t "${DOCKER_USER}/neural-style-transfer:${IMAGE_TAG}" .
 
         # build an image that does not have vgg model weights
         # TODO: add image model weights file in this env somehow
 
-    - name: Publish Docker Image to DockerHub
+    - name: Login to Dockerhub, public Image Registry
       env:
         DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      run: echo "${DOCKER_PASSWORD}" | docker login --username "${DOCKER_USER}" --password-stdin
+
+    - name: Publish to DockerHub; Push Docker Image
       run: |
-        echo "${DOCKER_PASSWORD}" | docker login --username "${DOCKER_USER}" --password-stdin
         docker push "${IMAGE_REF}" && job_status=0 || echo "[ERROR] Docker push failed!" && job_status=1
-        docker logout
+        echo "job_status=$job_status" >> $GITHUB_ENV
+
+    - name: Logout from Dockerhub
+      run: docker logout
+
+    - name: Exit Job, with status code 0 if push was successful
+      run: |
         # show success message or exit with non-zero if push Failed
         [ "$job_status" = 0 ] && echo "Docker Image "${IMAGE_REF}" pushed to DockerHub!" || exit $job_status
+
 
 
 # STATIC CODE ANALYSIS & LINTING
