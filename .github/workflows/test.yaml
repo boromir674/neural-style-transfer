@@ -124,7 +124,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: run sth that might fail
-        run: echo "compute" || job_status=0
+        run: echo "compute" && job_status=0
       - run: |
           [ "$job_status" = 0 ] && echo "Command Succeeded!" || exit 1
 
