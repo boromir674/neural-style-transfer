@@ -622,7 +622,7 @@ jobs:
     #   (needs.deploy-api.result == 'success' || needs.deploy-api.result == 'skipped') &&
     #   (needs.deploy-sync.result == 'success' || needs.deploy-sync.result == 'skipped'
 
-    if: ${{ needs.set_github_outputs.outputs.DOCKER_POLICY == '1' || (
+    if: always() && needs.set_github_outputs.outputs.DOCKER_POLICY == '1' || (
           needs.test_suite.result == 'success' ||
           needs.test_suite.result == 'skipped' && needs.set_github_outputs.outputs.DOCKER_JOB_POLICY == '2'
         ) }}
