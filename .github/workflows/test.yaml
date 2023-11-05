@@ -42,7 +42,7 @@ env:
   PREVENT_CODECOV_TEST_COVERAGE: "false"  # Codecov Job runs only on 'false'
 
   # Hard switch to turn on/off the Docker build and publish to Dockerhub
-  DOCKER_JOB_ON: "true"
+  DOCKER_JOB_ON: "false"
 
 
   #### Behaviour - Docker build and Publich ####
@@ -120,6 +120,14 @@ env:
   PYLINT_SCORE_THRESHOLD: "8.2"
 
 jobs:
+  temp_job:
+    runs-on: ubuntu-latest
+    steps:
+      - name: run sth that might fail
+        run: echo "compute" || job_status=0
+      - run: |
+          [ "$job_status" = 0 ] && echo "Command Succeeded!" || exit 1
+
   # we use the below to read the workflow env vars and be able to use in "- if:" Job conditionals
   # now we can do -> if: ${{ needs.set_github_outputs.outputs.TESTS_ENABLED == 'true' }}
   # github does not have a way to simply do "- if: ${{ env.RUN_UNIT_TESTS == 'true' }} " !!
@@ -201,7 +209,6 @@ jobs:
     outputs:
       SEMVER_PIP_FORMAT: ${{ steps.parse_version.outputs.SEMVER_PIP_FORMAT }}
     steps:
-    - run: exit 1
     - run: echo "[INFO] Platform/OS ${{ matrix.platform }} , Python -> ${{ matrix.python-version }}"
     - uses: actions/checkout@v3
     - name: Set up Python ${{ matrix.python-version }}
@@ -620,24 +627,26 @@ jobs:
     - name: Build 'n Push Docker Image to DockerHub
       run: |
         echo " DOCKER JOB TRIGGERED "
-        exit 0
-        # workflow enabled for branches and v* tags
-        # IMAGE_TAG="${GITHUB_REF_NAME}"  # this is branch name or tag name
 
-        # echo "IMAGE_REF=neural-style-transfer-cli:${IMAGE_TAG}" >> $GITHUB_ENV
+        # assuming workflow is enabled for branches and v* tags
+        IMAGE_TAG="${GITHUB_REF_NAME}"  # this is branch name or tag name
+
+        echo "IMAGE_REF=neural-style-transfer-cli:${IMAGE_TAG}" >> $GITHUB_ENV
 
         # build an image that does not have vgg model weights
         # TODO: add image model weights file in this env somehow
         
-        # docker build --target prod_install -t "${DOCKER_USER}/neural-style-transfer:${IMAGE_TAG}" .
-    # - name: Publish Docker Image to DockerHub
-    #   env:
-    #     DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-    #   run: |
-    #     echo "${DOCKER_PASSWORD}" | docker login --username "${DOCKER_USER}" --password-stdin
-    #     docker push "${DOCKER_USER}/${IMAGE_REF}"
-    #     docker logout
-    #     echo "Published in Dockerhub :)"
+        docker build --target prod_install -t "${DOCKER_USER}/neural-style-transfer:${IMAGE_TAG}" .
+    - name: Publish Docker Image to DockerHub
+      env:
+        DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      run: |
+        echo "${DOCKER_PASSWORD}" | docker login --username "${DOCKER_USER}" --password-stdin
+        docker push "${DOCKER_USER}/${IMAGE_REF}" || echo "[ERROR] Docker push failed!" && job_status=1
+        docker logout
+        # show success message or exit with non-zero if push Failed
+        [ "$job_status" = 0 ] && echo "Docker Image pushed to DockerHub" || exit 1
+        
 
 
 # STATIC CODE ANALYSIS & LINTING
