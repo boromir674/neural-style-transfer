@@ -35,11 +35,11 @@ env:
   # On/Off switches for the various CI/CD steps
   # If false the step prevented from running
   # If true the step is allowed to run (it still may be skipped on other runtime conditions)
-  RUN_UNIT_TESTS: "false"
-  RUN_LINT_CHECKS: "false"
+  RUN_UNIT_TESTS: "true"
+  RUN_LINT_CHECKS: "true"
   PUBLISH_ON_PYPI: "false"
-  DRAW_DEPENDENCIES: "false"
-  PREVENT_CODECOV_TEST_COVERAGE: "false"  # Codecov Job runs only on 'false'
+  DRAW_DEPENDENCIES: "true"
+  PREVENT_CODECOV_TEST_COVERAGE: "true"  # Codecov Job runs only on 'false'
 
   # Hard switch to turn on/off the Docker build and publish to Dockerhub
   DOCKER_JOB_ON: "true"
@@ -49,17 +49,17 @@ env:
   
   # Override policy-dependent decision-making and
   # Accept any ALL (branch/build) to Publish to Dockerhub
-  ALWAYS_BUILD_N_PUBLSIH_DOCKER: "true"
+  ALWAYS_BUILD_N_PUBLSIH_DOCKER: "false"
 
   # Docker Policy
 
   ## Continous Integration / Continuous Deployment
   ## CDeployment : Builds and Publishes only if Tests ran and passed
-  # DOCKER_JOB_POLICY: "CDeployment"
+  DOCKER_JOB_POLICY: "CDeployment"
   
   ## Continous Integration / Continuous Delivery
   ## CDelivery : Builds and Publishes if Tests Passed or if Tests were Skipped 
-  DOCKER_JOB_POLICY: "CDelivery"
+  # DOCKER_JOB_POLICY: "CDelivery"
 
 
   ## Lower level config ##
