@@ -125,7 +125,7 @@ jobs:
     steps:
       - name: run sth that might fail
         run: |
-          echo "compute" && job_status=0
+          ls -l non-existant-dir && job_status=0
           echo  "job_status: $job_status"
           [ "$job_status" = 0 ] && echo "Command Succeeded!" || exit 1
       # - run: |
