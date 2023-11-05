@@ -50,6 +50,7 @@ RUN apt-get update \
         libblas-dev \
         liblapack-dev \
         libatlas-base-dev \
+        ncdu \
     && apt-get autoremove -y \
     && apt-get clean -y \
     && rm -rf /var/lib/apt/lists/*
@@ -71,10 +72,10 @@ CMD [ "sleep", "infinity" ]
 RUN pip3 --disable-pip-version-check install tox==3.27.1 poetry \
     && rm -rf /tmp/pip-tmp
 
+
 # Install tree cli tool
 RUN git clone https://github.com/boromir674/tree-1.8.0.git tree-repo
 WORKDIR /config/tree-repo
-
 RUN rm *.o && make tree && make install
 
 WORKDIR /config
@@ -87,11 +88,16 @@ RUN rm -rf tree-repo
     # && apt-get clean -y \
     # && rm -rf /var/lib/apt/lists/*
 
+# Here we Finished all apt-get installs, so layer should clean up apt-get cache
 
 
-# allow code navigation inside vscode, by installing the prod + test dependencies
+# pin prod deps into a .txt (pip install) format, derived from python runtime version,
+# pyproject.toml and poetry.lock.
+
+# Allows reproducable builds at runtime with: 'pip install'
+
 COPY poetry.lock /tmp/pip-tmp/
 COPY pyproject.toml /tmp/pip-tmp/
-RUN poetry export --directory=/tmp/pip-tmp/ -f requirements.txt -o /tmp/pip-tmp/requirements-test.txt -E test \ 
-    && pip3 --disable-pip-version-check --no-cache-dir install -r /tmp/pip-tmp/requirements-test.txt \
-    && rm -rf /tmp/pip-tmp
+RUN poetry export --directory=/tmp/pip-tmp/ -f requirements.txt -o /tmp/pip-tmp/requirements.txt
+    # && pip3 --disable-pip-version-check --no-cache-dir install -r /tmp/pip-tmp/requirements.txt
+    # && rm -rf /tmp/pip-tmp

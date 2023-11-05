@@ -1,5 +1,5 @@
 # App-specific
-pretrained*
+# pretrained*
 content-images/
 d-output/
 demo-output/
@@ -9,6 +9,16 @@ output/
 requirements/
 style-images/
 src/artificial_artwork.egg-info/
+gui-output-folder*
+*\.log
+demo-image*\.png
+
+coverage*\.xml
+\.ruff_cache/
+\.devcontainer/
+
+events.out.tfevents*
+ela
 
 # CI files
 .circleci/
@@ -29,8 +39,10 @@ __pycache__/
 */*/*/*.py[cod]
 
 # Build / Distribution / packaging
+/.mypy_cache/
 .Python
 env/
+env-38/
 env-dev/
 build/
 develop-eggs/
@@ -63,7 +75,7 @@ htmlcov/
 test-results/
 .coverage
 # test/config files
-tests/
+
 .coveragerc
 
 # GIT
@@ -84,8 +96,8 @@ package.json
 package-lock.json
 
 # Repo files: Development / Support
-Pretrained_Model_LICENSE.txt
-imagenet-vgg-verydeep-19.mat.tar
+# Pretrained_Model_LICENSE.txt
+# imagenet-vgg-verydeep-19.mat.tar
 MANIFEST.in
 scripts/
 requirements/
