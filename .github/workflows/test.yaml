@@ -127,7 +127,7 @@ jobs:
         run: |
           ls -l non-existant-dir && job_status=0
           echo  "job_status: $job_status"
-          [ "$job_status" = 0 ] && echo "Command Succeeded!" || exit 1
+          [ "$job_status" = 0 ] && echo "Command Succeeded!" || echo "Failed!" && exit 1
       # - run: |
       #     [ "$job_status" = 0 ] && echo "Command Succeeded!" || exit 1
 
