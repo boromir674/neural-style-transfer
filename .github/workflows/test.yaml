@@ -617,16 +617,18 @@ jobs:
   docker_build:
     runs-on: ubuntu-latest
     needs: test_suite
+    if: always() && (needs.test_suite.result == 'success' || needs.set_github_outputs.outputs.DOCKER_POLICY == '1')
+
     # if: |
     #   always() &&
     #   needs.build-and-publish-web.result == 'success' &&
     #   (needs.deploy-api.result == 'success' || needs.deploy-api.result == 'skipped') &&
     #   (needs.deploy-sync.result == 'success' || needs.deploy-sync.result == 'skipped'
 
-    if: always() && needs.set_github_outputs.outputs.DOCKER_POLICY == '1' || (
-          needs.test_suite.result == 'success' ||
-          needs.test_suite.result == 'skipped' && needs.set_github_outputs.outputs.DOCKER_JOB_POLICY == '2'
-        )
+    # if: always() && needs.set_github_outputs.outputs.DOCKER_POLICY == '1' || (
+    #       needs.test_suite.result == 'success' ||
+    #       needs.test_suite.result == 'skipped' && needs.set_github_outputs.outputs.DOCKER_JOB_POLICY == '2'
+    #     )
 
     # if: ${{ needs.set_github_outputs.outputs.DOCKER_POLICY == '1' && (
     #       needs.set_github_outputs.outputs.always_run == 'true' ||
