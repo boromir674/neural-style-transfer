@@ -195,7 +195,8 @@ jobs:
             echo "Setting DOCKER_POLICY to 3"
             DOCKER_POLICY=3
           fi
-
+          
+          echo "DOCKER_POLICY=$DOCKER_POLICY" >> $GITHUB_OUTPUT
           echo "DOCKER_POLICY: $DOCKER_POLICY"
 
           echo "++++ $DOCKER_POLICY ++++"
