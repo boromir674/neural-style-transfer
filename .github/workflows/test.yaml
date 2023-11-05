@@ -637,6 +637,9 @@ jobs:
         # build an image that does not have vgg model weights
         # TODO: add image model weights file in this env somehow
 
+        echo " -- DOCKER BUILD DONE --"
+        echo " -- IMAGE: ${IMAGE_REF}"
+
     - name: Login to Dockerhub, public Image Registry
       env:
         DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
@@ -647,10 +650,13 @@ jobs:
         # docker push "${IMAGE_REF}" && job_status=0 || echo "[ERROR] Docker push failed!" && job_status=1
         # echo "job_status=$job_status" >> $GITHUB_ENV
 
-        push_success=0
-        docker push "${IMAGE_REF}" || push_success=1
-        if [ $push_success -eq 0 ]; then
-          echo " ==== Docker push successful! ==== "
+        push_success=1
+
+        docker push "${IMAGE_REF}" || push_success=0
+
+        if [ $push_success -eq `1` ]; then
+          echo " -- DOCKER PUSH SUCCESS ! -- "
+          echo " -- IMAGE: ${IMAGE_REF} --"
         else
           echo "[ERROR] Docker push failed!"
         fi
@@ -662,8 +668,7 @@ jobs:
     - name: Exit Job, with status code 0 if push was successful
       run: |
         # show success message or exit with non-zero if push Failed
-        if [ $push_success -eq 0 ]; then
-          # echo "Docker Image "${IMAGE_REF}" pushed to DockerHub!"
+        if [ $push_success -eq 1 ]; then
           job_status=0
         else
           # echo "[ERROR] Docker push failed!"
