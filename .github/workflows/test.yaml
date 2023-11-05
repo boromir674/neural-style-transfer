@@ -120,16 +120,6 @@ env:
   PYLINT_SCORE_THRESHOLD: "8.2"
 
 jobs:
-  temp_job:
-    runs-on: ubuntu-latest
-    steps:
-      - name: run sth that might fail
-        run: |
-          ls -l && job_status=0
-          echo  "job_status: $job_status"
-      - run: |
-          [ "$job_status" = 0 ] && echo "Command Succeeded!" || echo "Failed!" && exit 1
-
   # we use the below to read the workflow env vars and be able to use in "- if:" Job conditionals
   # now we can do -> if: ${{ needs.set_github_outputs.outputs.TESTS_ENABLED == 'true' }}
   # github does not have a way to simply do "- if: ${{ env.RUN_UNIT_TESTS == 'true' }} " !!
@@ -616,12 +606,11 @@ jobs:
   docker_build:
     runs-on: ubuntu-latest
     needs: test_suite
-    # always() is REQUIREd to implement any run if skipped, thing!
+    # always() is REQUIRED to implement any run if skipped, thing!
     if: always() && (needs.set_github_outputs.outputs.DOCKER_POLICY == '1' || (
         (!contains(needs.test_suite.result, 'failure') && !contains(needs.test_suite.result, 'cancelled') && needs.test_suite.result == 'success') ||
         (needs.set_github_outputs.outputs.DOCKER_POLICY == '2' && !contains(needs.test_suite.result, 'failure') && needs.test_suite.result == 'skipped')
         ))
-
     env:
       DOCKER_USER: ${{ secrets.DOCKER_USER }}
     steps:
@@ -633,22 +622,25 @@ jobs:
         # assuming workflow is enabled for branches and v* tags
         IMAGE_TAG="${GITHUB_REF_NAME}"  # this is branch name or tag name
 
-        echo "IMAGE_REF=neural-style-transfer-cli:${IMAGE_TAG}" >> $GITHUB_ENV
+        IMAGE_SLUG=neural-style-transfer-cli
+
+        echo "IMAGE_REF=${DOCKER_USER}/${IMAGE_SLUG}:${IMAGE_TAG}" >> $GITHUB_ENV
+
+        docker build --target prod_install -t "${IMAGE_REF}" .
+        # docker build --target prod_install -t "${DOCKER_USER}/neural-style-transfer:${IMAGE_TAG}" .
 
         # build an image that does not have vgg model weights
         # TODO: add image model weights file in this env somehow
-        
-        docker build --target prod_install -t "${DOCKER_USER}/neural-style-transfer:${IMAGE_TAG}" .
+
     - name: Publish Docker Image to DockerHub
       env:
         DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
       run: |
         echo "${DOCKER_PASSWORD}" | docker login --username "${DOCKER_USER}" --password-stdin
-        docker push "${DOCKER_USER}/${IMAGE_REF}" || echo "[ERROR] Docker push failed!" && job_status=1
+        docker push "${IMAGE_REF}" && job_status=0 || echo "[ERROR] Docker push failed!" && job_status=1
         docker logout
         # show success message or exit with non-zero if push Failed
-        [ "$job_status" = 0 ] && echo "Docker Image pushed to DockerHub" || exit 1
-        
+        [ "$job_status" = 0 ] && echo "Docker Image "${IMAGE_REF}" pushed to DockerHub!" || exit $job_status
 
 
 # STATIC CODE ANALYSIS & LINTING
