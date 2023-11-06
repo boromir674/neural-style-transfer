@@ -9,6 +9,7 @@
 # 2) no build metadata are supported and string MUST end with patch or pre-release metadata
 
 import sys
+import re
 
 if len(sys.argv) != 2:
     print("Usage: process_sem_ver.py <version>")
@@ -16,6 +17,45 @@ if len(sys.argv) != 2:
     sys.exit(1)
 
 semver: str = sys.argv[1]
+
+
+VERSION_PATTERN = r"""
+    v?
+    (?:
+        (?:(?P<epoch>[0-9]+)!)?                           # epoch
+        (?P<release>[0-9]+(?:\.[0-9]+)*)                  # release segment
+        (?P<pre>                                          # pre-release
+            [-_\.]?
+            (?P<pre_l>(a|b|c|rc|alpha|beta|pre|preview))
+            [-_\.]?
+            (?P<pre_n>[0-9]+)?
+        )?
+        (?P<post>                                         # post release
+            (?:-(?P<post_n1>[0-9]+))
+            |
+            (?:
+                [-_\.]?
+                (?P<post_l>post|rev|r)
+                [-_\.]?
+                (?P<post_n2>[0-9]+)?
+            )
+        )?
+        (?P<dev>                                          # dev release
+            [-_\.]?
+            (?P<dev_l>dev)
+            [-_\.]?
+            (?P<dev_n>[0-9]+)?
+        )?
+    )
+    (?:\+(?P<local>[a-z0-9]+(?:[-_\.][a-z0-9]+)*))?       # local version
+"""
+
+_regex = re.compile(
+    r"^\s*" + VERSION_PATTERN + r"\s*$",
+    re.VERBOSE | re.IGNORECASE,
+)
+
+
 
 # Verify input string meets our 'Hard Requirements', otherwise show message:
 # - indicating what happened and crashed the program
@@ -63,7 +103,7 @@ if "-" not in semver:  # if no Sem Ver 2.0 prerelease separator found in the str
         # ERROR: Should be dealing with M.m.p case, but last character is not digit
         print("[ERROR]: Version string must end with a patch or pre-release metadata")
         print(f"Your input: {semver}")
-        print(f"Your input ends with {semver[-0]}")
+        print(f"Your input ends with {semver[-1]}")
         print(
             "Please try again with a version string that ends with a patch or pre-release metadata"
         )
@@ -71,7 +111,7 @@ if "-" not in semver:  # if no Sem Ver 2.0 prerelease separator found in the str
             "EXPLANATION: Since we did not find a dash (-) in the input, we expect to",
             " the Input Version String to be of 'Major.Minor.Patch' format."
             " So, 'Patch' must be the last part of the string, thus the last digit must be a number."
-            f"But we found {semver[-0]} instead\n."
+            f"But we found {semver[-1]} instead\n."
             "If you intended to include 'pre-release' metadata,"
             " please concatenate a dash (-) to the mandatory starting 'Major.Minor.Patch' part"
             " and then add your 'pre-release' metadata, ie '1.0.0-dev'.",
@@ -121,20 +161,20 @@ else:  # if Sem Ver 2.0 prerelease separator found in the string
         sys.exit(1)
 
     # english alphabet has 26 characters
-    lowercase_chars = set(chr(ord("a") + i) for i in range(26))
-    if lowercase_chars.issuperset(prerelease) is False:
-        # ERROR: Should be dealing with M.m.p-prerelase case, but found non [a-z] characters in prerelease substring
-        print("[ERROR]: Version string's prerelease must have only [a-z] characters")
-        print(f"Your input: {semver}")
-        print(f"Your input has {prerelease}")
-        print(
-            "Please try again with a version string that has only [a-z] characters in prerelease substring"
-        )
-        print(
-            "EXPLANATION: Since we found a dash (-) in the input, we expect to",
-            " the Input Version String to be of 'Major.Minor.Patch-Prerelease' format.",
-        )
-        sys.exit(1)
+    # lowercase_chars = set(chr(ord("a") + i) for i in range(26))
+    # if lowercase_chars.issuperset(prerelease) is False:
+    #     # ERROR: Should be dealing with M.m.p-prerelase case, but found non [a-z] characters in prerelease substring
+    #     print("[ERROR]: Version string's prerelease must have only [a-z] characters")
+    #     print(f"Your input: {semver}")
+    #     print(f"Your input has {prerelease}")
+    #     print(
+    #         "Please try again with a version string that has only [a-z] characters in prerelease substring"
+    #     )
+    #     print(
+    #         "EXPLANATION: Since we found a dash (-) in the input, we expect to",
+    #         " the Input Version String to be of 'Major.Minor.Patch-Prerelease' format.",
+    #     )
+    #     sys.exit(1)
 
     # more reg ex checks can go here, but that not really the purpose of this script
 
@@ -142,13 +182,57 @@ else:  # if Sem Ver 2.0 prerelease separator found in the string
 # If we got here, then the input string is a valid Sem Ver 2.0 string
 # And valid as input to the rest of the script
 
-assert sys.argv[1] == semver
 
 # CRITICAL to be in par with Pip sdist /wheel and python -m build operations
+# https://peps.python.org/pep-0440/#compatibility-with-other-version-schemes
+
+
+# TODO use pep440 _regex (see top of cript)
+parsed_versions_string =_regex.match(semver)
+
+prerelease = parsed_versions_string.group("pre") or \
+    parsed_versions_string.group("dev") or \
+        ''
+
+sep = ''
+
+to_add = ''
+if prerelease:
+    prerelease = prerelease.replace('.', '').replace('-', '').replace('_', '')
+
+    if prerelease.startswith('rc'):
+        sep = ''
+    elif prerelease.startswith('dev'):
+        sep = '.'
+    else:
+        # don't have code hre to handle yet
+        print('ERROR: Our current limitation is that prerelease must start with rc or dev')
+        print(f'Your input: {semver}')
+        print(f'Your input has {prerelease}')
+        sys.exit(1)
+
+    string = prerelease.replace('rc', '').replace('dev', '')
+
+    try:
+        int(string)
+        # last part is a number already, so we keep that as it is
+        to_add = ''
+    except ValueError:
+        to_add = '0'
+
+
+print(
+    f'{parsed_versions_string.group("epoch") or ""}'
+    f'{parsed_versions_string.group("release")}'
+    f'{sep}{prerelease}{to_add}'
+)
+
+assert sys.argv[1] == semver
 
 # here it safe to implement the logic simply as:
 # if there is a dash then convert to dot and add trailing zero (0), else return as it is
-print(sys.argv[1] if "-" not in sys.argv[1] else sys.argv[1].replace("-", ".") + "0")
+# print(sys.argv[1] if "-" not in sys.argv[1] else sys.argv[1].replace("-", ".") + "0")
+
 
 # ALT Format 1
 # we provide oneliner with exa same print statement, except we skip all checks
