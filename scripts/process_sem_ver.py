@@ -56,7 +56,6 @@ _regex = re.compile(
 )
 
 
-
 # Verify input string meets our 'Hard Requirements', otherwise show message:
 # - indicating what happened and crashed the program
 # - what caused the crash
@@ -188,11 +187,9 @@ else:  # if Sem Ver 2.0 prerelease separator found in the string
 
 
 # TODO use pep440 _regex (see top of cript)
-parsed_versions_string =_regex.match(semver)
+parsed_versions_string = _regex.match(semver)
 
-prerelease = parsed_versions_string.group("pre") or \
-    parsed_versions_string.group("dev") or \
-        ''
+prerelease = parsed_versions_string.group("pre") or parsed_versions_string.group("dev") or ''
 
 sep = ''
 
