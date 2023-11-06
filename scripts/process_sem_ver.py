@@ -8,8 +8,8 @@
 #     - only include characters from [a-z]
 # 2) no build metadata are supported and string MUST end with patch or pre-release metadata
 
-import sys
 import re
+import sys
 
 if len(sys.argv) != 2:
     print("Usage: process_sem_ver.py <version>")
