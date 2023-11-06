@@ -35,14 +35,14 @@ env:
   # On/Off switches for the various CI/CD steps
   # If false the step prevented from running
   # If true the step is allowed to run (it still may be skipped on other runtime conditions)
-  RUN_UNIT_TESTS: "false"
-  RUN_LINT_CHECKS: "false"
-  PUBLISH_ON_PYPI: "false"
-  DRAW_DEPENDENCIES: "false"
+  RUN_UNIT_TESTS: "true"
+  RUN_LINT_CHECKS: "true"
+  PUBLISH_ON_PYPI: "true"
+  DRAW_DEPENDENCIES: "true"
   PREVENT_CODECOV_TEST_COVERAGE: "false"  # Codecov Job runs only on 'false'
 
   # Hard switch to turn on/off the Docker build and publish to Dockerhub
-  DOCKER_JOB_ON: "false"
+  DOCKER_JOB_ON: "true"
 
 
   #### Behaviour - Docker build and Publich ####
