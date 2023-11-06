@@ -1,4 +1,5 @@
 import tensorflow as tf
+
 from .nst_math import gram_matrix
 
 
@@ -84,7 +85,7 @@ class NSTLayerStyleCostComputer:
         GG = cls.compute_gram(a_G)
 
         # Computing the loss
-        J_style_layer = tf.reduce_sum(tf.square(GS - GG)) / ( 4 * n_C**2 * (n_H * n_W)**2)
+        J_style_layer = tf.reduce_sum(tf.square(GS - GG)) / (4 * n_C**2 * (n_H * n_W) ** 2)
 
         return J_style_layer
 
@@ -112,7 +113,7 @@ class NSTStyleCostComputer:
 
         # for layer_name, coeff in STYLE_LAYERS:
         for _style_layer_id, nst_style_layer in model_layers:
-            #EG network Layers: L1, L2, L3, L4, L5
+            # EG network Layers: L1, L2, L3, L4, L5
             # Select the output tensor of the currently selected layer
             # eg reference to the L3 Layer
             out = nst_style_layer.neurons

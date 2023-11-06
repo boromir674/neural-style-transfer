@@ -1,11 +1,12 @@
 from typing import TypeVar
-import tensorflow as tf
 
+import tensorflow as tf
 
 # future work: narrow down the type pf matrix argument
 # VolumeType = Union[NDArray, Type[tf.python.framework.ops.Tensor]]
 
-VolumeType = TypeVar('VolumeType')
+VolumeType = TypeVar("VolumeType")
+
 
 def gram_matrix(matrix: VolumeType) -> VolumeType:
     """Compute the Gram matrix of input 2D matrix.

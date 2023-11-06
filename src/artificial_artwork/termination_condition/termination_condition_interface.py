@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
-from typing import TypeVar, Generic
+from typing import Generic, TypeVar
 
-T = TypeVar('T')
+T = TypeVar("T")
 
 
 class TerminationConditionInterface(ABC, Generic[T]):
@@ -9,6 +9,7 @@ class TerminationConditionInterface(ABC, Generic[T]):
 
     If True it should indicate that something should now terminate.
     """
+
     @abstractmethod
     def satisfied(self, progress: T) -> bool:
         """Check if the termination condition is True.

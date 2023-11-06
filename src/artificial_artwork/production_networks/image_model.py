@@ -32,25 +32,25 @@ been shown to yield better results.
 # Avg Pool Parameters: ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME'
 
 LAYERS = (
-    'conv1_1' ,  # ReLU A, b weight matrices loaded with pretrained model values
-    'conv1_2' ,  # ReLU ...
-    'avgpool1',  # AvgPool parameters: ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME'
-    'conv2_1' ,
-    'conv2_2' ,
-    'avgpool2',
-    'conv3_1' ,
-    'conv3_2' ,
-    'conv3_3' ,
-    'conv3_4' ,
-    'avgpool3',
-    'conv4_1' ,
-    'conv4_2' ,
-    'conv4_3' ,
-    'conv4_4' ,
-    'avgpool4',
-    'conv5_1' ,
-    'conv5_2' ,
-    'conv5_3' ,
-    'conv5_4' ,
-    'avgpool5',
+    "conv1_1",  # ReLU A, b weight matrices loaded with pretrained model values
+    "conv1_2",  # ReLU ...
+    "avgpool1",  # AvgPool parameters: ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME'
+    "conv2_1",
+    "conv2_2",
+    "avgpool2",
+    "conv3_1",
+    "conv3_2",
+    "conv3_3",
+    "conv3_4",
+    "avgpool3",
+    "conv4_1",
+    "conv4_2",
+    "conv4_3",
+    "conv4_4",
+    "avgpool4",
+    "conv5_1",
+    "conv5_2",
+    "conv5_3",
+    "conv5_4",
+    "avgpool5",
 )

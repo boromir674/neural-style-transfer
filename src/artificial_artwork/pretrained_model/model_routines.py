@@ -2,7 +2,8 @@
 utilize a pretrained model and its weights"""
 
 from abc import ABC, abstractmethod
-from typing import Tuple, Dict
+from typing import Dict, Tuple
+
 from numpy.typing import NDArray
 
 
@@ -12,7 +13,7 @@ class PretrainedModelRoutines(ABC):
     @abstractmethod
     def load_layers(self, file_path: str) -> NDArray:
         """Load a pretrained model from disk.
-        
+
         Loads the model parameters, given the path to a file in the disk, that
         indicated where the pretrained model is.
 
@@ -38,7 +39,7 @@ class PretrainedModelRoutines(ABC):
             str: the layer id
         """
         raise NotImplementedError
-    
+
     @abstractmethod
     def get_layers_dict(self, layers: NDArray) -> Dict[str, NDArray]:
         """Get a dict mapping strings to pretrained model layers.
