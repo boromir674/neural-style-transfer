@@ -592,8 +592,8 @@ jobs:
       #   TWINE_USERNAME: ${{ vars.TWINE_USERNAME }}
       #   TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
       #   PYPI_SERVER: ${{ vars.PYPI_SERVER }}
-      run: tox -vv -s false -e deploy
-      # run: tox -vv -s false -e deploy -- upload --non-interactive --skip-existing
+      # run: tox -vv -s false -e deploy
+      run: tox -vv -s false -e deploy -- upload --non-interactive --skip-existing
       
       # runs: twine upload --non-interactive --repository testpypi --skip-existing ./dist/PY_PACKAGE-:Version.tar.gz --verbose
       
