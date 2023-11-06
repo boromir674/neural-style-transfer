@@ -37,7 +37,7 @@ env:
   # If true the step is allowed to run (it still may be skipped on other runtime conditions)
   RUN_UNIT_TESTS: "true"
   RUN_LINT_CHECKS: "true"
-  PUBLISH_ON_PYPI: "false"
+  PUBLISH_ON_PYPI: "true"
   DRAW_DEPENDENCIES: "true"
   PREVENT_CODECOV_TEST_COVERAGE: "false"  # Codecov Job runs only on 'false'
 
