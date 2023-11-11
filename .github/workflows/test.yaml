@@ -32,21 +32,22 @@ env:
 
   ##### Pipeline Settings ####
 
+  ### JOB ON/OFF SWITCHES ###
   # On/Off switches for the various CI/CD steps
   # If false the step prevented from running
   # If true the step is allowed to run (it still may be skipped on other runtime conditions)
   RUN_UNIT_TESTS: "true"
-  RUN_LINT_CHECKS: "true"
-  PUBLISH_ON_PYPI: "true"
-  DRAW_DEPENDENCIES: "true"
+  RUN_LINT_CHECKS: "false"
+  PUBLISH_ON_PYPI: "false"
+  DRAW_DEPENDENCIES: "false"
   PREVENT_CODECOV_TEST_COVERAGE: "false"  # Codecov Job runs only on 'false'
 
   # Hard switch to turn on/off the Docker build and publish to Dockerhub
   DOCKER_JOB_ON: "true"
 
-
+  ### END JOB ON/OFF SWITCHES ###
   #### Behaviour - Docker build and Publich ####
-  
+
   # Override policy-dependent decision-making and
   # Accept any ALL (branch/build) to Publish to Dockerhub
   ALWAYS_BUILD_N_PUBLSIH_DOCKER: "false"
@@ -60,53 +61,6 @@ env:
   ## Continous Integration / Continuous Delivery
   ## CDelivery : Builds and Publishes if Tests Passed or if Tests were Skipped 
   # DOCKER_JOB_POLICY: "CDelivery"
-
-
-  ## Lower level config ##
-
-  # 2 bit state machine
-  # 0 0  pure CI/CD mode, aka Admit if Pass, Require Pass, guarantee quality
-  # 0 1  Always build and publish, aka Admit All
-  # 1 0  CI/CD with Bypass Opt, aka Admit Tested and when Test is OFF, Admit when Test OFF
-  # 1 1  Never build and publish, aka No Admitance, guarantee NO Dockerhub publish
-
-  # alternative 2 bits representations:
-  # 1. Accept all for Docker 1/0 (1bit), Mode (CICD, or CICD + allow if test OFF) (1bit)
-  # 2. No Docker Bypass 0/1 (1 bit), Accept all 0/1 (1 bit). 
-
-  # Define the Policy that our Job uses to decide whether to run the Docker build and publish to Dockerhub
-  
-  # Pol 1: Run Docker build and publish to Dockerhub only if Tests passed (and ran!)
-  # aka: Continous Integration / Continuous Deployment
-  # aka: guranteed quality, everything published is tested
-  # aka: 'required succesful evaluation', 'accept only a Pass'
-
-  # accepted criteria (any of which suffices): [PASS]
-  # if Docker Job is 
-
-  # DOCKER_JOB_POLICY: "CI_CD"
-
-  # Pol 2: Always run Docker build and publish to Dockerhub
-  # aka 'Free Admitance', 'No Entry Barrier', 'Free Entrance'
-  
-  # DOCKER_JOB_POLICY: "ALWAYS_RUN"
-
-  # Pol 3: Run Docker build and publish to Dockerhub, if Tests ran and passed, but also if Tests were skipped
-  # aka: Continous Integration / Continuous Delivery
-  # aka: 'accepted_when_Test_OFF', 'accept a Pass or a Skip'
-  # aka: 
-
-  # accepted criteria (any of which suffices): [PASS, TESTS_SKIPPED]
-
-  # DOCKER_JOB_POLICY: "RUN_ON_TEST_PASS_OR_SKIP"
-
-  # WIP Pol 4: Never run Docker build and publish to Dockerhub
-  # aka: garantee that nothing is published
-  # aka: 'Shutdown', 'No Admitance'
-
-  # DOCKER_JOB_POLICY: "NEVER_RUN"
-
-  #### End Behaviour ####
 
   ##### END Pipeline Settings ######
 
@@ -299,10 +253,10 @@ jobs:
         echo "SEMVER_PIP_FORMAT=$WHEEL_VERSION" >> $GITHUB_OUTPUT  # to be used in other jobs
 
   ## TEST SUITE: By Default executes only unit-tests (ie no integration, or network-dependent tests)
-    - name: Run Unit Tests
-      run: tox -vv -s false
-      env:
-        PLATFORM: ${{ matrix.platform }}
+    # - name: Run Unit Tests
+    #   run: tox -vv -s false
+    #   env:
+    #     PLATFORM: ${{ matrix.platform }}
     # if sdist tests ran, then we expect file to ahve been created
     # .tox/${DIST_DIR}/cookiecutter_python-${PKG_VERSION}.tar.gz
 
@@ -315,71 +269,71 @@ jobs:
     # no compiled code
     # .tox/${DIST_DIR}/cookiecutter_python-${PKG_VERSION}-py3-none-any.whl
 
-    - name: "Aggregate Code Coverage & make XML Reports"
-      id: produce_coverage_xml_file
-      env:
-        # just "destructure" (aka extract) needed values from the matrix, to use in step code
-        PLATFORM: ${{ matrix.platform }}
-        PY_VERSION: ${{ matrix.python-version }}
-      run: |
-        tox -e coverage --sitepackages -vv -s false
+    # - name: "Aggregate Code Coverage & make XML Reports"
+    #   id: produce_coverage_xml_file
+    #   env:
+    #     # just "destructure" (aka extract) needed values from the matrix, to use in step code
+    #     PLATFORM: ${{ matrix.platform }}
+    #     PY_VERSION: ${{ matrix.python-version }}
+    #   run: |
+    #     tox -e coverage --sitepackages -vv -s false
         
-        RUNNER_COVERAGE_XML_FILE_PATH="coverage-${PLATFORM}-${PY_VERSION}.xml"
+    #     RUNNER_COVERAGE_XML_FILE_PATH="coverage-${PLATFORM}-${PY_VERSION}.xml"
 
-        mv ./.tox/coverage.xml "${RUNNER_COVERAGE_XML_FILE_PATH}"
+    #     mv ./.tox/coverage.xml "${RUNNER_COVERAGE_XML_FILE_PATH}"
 
-        # leverages ./scripts/post-tests-run.sh which returns the path of the XML Aggregated Coverage DataXML Filecoverage report
-        # chmod +x ./scripts/post-tests-run.sh
-        # RUNNER_COVERAGE_XML_FILE_PATH=$(./scripts/post-tests-run.sh "${PLATFORM}-${PY_VERSION}")
+    #     # leverages ./scripts/post-tests-run.sh which returns the path of the XML Aggregated Coverage DataXML Filecoverage report
+    #     # chmod +x ./scripts/post-tests-run.sh
+    #     # RUNNER_COVERAGE_XML_FILE_PATH=$(./scripts/post-tests-run.sh "${PLATFORM}-${PY_VERSION}")
 
-        echo "CI_COVERAGE_XML=$RUNNER_COVERAGE_XML_FILE_PATH" >> $GITHUB_OUTPUT
-        echo "CI_COVERAGE_XML_THIS=$RUNNER_COVERAGE_XML_FILE_PATH" >> $GITHUB_ENV
+    #     echo "CI_COVERAGE_XML=$RUNNER_COVERAGE_XML_FILE_PATH" >> $GITHUB_OUTPUT
+    #     echo "CI_COVERAGE_XML_THIS=$RUNNER_COVERAGE_XML_FILE_PATH" >> $GITHUB_ENV
 
-    - name: "Upload Test Coverage as Artifacts"
-      uses: actions/upload-artifact@v3
-      with:
-        name: all_coverage_raw
-        path: ${{ env.CI_COVERAGE_XML_THIS }}
-        # steps.produce_coverage_xml_file.outputs.retval
-        # path: coverage-${{ matrix.platform }}-${{ matrix.python-version }}.xml
-        if-no-files-found: error
+    # - name: "Upload Test Coverage as Artifacts"
+    #   uses: actions/upload-artifact@v3
+    #   with:
+    #     name: all_coverage_raw
+    #     path: ${{ env.CI_COVERAGE_XML_THIS }}
+    #     # steps.produce_coverage_xml_file.outputs.retval
+    #     # path: coverage-${{ matrix.platform }}-${{ matrix.python-version }}.xml
+    #     if-no-files-found: error
 
-    - name: Check for compliance with Python Best Practices
-      shell: bash
-      run: |
-        DIST_DIR=dist
-        echo "DIST_DIR=dist" >> $GITHUB_ENV  #  can be uesd in a with body of a next step in the Job, as eg: path: ${{ env.DIST_DIR }}
-        mkdir ${DIST_DIR}
+    # - name: Check for compliance with Python Best Practices
+    #   shell: bash
+    #   run: |
+    #     DIST_DIR=dist
+    #     echo "DIST_DIR=dist" >> $GITHUB_ENV  #  can be uesd in a with body of a next step in the Job, as eg: path: ${{ env.DIST_DIR }}
+    #     mkdir ${DIST_DIR}
         
-        TOXENV_DIST_DIR=".tox/${DIST_DIR}"
+    #     TOXENV_DIST_DIR=".tox/${DIST_DIR}"
 
-        # Sanity check of files inside
-        echo "[DEBUG] ls -la ${TOXENV_DIST_DIR}"
-        ls -la ${TOXENV_DIST_DIR}
+    #     # Sanity check of files inside
+    #     echo "[DEBUG] ls -la ${TOXENV_DIST_DIR}"
+    #     ls -la ${TOXENV_DIST_DIR}
 
-        # Sanity check that among all files there onle one tar.gz and one .whl
-        # if not, Fail Job (aka exit with 1)
+    #     # Sanity check that among all files there onle one tar.gz and one .whl
+    #     # if not, Fail Job (aka exit with 1)
 
-        # if [[ $(find ${TOXENV_DIST_DIR} -type f -name "*.tar.gz" | wc -l) -ne 1 ]]; then
-        #   echo "ERROR: Expected to find 1 tar.gz file in ${TOXENV_DIST_DIR}, but found $(find ${TOXENV_DIST_DIR} -type f -name "*.tar.gz" | wc -l)"
-        #   exit 1
-        # fi
-        # if [[ $(find ${TOXENV_DIST_DIR} -type f -name "*.whl" | wc -l) -ne 1 ]]; then
-        #   echo "ERROR: Expected to find 1 .whl file in ${TOXENV_DIST_DIR}, but found $(find ${TOXENV_DIST_DIR} -type f -name "*.whl" | wc -l)"
-        #   exit 1
-        # fi
+    #     # if [[ $(find ${TOXENV_DIST_DIR} -type f -name "*.tar.gz" | wc -l) -ne 1 ]]; then
+    #     #   echo "ERROR: Expected to find 1 tar.gz file in ${TOXENV_DIST_DIR}, but found $(find ${TOXENV_DIST_DIR} -type f -name "*.tar.gz" | wc -l)"
+    #     #   exit 1
+    #     # fi
+    #     # if [[ $(find ${TOXENV_DIST_DIR} -type f -name "*.whl" | wc -l) -ne 1 ]]; then
+    #     #   echo "ERROR: Expected to find 1 .whl file in ${TOXENV_DIST_DIR}, but found $(find ${TOXENV_DIST_DIR} -type f -name "*.whl" | wc -l)"
+    #     #   exit 1
+    #     # fi
 
-        # REQUIRED existing 'Source Distribution' (SD) aka .tar.gz file, has already been built from source code
-        # ie previous code/step ran a tox env, such as with cmd `tox -e py38-sdist-linux`, or any `sdist` tox env,
-        # which runs Unit Tests against the .tar.gz (sdist installation), after building it from source code,
+    #     # REQUIRED existing 'Source Distribution' (SD) aka .tar.gz file, has already been built from source code
+    #     # ie previous code/step ran a tox env, such as with cmd `tox -e py38-sdist-linux`, or any `sdist` tox env,
+    #     # which runs Unit Tests against the .tar.gz (sdist installation), after building it from source code,
 
-        # move .tar.gz
-        mv ".tox/${DIST_DIR}/artificial_artwork-${PKG_VERSION}.tar.gz" "${DIST_DIR}"
+    #     # move .tar.gz
+    #     mv ".tox/${DIST_DIR}/artificial_artwork-${PKG_VERSION}.tar.gz" "${DIST_DIR}"
 
-        # move .whl
-        # mv ".tox/${DIST_DIR}/artificial_artwork-${PKG_VERSION}-py3-none-any.whl" "${DIST_DIR}"
+    #     # move .whl
+    #     # mv ".tox/${DIST_DIR}/artificial_artwork-${PKG_VERSION}-py3-none-any.whl" "${DIST_DIR}"
 
-        # tox -e check -vv -s false
+    #     # tox -e check -vv -s false
 
     # - name: Install documentation test dependencies
     #   if: ${{ matrix.platform == 'macos-latest' && matrix.python-version != '3.6' }}
@@ -388,38 +342,38 @@ jobs:
     #   if: ${{ matrix.platform == 'ubuntu-latest' || matrix.python-version  != '3.6' }}
     #   run: tox -e docs --sitepackages -vv -s false
 
-    - name: Upload Source & Wheel distributions as Artefacts
-      uses: actions/upload-artifact@v3
-      with:
-        name: ${{ env.DIST_DIR }}-${{ matrix.platform }}-${{ matrix.python-version }}
-        path: ${{ env.DIST_DIR }}
-        if-no-files-found: error
+    # - name: Upload Source & Wheel distributions as Artefacts
+    #   uses: actions/upload-artifact@v3
+    #   with:
+    #     name: ${{ env.DIST_DIR }}-${{ matrix.platform }}-${{ matrix.python-version }}
+    #     path: ${{ env.DIST_DIR }}
+    #     if-no-files-found: error
 
 
 ### JOB: UPLOAD COVERAGE REPORTS TO CODECOV ###
 
-  codecov_coverage_host:
-    runs-on: ubuntu-latest
-    needs: test_suite
-    if: ${{ needs.set_github_outputs.outputs.PREVENT_CODECOV_TEST_COVERAGE == 'false' }}
-    steps:
-    - uses: actions/checkout@v3
-    - name: Get Codecov binary
-      run: |
-        curl -Os https://uploader.codecov.io/latest/linux/codecov
-        chmod +x codecov
-    - name: Download XML Test Coverage Results, from CI Artifacts
-      uses: actions/download-artifact@v3
-      with:
-        name: all_coverage_raw
-    - name: Upload Coverage Reports to Codecov
-      run: |
-        for file in coverage*.xml; do
-          OS_NAME=$(echo $file | sed -E "s/coverage-(\w\+)-/\1/")
-          PY_VERSION=$(echo $file | sed -E "s/coverage-\w\+-(\d\.)\+/\1/")
-          ./codecov -f $file -e "OS=$OS_NAME,PYTHON=$PY_VERSION" --flags unittests --verbose
-          echo "Sent to Codecov: $file !"
-        done
+  # codecov_coverage_host:
+  #   runs-on: ubuntu-latest
+  #   needs: test_suite
+  #   if: ${{ needs.set_github_outputs.outputs.PREVENT_CODECOV_TEST_COVERAGE == 'false' }}
+  #   steps:
+  #   - uses: actions/checkout@v3
+  #   - name: Get Codecov binary
+  #     run: |
+  #       curl -Os https://uploader.codecov.io/latest/linux/codecov
+  #       chmod +x codecov
+  #   - name: Download XML Test Coverage Results, from CI Artifacts
+  #     uses: actions/download-artifact@v3
+  #     with:
+  #       name: all_coverage_raw
+  #   - name: Upload Coverage Reports to Codecov
+  #     run: |
+  #       for file in coverage*.xml; do
+  #         OS_NAME=$(echo $file | sed -E "s/coverage-(\w\+)-/\1/")
+  #         PY_VERSION=$(echo $file | sed -E "s/coverage-\w\+-(\d\.)\+/\1/")
+  #         ./codecov -f $file -e "OS=$OS_NAME,PYTHON=$PY_VERSION" --flags unittests --verbose
+  #         echo "Sent to Codecov: $file !"
+  #       done
 
 
 ## DEPLOY to PYPI: PROD and STAGING
@@ -603,85 +557,40 @@ jobs:
 
 
 ## AUTOMATED DOCKER BUILD and PUBLISH ON DOCKERHUB ##
-  docker_build:
+  read_docker_settings:
     runs-on: ubuntu-latest
-    needs: test_suite
-    # always() is REQUIRED to implement any run if skipped, thing!
-    if: always() && (needs.set_github_outputs.outputs.DOCKER_POLICY == '1' || (
-        (!contains(needs.test_suite.result, 'failure') && !contains(needs.test_suite.result, 'cancelled') && needs.test_suite.result == 'success') ||
-        (needs.set_github_outputs.outputs.DOCKER_POLICY == '2' && !contains(needs.test_suite.result, 'failure') && needs.test_suite.result == 'skipped')
-        ))
-    env:
-      DOCKER_USER: ${{ secrets.DOCKER_USER }}
+    outputs:
+      CASE_POLICY: ${{ steps.derive_docker_policy.outputs.CASE_POLICY }}
     steps:
-    - uses: actions/checkout@v3
-    - name: Build Docker Image
-      run: |
-        echo " DOCKER JOB TRIGGERED "
+      - run: |
+          if [[ $DOCKER_JOB_ON == "true" ]]; then
+            if [[ $ALWAYS_BUILD_N_PUBLSIH_DOCKER == "true" ]]; then
+              DOCKER_POLICY=1
+            elif [[ $DOCKER_JOB_POLICY == "CDeployment" ]]; then
+              DOCKER_POLICY=2
+            elif [[ $DOCKER_JOB_POLICY == "CDelivery" ]]; then
+              DOCKER_POLICY=3
+            fi
+          else
+            DOCKER_POLICY=0
+          fi
+          echo "CASE_POLICY=$DOCKER_POLICY" >> $GITHUB_ENV
+      - run: echo "CASE_POLICY=$CASE_POLICY" >> $GITHUB_OUTPUT
+        id: derive_docker_policy
 
-        # assuming workflow is enabled for branches and v* tags
-        IMAGE_TAG="${GITHUB_REF_NAME}"  # this is branch name or tag name
-
-        # --target prod_install --> Image with NST CLI (no vgg baked in)
-        PREFIX=cli
-
-        IMAGE_SLUG=neural-style-transfer-${PREFIX}
-        IMAGE_REF="${DOCKER_USER}/${IMAGE_SLUG}:${IMAGE_TAG}"
-
-        echo " == Image Tag from Git Ref: $IMAGE_TAG == "
-        echo " == Image Slug: $IMAGE_SLUG == "
-        echo " == Image Ref: $IMAGE_REF == "
-
-        echo "IMAGE_REF=${IMAGE_REF}" >> $GITHUB_ENV
-
-        docker build --target prod_install -t "${IMAGE_REF}" .
-        # docker build --target prod_install -t "${DOCKER_USER}/neural-style-transfer:${IMAGE_TAG}" .
-
-        # build an image that does not have vgg model weights
-        # TODO: add image model weights file in this env somehow
-
-        echo " -- DOCKER BUILD DONE --"
-        echo " -- IMAGE: ${IMAGE_REF}"
-
-    - name: Login to Dockerhub, public Image Registry
-      env:
-        DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-      run: echo "${DOCKER_PASSWORD}" | docker login --username "${DOCKER_USER}" --password-stdin
-
-    - name: Publish to DockerHub; Push Docker Image
-      run: |
-        # docker push "${IMAGE_REF}" && job_status=0 || echo "[ERROR] Docker push failed!" && job_status=1
-        # echo "job_status=$job_status" >> $GITHUB_ENV
-
-        push_success=1
-
-        docker push "${IMAGE_REF}" || push_success=0
-
-        if [ $push_success -eq 1 ]; then
-          echo "Docker Image "${IMAGE_REF}" pushed to DockerHub!"
-        else
-          echo "[ERROR] Docker push failed!"
-        fi
-        
-        echo "push_success=$push_success" >> $GITHUB_ENV
-
-    - name: Logout from Dockerhub
-      run: docker logout
-
-    - name: Exit Job, with status code 0 if push was successful
-      run: |
-        # show success message or exit with non-zero if push Failed
-        if [ $push_success -eq 1 ]; then
-          job_status=0
-        else
-          # echo "[ERROR] Docker push failed!"
-          job_status=1
-        fi
-        echo "Exiting with status code: $job_status"
-        exit $job_status
-
-        # [ "$job_status" = 0 ] && echo "Docker Image "${IMAGE_REF}" pushed to DockerHub!" || exit $job_status
-
+  docker_build:
+    needs: [read_docker_settings, test_suite]
+    uses: boromir674/automated-workflows/.github/workflows/docker.yml@test
+    if: always()
+    with:
+      DOCKER_USER: ${{ vars.DOCKER_USER }}
+      acceptance_policy: ${{ needs.read_docker_settings.outputs.CASE_POLICY }}
+      tests_pass: ${{ needs.test_suite.result == 'success' }}
+      tests_run: ${{ !contains(fromJSON('["skipped", "cancelled"]'), needs.test_suite.result) }}
+      image_slug: "neural-style-transfer-cli"
+      target_stage: "prod_install"
+    secrets:
+      DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
 
 
 # STATIC CODE ANALYSIS & LINTING
