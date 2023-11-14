@@ -531,6 +531,24 @@ files = [
 ]
 
 [[package]]
+name = "ghp-import"
+version = "2.1.0"
+description = "Copy your docs directly to the gh-pages branch."
+category = "main"
+optional = true
+python-versions = "*"
+files = [
+    {file = "ghp-import-2.1.0.tar.gz", hash = "sha256:9c535c4c61193c2df8871222567d7fd7e5014d835f97dc7b7439069e2413d343"},
+    {file = "ghp_import-2.1.0-py3-none-any.whl", hash = "sha256:8337dd7b50877f163d4c0289bc1f1c7f127550241988d568c1db512c4324a619"},
+]
+
+[package.dependencies]
+python-dateutil = ">=2.8.1"
+
+[package.extras]
+dev = ["flake8", "markdown", "twine", "wheel"]
+
+[[package]]
 name = "google-auth"
 version = "1.35.0"
 description = "Google Authentication Library"
@@ -2078,10 +2096,11 @@ docs = ["furo", "jaraco.packaging (>=9.3)", "jaraco.tidelift (>=1.4)", "rst.link
 testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "pytest (>=6)", "pytest-black (>=0.3.7)", "pytest-checkdocs (>=2.4)", "pytest-cov", "pytest-enabler (>=2.2)", "pytest-ignore-flaky", "pytest-mypy (>=0.9.1)", "pytest-ruff"]
 
 [extras]
+docs = ["mkdocs"]
 gui = ["matplotlib"]
 test = ["pytest", "pytest-click", "pytest-cov", "pytest-explicit", "pytest-xdist"]
 
 [metadata]
 lock-version = "2.0"
 python-versions = "~3.8"
-content-hash = "098e580fff4065074d5a9d5554c23dc81da74af9381e471f4cf85b5eb827c4a9"
+content-hash = "11d44cc323d1e9da1c0cbe8014eb09aadb4db4e6e1cad0098dbf3c81abe0e945"
