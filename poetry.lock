@@ -2334,4 +2334,4 @@ test = ["pytest", "pytest-click", "pytest-cov", "pytest-explicit", "pytest-xdist
 [metadata]
 lock-version = "2.0"
 python-versions = "~3.8"
-content-hash = "fd22728c0977c56f1136c81da6a7c1cb670046c5aa92c67f7287c4fc9031c223"
+content-hash = "ba14d21e41ae2b6c73df14c8d728cbb96c0ce89aa9f7cb4a927835d6550d7e3e"
