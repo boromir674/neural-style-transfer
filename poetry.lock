@@ -2327,11 +2327,11 @@ docs = ["furo", "jaraco.packaging (>=9.3)", "jaraco.tidelift (>=1.4)", "rst.link
 testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "pytest (>=6)", "pytest-black (>=0.3.7)", "pytest-checkdocs (>=2.4)", "pytest-cov", "pytest-enabler (>=2.2)", "pytest-ignore-flaky", "pytest-mypy (>=0.9.1)", "pytest-ruff"]
 
 [extras]
-docs = ["mkdocs", "mkdocs-click", "mkdocs-material"]
+docs = ["mkdocs", "mkdocs-click", "mkdocs-material", "pymdown-extensions"]
 gui = ["matplotlib"]
 test = ["pytest", "pytest-click", "pytest-cov", "pytest-explicit", "pytest-xdist"]
 
 [metadata]
 lock-version = "2.0"
 python-versions = "~3.8"
-content-hash = "ba14d21e41ae2b6c73df14c8d728cbb96c0ce89aa9f7cb4a927835d6550d7e3e"
+content-hash = "bf59f6f417576013cb78f34822de2b15db5309de9a043b7dce250f2718ecd128"
