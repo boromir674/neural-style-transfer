@@ -98,6 +98,7 @@ pytest-xdist = {version = "^3.3.1", optional = true}
 
 # Support running a tkinter GUI client
 matplotlib = {version = "~3.7", optional = true}
+mkdocs = {version = "^1.5.3", optional = true, extras = ["docs"]}
 
 
 [tool.poetry.extras]
