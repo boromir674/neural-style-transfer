@@ -1,10 +1,6 @@
 # Artificial Artwork
 
 
-## API Reference
-
-::: artificial_artwork.nst_math
-
 ```mermaid
 graph LR
     hello --> world

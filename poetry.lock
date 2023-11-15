@@ -1292,6 +1292,21 @@ files = [
 mkdocs = ">=1.0.3"
 
 [[package]]
+name = "mkdocs-literate-nav"
+version = "0.6.1"
+description = "MkDocs plugin to specify the navigation in Markdown instead of YAML"
+category = "main"
+optional = true
+python-versions = ">=3.7"
+files = [
+    {file = "mkdocs_literate_nav-0.6.1-py3-none-any.whl", hash = "sha256:e70bdc4a07050d32da79c0b697bd88e9a104cf3294282e9cb20eec94c6b0f401"},
+    {file = "mkdocs_literate_nav-0.6.1.tar.gz", hash = "sha256:78a7ab6d878371728acb0cdc6235c9b0ffc6e83c997b037f4a5c6ff7cef7d759"},
+]
+
+[package.dependencies]
+mkdocs = ">=1.0.3"
+
+[[package]]
 name = "mkdocs-material"
 version = "9.4.8"
 description = "Documentation that simply works"
@@ -2499,11 +2514,11 @@ docs = ["furo", "jaraco.packaging (>=9.3)", "jaraco.tidelift (>=1.4)", "rst.link
 testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "pytest (>=6)", "pytest-black (>=0.3.7)", "pytest-checkdocs (>=2.4)", "pytest-cov", "pytest-enabler (>=2.2)", "pytest-ignore-flaky", "pytest-mypy (>=0.9.1)", "pytest-ruff"]
 
 [extras]
-docs = ["mkdocs", "mkdocs-click", "mkdocs-gen-files", "mkdocs-material", "mkdocs-mermaid2-plugin", "mkdocstrings", "mkdocstrings-python", "pymdown-extensions"]
+docs = ["mkdocs", "mkdocs-click", "mkdocs-gen-files", "mkdocs-literate-nav", "mkdocs-material", "mkdocs-mermaid2-plugin", "mkdocstrings", "mkdocstrings-python", "pymdown-extensions"]
 gui = ["matplotlib"]
 test = ["pytest", "pytest-click", "pytest-cov", "pytest-explicit", "pytest-xdist"]
 
 [metadata]
 lock-version = "2.0"
 python-versions = "~3.8"
-content-hash = "a15ca2d0dbc9a9f3a50a48edfa534a3cf7c172138954b60970f8ddb0f7866766"
+content-hash = "7185ee571884082fde50d3c626f87e4a4682bee191512415ae018abbc577aca1"
