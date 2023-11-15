@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "artificial-artwork"
-version = "1.0.2"
+version = "1.1.0"
 description = "Create artificial artwork by transfering the appearance of one image (eg a famous painting) to another user-supplied image (eg your favourite photograph)."
 authors = ["Konstantinos Lampridis <k.lampridis@hotmail.com>"]
 maintainers = ["Konstantinos Lampridis <k.lampridis@hotmail.com>"]
@@ -72,6 +72,7 @@ classifiers = [
 # ~1	       >=1.0.0 <2.0.0
 
 [tool.poetry.dependencies]
+# no extensive tests for > 3.8 (ie 3.9, 3.10, 3.11)
 python = "~3.8"
 cython = "^3.0.2"
 
@@ -98,6 +99,20 @@ pytest-xdist = {version = "^3.3.1", optional = true}
 # Support running a tkinter GUI client
 matplotlib = {version = "~3.7", optional = true}
 
+# DOCS
+mkdocs = {version = "^1.5.3", optional = true}
+mkdocs-click = {version = "^0.8.1", optional = true}
+mkdocs-material = {version = "^9.4.8", optional = true}
+pymdown-extensions = {version = "^10.4", optional = true}
+mkdocs-mermaid2-plugin = {version = "^1.1.1", optional = true}
+# mkdocstrings = {version = "^0.24.0", optional = true}
+mkdocs-gen-files = {version = "^0.5.0", optional = true}
+mkdocstrings = {version = "^0.24.0", optional = true}
+mkdocstrings-python = {version = "^1.7.4", optional = true}
+mkdocs-literate-nav = {version = "^0.6.1", optional = true}
+mkdocs-section-index = {version = "^0.3.8", optional = true}
+mkdocs-macros-plugin = {version = "^1.0.5", optional = true}
+
 
 [tool.poetry.extras]
 test = [
@@ -110,7 +125,19 @@ test = [
 gui = [
     "matplotlib",
 ]
-
+docs = [
+    "mkdocs",
+    "mkdocs-click",
+    "mkdocs-material",
+    "pymdown-extensions",
+    "mkdocs-mermaid2-plugin",
+    "mkdocstrings",
+    "mkdocs-gen-files",
+    "mkdocstrings-python",
+    "mkdocs-literate-nav",
+    "mkdocs-section-index",
+    "mkdocs-macros-plugin",
+]
 
 # CLI / ENTRYPOINTS
 [tool.poetry.scripts]

@@ -1,6 +1,27 @@
 # Changelog
 
 
+## 1.1.0 (2023-11-15)
+
+### Changes
+
+##### feature
+- include wheel into the python distribution for PyPI
+
+##### documentation
+- add Doc Pages content and use material theme
+- document cicd pipeline, by visualizing the Github Actoins Workflow as a graph
+- automatically create nav tree of API refs, from discovered docstrings in *.py
+- update README
+
+##### build
+- default docker build stage includes vgg and demo cmd
+
+##### ci
+- call reusable workflow to handle PyPI Publish Job
+- run Docker Job from reusable workflow
+
+
 ## 1.0.1 (2023-11-05)
 
 **CI Docker Behaviour**

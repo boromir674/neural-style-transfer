@@ -22,8 +22,8 @@ This Python package runs a Neural Style Tranfer algorithm on input `content` and
 .. list-table::
     :stub-columns: 1
 
-    * - tests
-      - | |ci_pipeline| |codecov|
+    * - build
+      - | |ci_pipeline| |docs| |codecov|
 
     * - package
       - | |pypi| |wheel| |py_versions| |commits_since|
@@ -34,7 +34,7 @@ This Python package runs a Neural Style Tranfer algorithm on input `content` and
     * - code quality
       - |codacy| |code_climate| |maintainability| |scrutinizer|
 
-
+| **Docs**: https://boromir674.github.io/neural-style-transfer/
 
 Overview
 ========
@@ -50,112 +50,67 @@ Key features of the package:
 * Persisting of generated images
 
 
+Quick-start
+-----------
 
-Installation
-------------
-| The Neural Style Transfer - CLI heavely depends on Tensorflow (tf) and therefore it is crucial that tf is installed correctly in your Python environment.
-
-Sample commands to install the NST CLI from source, using a terminal:
+| Run a demo NST, on sample `Content` and `Style` Images:
 
 ::
 
-    # Get the Code
-    git clone https://github.com/boromir674/neural-style-transfer.git
-    cd neural-style-transfer
+    mkdir art
+    export NST_HOST_MOUNT="$PWD/art"
 
-    # Activate a python virtual environment
-    virtualenv env --python=python3
-    source env/bin/activate
+    docker-compose up
 
-    # Install dependencies
-    pip install -r requirements/dex.txt
-
-    # Install NST CLI (in virtual environment)
-    pip install -e .
+    # Process runs, in containerized environment, and exits.
 
 
-Alternative command to install the NST CLI by downloading the `artificial_artwork` python package from pypi:
+| Check out your **Generated Image**!
+| Artificial Artwork: **art/canoe_water_w300-h225.jpg+blue-red_w300-h225.jpg-100.png**
+
+::
+
+    xdg-open art/canoe_water_w300-h225.jpg+blue-red_w300-h225.jpg-100.png
+
+
+Usage
+-----
+
+Run the `nst` CLI with the `--help` option to see the available options.
+
+::
+
+    docker run boromir674/neural-style-transfer:1.0.2 --help
+
+
+Development
+-----------
+
+Installation
+""""""""""""
+
+Install `nst` CLI and `artificial_artwork` python package from `pypi``:
 
 ::
 
     pip install artificial_artwork
 
 
-Make the cli available for your host system:
+Only python3.8 wheel is included atm.
+
+
+Sample commands to install the NST CLI from source, using a terminal:
 
 ::
 
-    # Setup a symbolic link (in your host system) in a location in your PATH
-    # Assuming ~/.local/bin is in your PATH
-    ln -s $PWD/env/bin/neural-style-transfer ~/.local/bin/neural-style-transfer
-
-    # Deactivate environment since the symbolic link is available in "global scope" by now
-    deactivate
+    git clone https://github.com/boromir674/neural-style-transfer.git
+    
+    pip install ./neural-style-transfer
 
 
-Usage
------
-
-Download the Vgg-Verydeep-19 pretrained `model` from https://drive.protonmail.com/urls/7RXGN23ZRR#hsw4STil0Hgc.
-
-Exctract the model (weights and layer architecture).
-
-For example use `tar -xvf imagenet-vgg-verydeep-19.tar` to extract in the current directory.
-
-Indicate to the program where to find the model:
-
-::
-
-    export AA_VGG_19=$PWD/imagenet-vgg-verydeep-19.mat
-
-We have included one 'content' and one 'style' image in the source repository, to facilitate testing.
-You can use these images to quickly try running the program.
-
-For example, you can get the code with `git clone git@github.com:boromir674/neural-style-transfer.git`,
-then `cd neural-style-transfer`.
-
-Assuming you have installed using a symbolic link in your PATH (as shown above), or if you are still
-operating withing your virtual environment, then you can create artificial artwork with the following command.
-
-The algorithm will apply the style to the content iteratively.
-It will iterate 100 times. 
-
-::
-
-    # Create a directory where to store the artificial artwork
-    mkdir nst_output
-
-    # Run a Neural Style Algorithm for 100 iterations and store output to nst_output directory
-    neural-style-transfer tests/data/canoe_water.jpg tests/data/blue-red-w400-h300.jpg --location nst_output
+| The Neural Style Transfer - CLI heavely depends on Tensorflow (tf) and therefore it is crucial that tf is installed correctly in your Python environment.
 
 
-Note we are using as 'content' and 'style' images jpg files included in the distribution (artificial-artwork package).
-We are using a photo of a canoe on water and an abstract painting with prevalence of blue and red color shades.
-
-Also note that to demonstrate quicker, both images have been already resized to just 400 pixels of width and 300 of height each.
-
-Navigating to `nst_output` you can find multiple image files generated from running the algorithm. Each file corresponds to the
-image generated on a different iteration while running the algorithm. The bigger the iteration the more "style" has been applied.
-
-Check out your artificial artwork!
-
-
-Docker image
-------------
-
-We have included a docker file that we use to build an image where both the `artificial_artwork` package (source code)
-and the pretrained model are present. That way you can immediately start creating artwork!
-
-::
-
-    docker pull boromir674/neural-style-transfer
-
-    export NST_OUTPUT=/home/$USER/nst-output
-
-    CONTENT=/path/to/content-image.jpg
-    STYLE=/path/to/style-image.jpg
-
-    docker run -it --rm -v $NST_OUTPUT:/nst-output boromir674/neural-style-transfer $STYLE $CONTENT --iteratins 200 --location /nst-output
 
 .. |ci_pipeline| image:: https://img.shields.io/github/actions/workflow/status/boromir674/neural-style-transfer/test.yaml?branch=master&label=build&logo=github-actions&logoColor=233392FF
     :alt: CI Pipeline Status
@@ -214,8 +169,9 @@ and the pretrained model are present. That way you can immediately start creatin
 
 
 
-
-
+.. |docs| image:: https://readthedocs.org/projects/neural-style-transfer/badge/?version=latest
+    :alt: Documentation Status
+    :target: https://neural-style-transfer.readthedocs.io/en/latest/?badge=latest
 
 
 .. |docker| image:: https://img.shields.io/docker/v/boromir674/neural-style-transfer/latest?logo=docker&logoColor=%23849ED9

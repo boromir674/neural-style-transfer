@@ -186,7 +186,6 @@ else:  # if Sem Ver 2.0 prerelease separator found in the string
 # https://peps.python.org/pep-0440/#compatibility-with-other-version-schemes
 
 
-# TODO use pep440 _regex (see top of cript)
 parsed_versions_string = _regex.match(semver)
 
 prerelease = parsed_versions_string.group("pre") or parsed_versions_string.group("dev") or ''
