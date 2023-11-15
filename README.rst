@@ -65,12 +65,12 @@ Quick-start
     # Process runs, in containerized environment, and exits.
 
 
-| Check out your `generated` artificial artwork!
+| Check out your **Generated Image**!
+| Artificial Artwork: **art/canoe_water_w300-h225.jpg+blue-red_w300-h225.jpg-100.png**
 
 ::
-    
-    ls -l art/blue-red_w300-h225.jpg+canoe_water_w300-h225.jpg-100.png
-    xdg-open art/blue-red_w300-h225.jpg+canoe_water_w300-h225.jpg-100.png
+
+    xdg-open art/canoe_water_w300-h225.jpg+blue-red_w300-h225.jpg-100.png
 
 
 Usage

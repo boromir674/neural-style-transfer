@@ -5,7 +5,8 @@ version: '3'
 
 services:
 
-  # mkdir art && NST_HOST_MOUNT="$PWD/art" docker-compose up
+  # mkdir art
+  # NST_HOST_MOUNT="$PWD/art" docker-compose up
   nst_demo:
     image: boromir674/neural-style-transfer:1.0.2
     volumes:
