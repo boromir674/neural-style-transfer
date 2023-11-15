@@ -17,9 +17,10 @@ build:
   
   # ALL JOBS implied: https://docs.readthedocs.io/en/stable/builds.html
   jobs:
-    post_system_dependencies:
-      - python3 -m pip install --user poetry
+    # post_system_dependencies:
+    #   - python3 -m pip install --user poetry
     pre_install:
+      - python3 -m pip install --user poetry
       - python3 -m poetry export -o req-docs.txt -E docs
 
 
