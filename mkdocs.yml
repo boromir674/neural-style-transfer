@@ -1,9 +1,72 @@
 site_name: Artificial Artwork
-repo_name: neural-style-transfer
+site_url: https://neural-style-transfer.readthedocs.io/
+site_description: Neural Style Transfer Project Documentation.
+site_author: Konstantinos Lampridis
+
+repo_url: https://github.com/boromir674/neural-style-transfer/
+repo_name: boromir674/neural-style-transfer
+edit_uri: blob/master/docs/
+
+theme:
+  # 1
+  name: material
+  icon:
+    logo: material/palette
+    previous: fontawesome/solid/angle-left
+    next: fontawesome/solid/angle-right
+    default: material/tag
+
+  # favicon: images/favicon.png
+  features:
+    - navigation.path
+    - navigation.top
+    - navigation.footer
+    # - navigation.indexes
+  # navigation.instant break mermaid
+  # features:
+  #   - navigation.tracking
+
+    # - navigation.instant
+
+  # 2
+  # name: mkdocs
+  # # nav_style: dark
+  # locale: en
+  # highlightjs: true
+  # hljs_languages:
+  #   - python
+  #   - bash
+  #   - yaml
+  #   - json
+  # shortcuts:
+  #   help: 191    # ?
+  #   next: 78     # n
+  #   previous: 80 # p
+  #   search: 83   # s
+
+  # 3
+#   name: readthedocs
+
 plugins:
+  # Authors need installation
+  # - git-authors
+  - tags:
+      tags_file: tags.md
+  # BASIC SEARCH PLUGIN
   - search
+  # MERMAID Render Support
   - mermaid2
+  # Directives Provider for docstrings parsing
   - mkdocstrings
+  # - mkdocstrings:
+  #     handlers:
+  #       python:
+  #         options:
+  #           docstring_section_style: list
+  #           # members_order: source
+  #           show_root_heading: false
+  #           show_source: true
+  #           show_signature_annotations: true
   - gen-files:
       scripts:
         - scripts/gen_api_refs_pages.py 
@@ -23,3 +86,8 @@ nav:
     - "Docker": build-process_DAG.md
     - "CICD": cicd.md
   - Code Reference: reference/
+  - tags: tags.md
+
+
+extra:
+  generator: false

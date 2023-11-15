@@ -1,3 +1,8 @@
+---
+tags:
+  - CICD
+---
+
 ## CICD Pipeline, as single Github Action Workflow
 
 Flow Chart, of how the Jobs are connected in the Pipelinebuild).
