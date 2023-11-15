@@ -8,16 +8,4 @@ If you run `docker build .` the `target` used by default is the `default_with_de
 
 **Dockerfile: ./Dockerfile**
 
-
-```mermaid
-graph TB;
-  python:3.8.12-slim-bullseye --> base
-  base --> source
-  source --> prod
-  base --> prod_install
-  prod -. "COPY" .-> prod_install
-  prod_install --> prod_ready
-  prod_ready --> prod_demo
-  prod_ready --> default
-  prod_demo --> default_with_demo
-```
+{% include 'dockerfile_mermaid.md' %}

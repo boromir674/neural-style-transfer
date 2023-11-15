@@ -48,6 +48,8 @@ theme:
 #   name: readthedocs
 
 plugins:
+  # Enable jinja inside your markdown files
+  - macros
   # Authors need installation
   # - git-authors
   - tags:
