@@ -18,9 +18,9 @@ build:
   # ALL JOBS implied: https://docs.readthedocs.io/en/stable/builds.html
   jobs:
     post_system_dependencies:
-      - python -m pip install --user poetry
+      - python3.12 -m pip install --user poetry
     pre_install:
-      - python -m poetry export -o req-docs.txt -E docs
+      - python3.12 -m poetry export -o req-docs.txt -E docs
 
 
 # Build documentation in the "docs/" directory with mkdocs
