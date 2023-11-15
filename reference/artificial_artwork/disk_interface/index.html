@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        
+        <link rel="shortcut icon" href="../../../img/favicon.ico">
+        <title>disk_interface - Artificial Artwork</title>
+        <link href="../../../css/bootstrap.min.css" rel="stylesheet">
+        <link href="../../../css/font-awesome.min.css" rel="stylesheet">
+        <link href="../../../css/base.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
+        <link href="../../../assets/_mkdocstrings.css" rel="stylesheet">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script> 
+    </head>
+
+    <body>
+        <div class="navbar fixed-top navbar-expand-lg navbar-dark bg-primary">
+            <div class="container">
+                <a class="navbar-brand" href="../../..">Artificial Artwork</a>
+                <!-- Expander button -->
+                <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbar-collapse">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <!-- Expanded navigation -->
+                <div id="navbar-collapse" class="navbar-collapse collapse">
+                        <!-- Main navigation -->
+                        <ul class="nav navbar-nav">
+                            <li class="dropdown">
+                                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Home <b class="caret"></b></a>
+                                <ul class="dropdown-menu">
+                                    
+<li>
+    <a href="../../.." class="dropdown-item">Quick Start</a>
+</li>
+                                    
+<li>
+    <a href="../../../cli/" class="dropdown-item">CLI</a>
+</li>
+                                </ul>
+                            </li>
+                            <li class="dropdown">
+                                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Developer <b class="caret"></b></a>
+                                <ul class="dropdown-menu">
+                                    
+<li>
+    <a href="../../../build-process_DAG/" class="dropdown-item">Docker</a>
+</li>
+                                </ul>
+                            </li>
+                            <li class="dropdown active">
+                                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Code Reference <b class="caret"></b></a>
+                                <ul class="dropdown-menu">
+                                    
+  <li class="dropdown-submenu">
+    <a href="#" class="dropdown-item">artificial_artwork</a>
+    <ul class="dropdown-menu">
+            
+<li>
+    <a href="../__version__/" class="dropdown-item">__version__</a>
+</li>
+            
+<li>
+    <a href="../_demo/" class="dropdown-item">_demo</a>
+</li>
+            
+<li>
+    <a href="../_main/" class="dropdown-item">_main</a>
+</li>
+            
+<li>
+    <a href="../algorithm/" class="dropdown-item">algorithm</a>
+</li>
+            
+<li>
+    <a href="../cli/" class="dropdown-item">cli</a>
+</li>
+            
+<li>
+    <a href="../cmd_demo/" class="dropdown-item">cmd_demo</a>
+</li>
+            
+<li>
+    <a href="../cost_computer/" class="dropdown-item">cost_computer</a>
+</li>
+            
+<li>
+    <a href="./" class="dropdown-item active">disk_interface</a>
+</li>
+            
+<li>
+    <a href="../disk_operations/" class="dropdown-item">disk_operations</a>
+</li>
+            
+  <li class="dropdown-submenu">
+    <a href="#" class="dropdown-item">image</a>
+    <ul class="dropdown-menu">
+            
+<li>
+    <a href="../image/image/" class="dropdown-item">image</a>
+</li>
+            
+<li>
+    <a href="../image/image_factory/" class="dropdown-item">image_factory</a>
+</li>
+            
+<li>
+    <a href="../image/image_operations/" class="dropdown-item">image_operations</a>
+</li>
+            
+<li>
+    <a href="../image/image_processor/" class="dropdown-item">image_processor</a>
+</li>
+    </ul>
+  </li>
+            
+<li>
+    <a href="../nst_image/" class="dropdown-item">nst_image</a>
+</li>
+            
+<li>
+    <a href="../nst_math/" class="dropdown-item">nst_math</a>
+</li>
+            
+<li>
+    <a href="../nst_tf_algorithm/" class="dropdown-item">nst_tf_algorithm</a>
+</li>
+            
+  <li class="dropdown-submenu">
+    <a href="#" class="dropdown-item">pre_trained_models</a>
+    <ul class="dropdown-menu">
+            
+<li>
+    <a href="../pre_trained_models/vgg/" class="dropdown-item">vgg</a>
+</li>
+    </ul>
+  </li>
+            
+  <li class="dropdown-submenu">
+    <a href="#" class="dropdown-item">pretrained_model</a>
+    <ul class="dropdown-menu">
+            
+<li>
+    <a href="../pretrained_model/layers_getter/" class="dropdown-item">layers_getter</a>
+</li>
+            
+<li>
+    <a href="../pretrained_model/model_handler/" class="dropdown-item">model_handler</a>
+</li>
+            
+<li>
+    <a href="../pretrained_model/model_handler_interface/" class="dropdown-item">model_handler_interface</a>
+</li>
+            
+<li>
+    <a href="../pretrained_model/model_routines/" class="dropdown-item">model_routines</a>
+</li>
+    </ul>
+  </li>
+            
+  <li class="dropdown-submenu">
+    <a href="#" class="dropdown-item">production_networks</a>
+    <ul class="dropdown-menu">
+            
+<li>
+    <a href="../production_networks/image_model/" class="dropdown-item">image_model</a>
+</li>
+            
+<li>
+    <a href="../production_networks/style_layer_selector/" class="dropdown-item">style_layer_selector</a>
+</li>
+    </ul>
+  </li>
+            
+  <li class="dropdown-submenu">
+    <a href="#" class="dropdown-item">style_model</a>
+    <ul class="dropdown-menu">
+            
+<li>
+    <a href="../style_model/graph_builder/" class="dropdown-item">graph_builder</a>
+</li>
+            
+<li>
+    <a href="../style_model/graph_factory/" class="dropdown-item">graph_factory</a>
+</li>
+    </ul>
+  </li>
+            
+<li>
+    <a href="../styling_observer/" class="dropdown-item">styling_observer</a>
+</li>
+            
+  <li class="dropdown-submenu">
+    <a href="#" class="dropdown-item">termination_condition</a>
+    <ul class="dropdown-menu">
+            
+<li>
+    <a href="../termination_condition/termination_condition/" class="dropdown-item">termination_condition</a>
+</li>
+            
+<li>
+    <a href="../termination_condition/termination_condition_interface/" class="dropdown-item">termination_condition_interface</a>
+</li>
+    </ul>
+  </li>
+            
+<li>
+    <a href="../termination_condition_adapter/" class="dropdown-item">termination_condition_adapter</a>
+</li>
+            
+<li>
+    <a href="../termination_condition_adapter_factory/" class="dropdown-item">termination_condition_adapter_factory</a>
+</li>
+            
+<li>
+    <a href="../tf_session_runner/" class="dropdown-item">tf_session_runner</a>
+</li>
+            
+<li>
+    <a href="../utils/" class="dropdown-item">utils</a>
+</li>
+    </ul>
+  </li>
+                                </ul>
+                            </li>
+                        </ul>
+
+                    <ul class="nav navbar-nav ml-auto">
+                        <li class="nav-item">
+                            <a href="#" class="nav-link" data-toggle="modal" data-target="#mkdocs_search_modal">
+                                <i class="fa fa-search"></i> Search
+                            </a>
+                        </li>
+                            <li class="nav-item">
+                                <a rel="prev" href="../cost_computer/" class="nav-link">
+                                    <i class="fa fa-arrow-left"></i> Previous
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a rel="next" href="../disk_operations/" class="nav-link">
+                                    Next <i class="fa fa-arrow-right"></i>
+                                </a>
+                            </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                    <div class="col-md-3"><div class="navbar-light navbar-expand-md bs-sidebar hidden-print affix" role="complementary">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggler collapsed" data-toggle="collapse" data-target="#toc-collapse" title="Table of Contents">
+            <span class="fa fa-angle-down"></span>
+        </button>
+    </div>
+
+    
+    <div id="toc-collapse" class="navbar-collapse collapse card bg-secondary">
+        <ul class="nav flex-column">
+            
+            <li class="nav-item" data-level="2"><a href="#artificial_artwork.disk_interface" class="nav-link">disk_interface</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+        </ul>
+    </div>
+</div></div>
+                    <div class="col-md-9" role="main">
+
+<div class="doc doc-object doc-module">
+
+
+
+<a id="artificial_artwork.disk_interface"></a>
+  <div class="doc doc-contents first">
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+  </div>
+
+</div></div>
+            </div>
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+            <p>Documentation built with <a href="https://www.mkdocs.org/">MkDocs</a>.</p>
+        </footer>
+        <script src="../../../js/jquery-3.6.0.min.js"></script>
+        <script src="../../../js/bootstrap.min.js"></script>
+        <script>
+            var base_url = "../../..",
+                shortcuts = {"help": 191, "next": 78, "previous": 80, "search": 83};
+        </script>
+        <script src="../../../js/base.js"></script>
+        <script src="../../../search/main.js"></script>
+
+        <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="searchModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="searchModalLabel">Search</h4>
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            </div>
+            <div class="modal-body">
+                <p>From here you can search these documents. Enter your search terms below.</p>
+                <form>
+                    <div class="form-group">
+                        <input type="search" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
+                    </div>
+                </form>
+                <div id="mkdocs-search-results" data-no-results-text="No results found"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div><div class="modal" id="mkdocs_keyboard_modal" tabindex="-1" role="dialog" aria-labelledby="keyboardModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="keyboardModalLabel">Keyboard Shortcuts</h4>
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            </div>
+            <div class="modal-body">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th style="width: 20%;">Keys</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="help shortcut"><kbd>?</kbd></td>
+                    <td>Open this help</td>
+                  </tr>
+                  <tr>
+                    <td class="next shortcut"><kbd>n</kbd></td>
+                    <td>Next page</td>
+                  </tr>
+                  <tr>
+                    <td class="prev shortcut"><kbd>p</kbd></td>
+                    <td>Previous page</td>
+                  </tr>
+                  <tr>
+                    <td class="search shortcut"><kbd>s</kbd></td>
+                    <td>Search</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+    </body>
+</html>

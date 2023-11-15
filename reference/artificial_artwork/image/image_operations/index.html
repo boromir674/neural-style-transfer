@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        
+        <link rel="shortcut icon" href="../../../../img/favicon.ico">
+        <title>image_operations - Artificial Artwork</title>
+        <link href="../../../../css/bootstrap.min.css" rel="stylesheet">
+        <link href="../../../../css/font-awesome.min.css" rel="stylesheet">
+        <link href="../../../../css/base.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
+        <link href="../../../../assets/_mkdocstrings.css" rel="stylesheet">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script> 
+    </head>
+
+    <body>
+        <div class="navbar fixed-top navbar-expand-lg navbar-dark bg-primary">
+            <div class="container">
+                <a class="navbar-brand" href="../../../..">Artificial Artwork</a>
+                <!-- Expander button -->
+                <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbar-collapse">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <!-- Expanded navigation -->
+                <div id="navbar-collapse" class="navbar-collapse collapse">
+                        <!-- Main navigation -->
+                        <ul class="nav navbar-nav">
+                            <li class="dropdown">
+                                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Home <b class="caret"></b></a>
+                                <ul class="dropdown-menu">
+                                    
+<li>
+    <a href="../../../.." class="dropdown-item">Quick Start</a>
+</li>
+                                    
+<li>
+    <a href="../../../../cli/" class="dropdown-item">CLI</a>
+</li>
+                                </ul>
+                            </li>
+                            <li class="dropdown">
+                                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Developer <b class="caret"></b></a>
+                                <ul class="dropdown-menu">
+                                    
+<li>
+    <a href="../../../../build-process_DAG/" class="dropdown-item">Docker</a>
+</li>
+                                </ul>
+                            </li>
+                            <li class="dropdown active">
+                                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Code Reference <b class="caret"></b></a>
+                                <ul class="dropdown-menu">
+                                    
+  <li class="dropdown-submenu">
+    <a href="#" class="dropdown-item">artificial_artwork</a>
+    <ul class="dropdown-menu">
+            
+<li>
+    <a href="../../__version__/" class="dropdown-item">__version__</a>
+</li>
+            
+<li>
+    <a href="../../_demo/" class="dropdown-item">_demo</a>
+</li>
+            
+<li>
+    <a href="../../_main/" class="dropdown-item">_main</a>
+</li>
+            
+<li>
+    <a href="../../algorithm/" class="dropdown-item">algorithm</a>
+</li>
+            
+<li>
+    <a href="../../cli/" class="dropdown-item">cli</a>
+</li>
+            
+<li>
+    <a href="../../cmd_demo/" class="dropdown-item">cmd_demo</a>
+</li>
+            
+<li>
+    <a href="../../cost_computer/" class="dropdown-item">cost_computer</a>
+</li>
+            
+<li>
+    <a href="../../disk_interface/" class="dropdown-item">disk_interface</a>
+</li>
+            
+<li>
+    <a href="../../disk_operations/" class="dropdown-item">disk_operations</a>
+</li>
+            
+  <li class="dropdown-submenu">
+    <a href="#" class="dropdown-item">image</a>
+    <ul class="dropdown-menu">
+            
+<li>
+    <a href="../image/" class="dropdown-item">image</a>
+</li>
+            
+<li>
+    <a href="../image_factory/" class="dropdown-item">image_factory</a>
+</li>
+            
+<li>
+    <a href="./" class="dropdown-item active">image_operations</a>
+</li>
+            
+<li>
+    <a href="../image_processor/" class="dropdown-item">image_processor</a>
+</li>
+    </ul>
+  </li>
+            
+<li>
+    <a href="../../nst_image/" class="dropdown-item">nst_image</a>
+</li>
+            
+<li>
+    <a href="../../nst_math/" class="dropdown-item">nst_math</a>
+</li>
+            
+<li>
+    <a href="../../nst_tf_algorithm/" class="dropdown-item">nst_tf_algorithm</a>
+</li>
+            
+  <li class="dropdown-submenu">
+    <a href="#" class="dropdown-item">pre_trained_models</a>
+    <ul class="dropdown-menu">
+            
+<li>
+    <a href="../../pre_trained_models/vgg/" class="dropdown-item">vgg</a>
+</li>
+    </ul>
+  </li>
+            
+  <li class="dropdown-submenu">
+    <a href="#" class="dropdown-item">pretrained_model</a>
+    <ul class="dropdown-menu">
+            
+<li>
+    <a href="../../pretrained_model/layers_getter/" class="dropdown-item">layers_getter</a>
+</li>
+            
+<li>
+    <a href="../../pretrained_model/model_handler/" class="dropdown-item">model_handler</a>
+</li>
+            
+<li>
+    <a href="../../pretrained_model/model_handler_interface/" class="dropdown-item">model_handler_interface</a>
+</li>
+            
+<li>
+    <a href="../../pretrained_model/model_routines/" class="dropdown-item">model_routines</a>
+</li>
+    </ul>
+  </li>
+            
+  <li class="dropdown-submenu">
+    <a href="#" class="dropdown-item">production_networks</a>
+    <ul class="dropdown-menu">
+            
+<li>
+    <a href="../../production_networks/image_model/" class="dropdown-item">image_model</a>
+</li>
+            
+<li>
+    <a href="../../production_networks/style_layer_selector/" class="dropdown-item">style_layer_selector</a>
+</li>
+    </ul>
+  </li>
+            
+  <li class="dropdown-submenu">
+    <a href="#" class="dropdown-item">style_model</a>
+    <ul class="dropdown-menu">
+            
+<li>
+    <a href="../../style_model/graph_builder/" class="dropdown-item">graph_builder</a>
+</li>
+            
+<li>
+    <a href="../../style_model/graph_factory/" class="dropdown-item">graph_factory</a>
+</li>
+    </ul>
+  </li>
+            
+<li>
+    <a href="../../styling_observer/" class="dropdown-item">styling_observer</a>
+</li>
+            
+  <li class="dropdown-submenu">
+    <a href="#" class="dropdown-item">termination_condition</a>
+    <ul class="dropdown-menu">
+            
+<li>
+    <a href="../../termination_condition/termination_condition/" class="dropdown-item">termination_condition</a>
+</li>
+            
+<li>
+    <a href="../../termination_condition/termination_condition_interface/" class="dropdown-item">termination_condition_interface</a>
+</li>
+    </ul>
+  </li>
+            
+<li>
+    <a href="../../termination_condition_adapter/" class="dropdown-item">termination_condition_adapter</a>
+</li>
+            
+<li>
+    <a href="../../termination_condition_adapter_factory/" class="dropdown-item">termination_condition_adapter_factory</a>
+</li>
+            
+<li>
+    <a href="../../tf_session_runner/" class="dropdown-item">tf_session_runner</a>
+</li>
+            
+<li>
+    <a href="../../utils/" class="dropdown-item">utils</a>
+</li>
+    </ul>
+  </li>
+                                </ul>
+                            </li>
+                        </ul>
+
+                    <ul class="nav navbar-nav ml-auto">
+                        <li class="nav-item">
+                            <a href="#" class="nav-link" data-toggle="modal" data-target="#mkdocs_search_modal">
+                                <i class="fa fa-search"></i> Search
+                            </a>
+                        </li>
+                            <li class="nav-item">
+                                <a rel="prev" href="../image_factory/" class="nav-link">
+                                    <i class="fa fa-arrow-left"></i> Previous
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a rel="next" href="../image_processor/" class="nav-link">
+                                    Next <i class="fa fa-arrow-right"></i>
+                                </a>
+                            </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                    <div class="col-md-3"><div class="navbar-light navbar-expand-md bs-sidebar hidden-print affix" role="complementary">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggler collapsed" data-toggle="collapse" data-target="#toc-collapse" title="Table of Contents">
+            <span class="fa fa-angle-down"></span>
+        </button>
+    </div>
+
+    
+    <div id="toc-collapse" class="navbar-collapse collapse card bg-secondary">
+        <ul class="nav flex-column">
+            
+            <li class="nav-item" data-level="2"><a href="#artificial_artwork.image.image_operations" class="nav-link">image_operations</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            
+            <li class="nav-item" data-level="2"><a href="#artificial_artwork.image.image_operations.ImageNoiseAdder" class="nav-link">ImageNoiseAdder</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            
+            <li class="nav-item" data-level="2"><a href="#artificial_artwork.image.image_operations.noisy" class="nav-link">noisy()</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            
+            <li class="nav-item" data-level="2"><a href="#artificial_artwork.image.image_operations.subtract" class="nav-link">subtract()</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+        </ul>
+    </div>
+</div></div>
+                    <div class="col-md-9" role="main">
+
+<div class="doc doc-object doc-module">
+
+
+
+<a id="artificial_artwork.image.image_operations"></a>
+  <div class="doc doc-contents first">
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-class">
+
+
+
+
+<h2 id="artificial_artwork.image.image_operations.ImageNoiseAdder" class="doc doc-heading">
+          <code>ImageNoiseAdder</code>
+
+
+</h2>
+
+
+  <div class="doc doc-contents ">
+
+  
+      <p>Add random noise to an image, given a ratio and optional seed number.</p>
+<p>If seed is passed other than None, then the instance is configued with a
+seeded random number generator (RNG). Otherwise, the instance is configured
+with a non-seeded RNG.</p>
+
+            <details class="quote">
+              <summary>Source code in <code>src/artificial_artwork/image/image_operations.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 45</span>
+<span class="normal"> 46</span>
+<span class="normal"> 47</span>
+<span class="normal"> 48</span>
+<span class="normal"> 49</span>
+<span class="normal"> 50</span>
+<span class="normal"> 51</span>
+<span class="normal"> 52</span>
+<span class="normal"> 53</span>
+<span class="normal"> 54</span>
+<span class="normal"> 55</span>
+<span class="normal"> 56</span>
+<span class="normal"> 57</span>
+<span class="normal"> 58</span>
+<span class="normal"> 59</span>
+<span class="normal"> 60</span>
+<span class="normal"> 61</span>
+<span class="normal"> 62</span>
+<span class="normal"> 63</span>
+<span class="normal"> 64</span>
+<span class="normal"> 65</span>
+<span class="normal"> 66</span>
+<span class="normal"> 67</span>
+<span class="normal"> 68</span>
+<span class="normal"> 69</span>
+<span class="normal"> 70</span>
+<span class="normal"> 71</span>
+<span class="normal"> 72</span>
+<span class="normal"> 73</span>
+<span class="normal"> 74</span>
+<span class="normal"> 75</span>
+<span class="normal"> 76</span>
+<span class="normal"> 77</span>
+<span class="normal"> 78</span>
+<span class="normal"> 79</span>
+<span class="normal"> 80</span>
+<span class="normal"> 81</span>
+<span class="normal"> 82</span>
+<span class="normal"> 83</span>
+<span class="normal"> 84</span>
+<span class="normal"> 85</span>
+<span class="normal"> 86</span>
+<span class="normal"> 87</span>
+<span class="normal"> 88</span>
+<span class="normal"> 89</span>
+<span class="normal"> 90</span>
+<span class="normal"> 91</span>
+<span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span>
+<span class="normal">106</span>
+<span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span>
+<span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@define</span><span class="p">(</span><span class="n">slots</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">kw_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">ImageNoiseAdder</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Add random noise to an image, given a ratio and optional seed number.</span>
+
+<span class="sd">    If seed is passed other than None, then the instance is configued with a</span>
+<span class="sd">    seeded random number generator (RNG). Otherwise, the instance is configured</span>
+<span class="sd">    with a non-seeded RNG.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">seed</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+    <span class="n">min_pixel_value</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=-</span><span class="mi">20</span><span class="p">)</span>
+    <span class="n">max_pixel_value</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+
+    <span class="c1"># Private Attributes</span>
+    <span class="n">_default_rng</span><span class="p">:</span> <span class="n">RandomArrayGenerator</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
+        <span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="n">Factory</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="bp">self</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_rng</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">seed</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">takes_self</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">,</span> <span class="n">ratio</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">seed</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NDArray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Generates a noisy image by adding random noise to the content_image</span>
+
+<span class="sd">        If instance has been configured without Seed, and you wish to continue</span>
+<span class="sd">        using the same RNG, then pass no seed.</span>
+
+<span class="sd">        If instance has been configured with Seed, and you wish to continue</span>
+<span class="sd">        using the same RNG, then pass no seed.</span>
+
+<span class="sd">        If instance has been configured with Seed, and you wish to use a new</span>
+<span class="sd">        RNG, then pass a new seed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">ratio</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="mi">1</span> <span class="o">&lt;</span> <span class="n">ratio</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">InvalidRatioError</span><span class="p">(</span><span class="s2">&quot;Expected a ratio value x such that 0 &lt;= x &lt;= 1&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">seed</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># user want to re-configure new RNG Stochastic Process</span>
+            <span class="c1"># with a provided seed</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_default_rng</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_rng</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+        <span class="c1"># if seed is None:  # user wants to continue sampling from the configured RNG</span>
+        <span class="c1"># we continue using the &#39;default Stochastic Process&#39; for sampling</span>
+        <span class="n">random_noise_pixel_array</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_default_rng</span><span class="p">(</span>  <span class="c1"># numpy float32 array</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">min_pixel_value</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">max_pixel_value</span><span class="p">,</span>
+            <span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="c1"># Set the input_image to be a weighted average of the content_image and a noise_image</span>
+        <span class="k">return</span> <span class="n">random_noise_pixel_array</span> <span class="o">*</span> <span class="n">ratio</span> <span class="o">+</span> <span class="n">image</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">ratio</span><span class="p">)</span>
+
+    <span class="c1"># Private methods</span>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_create_rng</span><span class="p">(</span><span class="n">seed</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="kc">None</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">RandomArrayGenerator</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Handle request to re-configure RNG potentially seeded with provided seed.&quot;&quot;&quot;</span>
+        <span class="n">_rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">)</span>
+        <span class="n">rng</span><span class="p">:</span> <span class="n">RandomArrayGenerator</span> <span class="o">=</span> <span class="n">_rng</span><span class="o">.</span><span class="n">uniform</span>
+
+        <span class="k">def</span> <span class="nf">_rng_float32</span><span class="p">(</span>
+            <span class="n">minimum_pixel_value</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+            <span class="n">maximum_pixel_value</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+            <span class="n">pixel_array_shape</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+        <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NDArray</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">rng</span><span class="p">(</span>
+                <span class="n">minimum_pixel_value</span><span class="p">,</span>
+                <span class="n">maximum_pixel_value</span><span class="p">,</span>
+                <span class="n">pixel_array_shape</span><span class="p">,</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;float32&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">_rng_float32</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+
+
+<h3 id="artificial_artwork.image.image_operations.ImageNoiseAdder.__call__" class="doc doc-heading">
+          <code class="highlight language-python"><span class="fm">__call__</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">ratio</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Generates a noisy image by adding random noise to the content_image</p>
+<p>If instance has been configured without Seed, and you wish to continue
+using the same RNG, then pass no seed.</p>
+<p>If instance has been configured with Seed, and you wish to continue
+using the same RNG, then pass no seed.</p>
+<p>If instance has been configured with Seed, and you wish to use a new
+RNG, then pass a new seed.</p>
+
+          <details class="quote">
+            <summary>Source code in <code>src/artificial_artwork/image/image_operations.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">69</span>
+<span class="normal">70</span>
+<span class="normal">71</span>
+<span class="normal">72</span>
+<span class="normal">73</span>
+<span class="normal">74</span>
+<span class="normal">75</span>
+<span class="normal">76</span>
+<span class="normal">77</span>
+<span class="normal">78</span>
+<span class="normal">79</span>
+<span class="normal">80</span>
+<span class="normal">81</span>
+<span class="normal">82</span>
+<span class="normal">83</span>
+<span class="normal">84</span>
+<span class="normal">85</span>
+<span class="normal">86</span>
+<span class="normal">87</span>
+<span class="normal">88</span>
+<span class="normal">89</span>
+<span class="normal">90</span>
+<span class="normal">91</span>
+<span class="normal">92</span>
+<span class="normal">93</span>
+<span class="normal">94</span>
+<span class="normal">95</span>
+<span class="normal">96</span>
+<span class="normal">97</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">,</span> <span class="n">ratio</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">seed</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NDArray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Generates a noisy image by adding random noise to the content_image</span>
+
+<span class="sd">    If instance has been configured without Seed, and you wish to continue</span>
+<span class="sd">    using the same RNG, then pass no seed.</span>
+
+<span class="sd">    If instance has been configured with Seed, and you wish to continue</span>
+<span class="sd">    using the same RNG, then pass no seed.</span>
+
+<span class="sd">    If instance has been configured with Seed, and you wish to use a new</span>
+<span class="sd">    RNG, then pass a new seed.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">ratio</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="mi">1</span> <span class="o">&lt;</span> <span class="n">ratio</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">InvalidRatioError</span><span class="p">(</span><span class="s2">&quot;Expected a ratio value x such that 0 &lt;= x &lt;= 1&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">seed</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># user want to re-configure new RNG Stochastic Process</span>
+        <span class="c1"># with a provided seed</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_default_rng</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_rng</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+    <span class="c1"># if seed is None:  # user wants to continue sampling from the configured RNG</span>
+    <span class="c1"># we continue using the &#39;default Stochastic Process&#39; for sampling</span>
+    <span class="n">random_noise_pixel_array</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_default_rng</span><span class="p">(</span>  <span class="c1"># numpy float32 array</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">min_pixel_value</span><span class="p">,</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_pixel_value</span><span class="p">,</span>
+        <span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="c1"># Set the input_image to be a weighted average of the content_image and a noise_image</span>
+    <span class="k">return</span> <span class="n">random_noise_pixel_array</span> <span class="o">*</span> <span class="n">ratio</span> <span class="o">+</span> <span class="n">image</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">ratio</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+
+  </div>
+
+  </div>
+
+</div>
+
+
+
+<div class="doc doc-object doc-function">
+
+
+
+
+<h2 id="artificial_artwork.image.image_operations.noisy" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">noisy</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">ratio</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+
+</h2>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Generates a noisy image by adding random noise to the content_image</p>
+
+          <details class="quote">
+            <summary>Source code in <code>src/artificial_artwork/image/image_operations.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span>
+<span class="normal">127</span>
+<span class="normal">128</span>
+<span class="normal">129</span>
+<span class="normal">130</span>
+<span class="normal">131</span>
+<span class="normal">132</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">noisy</span><span class="p">(</span>
+    <span class="n">image</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">,</span>
+    <span class="n">ratio</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NDArray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Generates a noisy image by adding random noise to the content_image&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">ratio</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="mi">1</span> <span class="o">&lt;</span> <span class="n">ratio</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">InvalidRatioError</span><span class="p">(</span><span class="s2">&quot;Expected a ratio value x such that 0 &lt;= x &lt;= 1&quot;</span><span class="p">)</span>
+
+    <span class="n">noise_image</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="o">-</span><span class="mi">20</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;float32&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Set the input_image to be a weighted average of the content_image and a noise_image</span>
+    <span class="k">return</span> <span class="n">noise_image</span> <span class="o">*</span> <span class="n">ratio</span> <span class="o">+</span> <span class="n">image</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">ratio</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+
+<h2 id="artificial_artwork.image.image_operations.subtract" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">subtract</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">array</span><span class="p">)</span></code>
+
+</h2>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Normalize the input image.</p>
+
+
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>image</code></td>
+          <td>
+                <code><span title="numpy.typing.NDArray">NDArray</span></code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>[description]</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+
+  <p><strong>Raises:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+                <code><span title="artificial_artwork.image.image_operations.ShapeMissmatchError">ShapeMissmatchError</span></code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>in case of ValueError due to numpy broadcasting failing</p>
+            </div>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+
+  <p><strong>Returns:</strong></p>
+  <table>
+    <thead>
+      <tr>
+<th>Name</th>        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+<td><code>NDArray</code></td>          <td>
+                <code><span title="numpy.typing.NDArray">NDArray</span></code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>[description]</p>
+            </div>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+          <details class="quote">
+            <summary>Source code in <code>src/artificial_artwork/image/image_operations.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span>
+<span class="normal">32</span>
+<span class="normal">33</span>
+<span class="normal">34</span>
+<span class="normal">35</span>
+<span class="normal">36</span>
+<span class="normal">37</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">subtract</span><span class="p">(</span><span class="n">image</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">,</span> <span class="n">array</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NDArray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Normalize the input image.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        image (NDArray): [description]</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ShapeMissmatchError: in case of ValueError due to numpy broadcasting failing</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        NDArray: [description]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">image</span> <span class="o">-</span> <span class="n">array</span>
+    <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">numpy_broadcast_error</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">ShapeMissmatchError</span><span class="p">(</span>
+            <span class="s2">&quot;Expected arrays with matching shapes.&quot;</span>
+        <span class="p">)</span> <span class="kn">from</span> <span class="nn">numpy_broadcast_error</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+
+  </div>
+
+  </div>
+
+</div></div>
+            </div>
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+            <p>Documentation built with <a href="https://www.mkdocs.org/">MkDocs</a>.</p>
+        </footer>
+        <script src="../../../../js/jquery-3.6.0.min.js"></script>
+        <script src="../../../../js/bootstrap.min.js"></script>
+        <script>
+            var base_url = "../../../..",
+                shortcuts = {"help": 191, "next": 78, "previous": 80, "search": 83};
+        </script>
+        <script src="../../../../js/base.js"></script>
+        <script src="../../../../search/main.js"></script>
+
+        <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="searchModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="searchModalLabel">Search</h4>
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            </div>
+            <div class="modal-body">
+                <p>From here you can search these documents. Enter your search terms below.</p>
+                <form>
+                    <div class="form-group">
+                        <input type="search" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
+                    </div>
+                </form>
+                <div id="mkdocs-search-results" data-no-results-text="No results found"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div><div class="modal" id="mkdocs_keyboard_modal" tabindex="-1" role="dialog" aria-labelledby="keyboardModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="keyboardModalLabel">Keyboard Shortcuts</h4>
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            </div>
+            <div class="modal-body">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th style="width: 20%;">Keys</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="help shortcut"><kbd>?</kbd></td>
+                    <td>Open this help</td>
+                  </tr>
+                  <tr>
+                    <td class="next shortcut"><kbd>n</kbd></td>
+                    <td>Next page</td>
+                  </tr>
+                  <tr>
+                    <td class="prev shortcut"><kbd>p</kbd></td>
+                    <td>Previous page</td>
+                  </tr>
+                  <tr>
+                    <td class="search shortcut"><kbd>s</kbd></td>
+                    <td>Search</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+    </body>
+</html>

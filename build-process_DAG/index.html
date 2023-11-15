@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="IE=edge" http-equiv="X-UA-Compatible"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="../img/favicon.ico" rel="shortcut icon"/>
+<title>Docker - Artificial Artwork</title>
+<link href="../css/bootstrap.min.css" rel="stylesheet"/>
+<link href="../css/font-awesome.min.css" rel="stylesheet"/>
+<link href="../css/base.css" rel="stylesheet"/>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" rel="stylesheet"/>
+<link href="../assets/_mkdocstrings.css" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+<script>hljs.highlightAll();</script>
+</head>
+<body>
+<div class="navbar fixed-top navbar-expand-lg navbar-dark bg-primary">
+<div class="container">
+<a class="navbar-brand" href="..">Artificial Artwork</a>
+<!-- Expander button -->
+<button class="navbar-toggler" data-target="#navbar-collapse" data-toggle="collapse" type="button">
+<span class="navbar-toggler-icon"></span>
+</button>
+<!-- Expanded navigation -->
+<div class="navbar-collapse collapse" id="navbar-collapse">
+<!-- Main navigation -->
+<ul class="nav navbar-nav">
+<li class="dropdown">
+<a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#">Home <b class="caret"></b></a>
+<ul class="dropdown-menu">
+<li>
+<a class="dropdown-item" href="..">Quick Start</a>
+</li>
+<li>
+<a class="dropdown-item" href="../cli/">CLI</a>
+</li>
+</ul>
+</li>
+<li class="dropdown active">
+<a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#">Developer <b class="caret"></b></a>
+<ul class="dropdown-menu">
+<li>
+<a class="dropdown-item active" href="./">Docker</a>
+</li>
+</ul>
+</li>
+<li class="dropdown">
+<a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#">Code Reference <b class="caret"></b></a>
+<ul class="dropdown-menu">
+<li class="dropdown-submenu">
+<a class="dropdown-item" href="#">artificial_artwork</a>
+<ul class="dropdown-menu">
+<li>
+<a class="dropdown-item" href="../reference/artificial_artwork/__version__/">__version__</a>
+</li>
+<li>
+<a class="dropdown-item" href="../reference/artificial_artwork/_demo/">_demo</a>
+</li>
+<li>
+<a class="dropdown-item" href="../reference/artificial_artwork/_main/">_main</a>
+</li>
+<li>
+<a class="dropdown-item" href="../reference/artificial_artwork/algorithm/">algorithm</a>
+</li>
+<li>
+<a class="dropdown-item" href="../reference/artificial_artwork/cli/">cli</a>
+</li>
+<li>
+<a class="dropdown-item" href="../reference/artificial_artwork/cmd_demo/">cmd_demo</a>
+</li>
+<li>
+<a class="dropdown-item" href="../reference/artificial_artwork/cost_computer/">cost_computer</a>
+</li>
+<li>
+<a class="dropdown-item" href="../reference/artificial_artwork/disk_interface/">disk_interface</a>
+</li>
+<li>
+<a class="dropdown-item" href="../reference/artificial_artwork/disk_operations/">disk_operations</a>
+</li>
+<li class="dropdown-submenu">
+<a class="dropdown-item" href="#">image</a>
+<ul class="dropdown-menu">
+<li>
+<a class="dropdown-item" href="../reference/artificial_artwork/image/image/">image</a>
+</li>
+<li>
+<a class="dropdown-item" href="../reference/artificial_artwork/image/image_factory/">image_factory</a>
+</li>
+<li>
+<a class="dropdown-item" href="../reference/artificial_artwork/image/image_operations/">image_operations</a>
+</li>
+<li>
+<a class="dropdown-item" href="../reference/artificial_artwork/image/image_processor/">image_processor</a>
+</li>
+</ul>
+</li>
+<li>
+<a class="dropdown-item" href="../reference/artificial_artwork/nst_image/">nst_image</a>
+</li>
+<li>
+<a class="dropdown-item" href="../reference/artificial_artwork/nst_math/">nst_math</a>
+</li>
+<li>
+<a class="dropdown-item" href="../reference/artificial_artwork/nst_tf_algorithm/">nst_tf_algorithm</a>
+</li>
+<li class="dropdown-submenu">
+<a class="dropdown-item" href="#">pre_trained_models</a>
+<ul class="dropdown-menu">
+<li>
+<a class="dropdown-item" href="../reference/artificial_artwork/pre_trained_models/vgg/">vgg</a>
+</li>
+</ul>
+</li>
+<li class="dropdown-submenu">
+<a class="dropdown-item" href="#">pretrained_model</a>
+<ul class="dropdown-menu">
+<li>
+<a class="dropdown-item" href="../reference/artificial_artwork/pretrained_model/layers_getter/">layers_getter</a>
+</li>
+<li>
+<a class="dropdown-item" href="../reference/artificial_artwork/pretrained_model/model_handler/">model_handler</a>
+</li>
+<li>
+<a class="dropdown-item" href="../reference/artificial_artwork/pretrained_model/model_handler_interface/">model_handler_interface</a>
+</li>
+<li>
+<a class="dropdown-item" href="../reference/artificial_artwork/pretrained_model/model_routines/">model_routines</a>
+</li>
+</ul>
+</li>
+<li class="dropdown-submenu">
+<a class="dropdown-item" href="#">production_networks</a>
+<ul class="dropdown-menu">
+<li>
+<a class="dropdown-item" href="../reference/artificial_artwork/production_networks/image_model/">image_model</a>
+</li>
+<li>
+<a class="dropdown-item" href="../reference/artificial_artwork/production_networks/style_layer_selector/">style_layer_selector</a>
+</li>
+</ul>
+</li>
+<li class="dropdown-submenu">
+<a class="dropdown-item" href="#">style_model</a>
+<ul class="dropdown-menu">
+<li>
+<a class="dropdown-item" href="../reference/artificial_artwork/style_model/graph_builder/">graph_builder</a>
+</li>
+<li>
+<a class="dropdown-item" href="../reference/artificial_artwork/style_model/graph_factory/">graph_factory</a>
+</li>
+</ul>
+</li>
+<li>
+<a class="dropdown-item" href="../reference/artificial_artwork/styling_observer/">styling_observer</a>
+</li>
+<li class="dropdown-submenu">
+<a class="dropdown-item" href="#">termination_condition</a>
+<ul class="dropdown-menu">
+<li>
+<a class="dropdown-item" href="../reference/artificial_artwork/termination_condition/termination_condition/">termination_condition</a>
+</li>
+<li>
+<a class="dropdown-item" href="../reference/artificial_artwork/termination_condition/termination_condition_interface/">termination_condition_interface</a>
+</li>
+</ul>
+</li>
+<li>
+<a class="dropdown-item" href="../reference/artificial_artwork/termination_condition_adapter/">termination_condition_adapter</a>
+</li>
+<li>
+<a class="dropdown-item" href="../reference/artificial_artwork/termination_condition_adapter_factory/">termination_condition_adapter_factory</a>
+</li>
+<li>
+<a class="dropdown-item" href="../reference/artificial_artwork/tf_session_runner/">tf_session_runner</a>
+</li>
+<li>
+<a class="dropdown-item" href="../reference/artificial_artwork/utils/">utils</a>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<ul class="nav navbar-nav ml-auto">
+<li class="nav-item">
+<a class="nav-link" data-target="#mkdocs_search_modal" data-toggle="modal" href="#">
+<i class="fa fa-search"></i> Search
+                            </a>
+</li>
+<li class="nav-item">
+<a class="nav-link" href="../cli/" rel="prev">
+<i class="fa fa-arrow-left"></i> Previous
+                                </a>
+</li>
+<li class="nav-item">
+<a class="nav-link" href="../reference/artificial_artwork/" rel="next">
+                                    Next <i class="fa fa-arrow-right"></i>
+</a>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="container">
+<div class="row">
+<div class="col-md-3"><div class="navbar-light navbar-expand-md bs-sidebar hidden-print affix" role="complementary">
+<div class="navbar-header">
+<button class="navbar-toggler collapsed" data-target="#toc-collapse" data-toggle="collapse" title="Table of Contents" type="button">
+<span class="fa fa-angle-down"></span>
+</button>
+</div>
+<div class="navbar-collapse collapse card bg-secondary" id="toc-collapse">
+<ul class="nav flex-column">
+<li class="nav-item" data-level="2"><a class="nav-link" href="#docker-build-process-dag">Docker Build Process DAG</a>
+<ul class="nav flex-column">
+</ul>
+</li>
+</ul>
+</div>
+</div></div>
+<div class="col-md-9" role="main">
+<h2 id="docker-build-process-dag">Docker Build Process DAG</h2>
+<p><code>docker build</code>  possible execution paths.</p>
+<p>Flow Chart, of how exection navigates docker stages (see --target of docker build).</p>
+<p>If you run <code>docker build .</code> the <code>target</code> used by default is the <code>default_with_demo</code> Stage in the Graph.</p>
+<p><strong>Dockerfile: ./Dockerfile</strong></p>
+<div class="mermaid">graph TB;
+  python:3.8.12-slim-bullseye --&gt; base
+  base --&gt; source
+  source --&gt; prod
+  base --&gt; prod_install
+  prod -. "COPY" .-&gt; prod_install
+  prod_install --&gt; prod_ready
+  prod_ready --&gt; prod_demo
+  prod_ready --&gt; default
+  prod_demo --&gt; default_with_demo
+</div></div>
+</div>
+</div>
+<footer class="col-md-12">
+<hr/>
+<p>Documentation built with <a href="https://www.mkdocs.org/">MkDocs</a>.</p>
+</footer>
+<script src="../js/jquery-3.6.0.min.js"></script>
+<script src="../js/bootstrap.min.js"></script>
+<script>
+            var base_url = "..",
+                shortcuts = {"help": 191, "next": 78, "previous": 80, "search": 83};
+        </script>
+<script src="../js/base.js"></script>
+<script src="../search/main.js"></script>
+<div aria-hidden="true" aria-labelledby="searchModalLabel" class="modal" id="mkdocs_search_modal" role="dialog" tabindex="-1">
+<div class="modal-dialog modal-lg">
+<div class="modal-content">
+<div class="modal-header">
+<h4 class="modal-title" id="searchModalLabel">Search</h4>
+<button class="close" data-dismiss="modal" type="button"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>
+</div>
+<div class="modal-body">
+<p>From here you can search these documents. Enter your search terms below.</p>
+<form>
+<div class="form-group">
+<input class="form-control" id="mkdocs-search-query" placeholder="Search..." title="Type search term here" type="search"/>
+</div>
+</form>
+<div data-no-results-text="No results found" id="mkdocs-search-results"></div>
+</div>
+<div class="modal-footer">
+</div>
+</div>
+</div>
+</div><div aria-hidden="true" aria-labelledby="keyboardModalLabel" class="modal" id="mkdocs_keyboard_modal" role="dialog" tabindex="-1">
+<div class="modal-dialog">
+<div class="modal-content">
+<div class="modal-header">
+<h4 class="modal-title" id="keyboardModalLabel">Keyboard Shortcuts</h4>
+<button class="close" data-dismiss="modal" type="button"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>
+</div>
+<div class="modal-body">
+<table class="table">
+<thead>
+<tr>
+<th style="width: 20%;">Keys</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="help shortcut"><kbd>?</kbd></td>
+<td>Open this help</td>
+</tr>
+<tr>
+<td class="next shortcut"><kbd>n</kbd></td>
+<td>Next page</td>
+</tr>
+<tr>
+<td class="prev shortcut"><kbd>p</kbd></td>
+<td>Previous page</td>
+</tr>
+<tr>
+<td class="search shortcut"><kbd>s</kbd></td>
+<td>Search</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="modal-footer">
+</div>
+</div>
+</div>
+</div>
+<script type="module">import mermaid from "https://unpkg.com/mermaid@10.4.0/dist/mermaid.esm.min.mjs";
+mermaid.initialize({});</script></body>
+</html>
