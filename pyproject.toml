@@ -104,6 +104,11 @@ mkdocs = {version = "^1.5.3", optional = true}
 mkdocs-click = {version = "^0.8.1", optional = true}
 mkdocs-material = {version = "^9.4.8", optional = true}
 pymdown-extensions = {version = "^10.4", optional = true}
+mkdocs-mermaid2-plugin = {version = "^1.1.1", optional = true}
+# mkdocstrings = {version = "^0.24.0", optional = true}
+mkdocs-gen-files = {version = "^0.5.0", optional = true}
+mkdocstrings = {version = "^0.24.0", optional = true}
+mkdocstrings-python = {version = "^1.7.4", optional = true}
 
 
 [tool.poetry.extras]
@@ -122,6 +127,10 @@ docs = [
     "mkdocs-click",
     "mkdocs-material",
     "pymdown-extensions",
+    "mkdocs-mermaid2-plugin",
+    "mkdocstrings",
+    "mkdocs-gen-files",
+    "mkdocstrings-python",
 ]
 
 # CLI / ENTRYPOINTS

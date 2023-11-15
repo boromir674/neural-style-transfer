@@ -53,48 +53,33 @@ Key features of the package:
 
 Installation
 ------------
-| The Neural Style Transfer - CLI heavely depends on Tensorflow (tf) and therefore it is crucial that tf is installed correctly in your Python environment.
+
+::
+
+    pip install artificial-artwork
+
+
+Currently, one pre-built wheel, for python3.8, is included, along with the source distribution.
+
 
 Sample commands to install the NST CLI from source, using a terminal:
 
 ::
 
-    # Get the Code
     git clone https://github.com/boromir674/neural-style-transfer.git
-    cd neural-style-transfer
 
-    # Activate a python virtual environment
-    virtualenv env --python=python3
-    source env/bin/activate
-
-    # Install dependencies
-    pip install -r requirements/dex.txt
-
-    # Install NST CLI (in virtual environment)
-    pip install -e .
+    pip install ./neural-style-transfer
 
 
-Alternative command to install the NST CLI by downloading the `artificial_artwork` python package from pypi:
-
-::
-
-    pip install artificial_artwork
-
-
-Make the cli available for your host system:
-
-::
-
-    # Setup a symbolic link (in your host system) in a location in your PATH
-    # Assuming ~/.local/bin is in your PATH
-    ln -s $PWD/env/bin/neural-style-transfer ~/.local/bin/neural-style-transfer
-
-    # Deactivate environment since the symbolic link is available in "global scope" by now
-    deactivate
-
+| The Neural Style Transfer - CLI heavely depends on Tensorflow (tf) and therefore it is crucial that tf is installed correctly in your Python environment.
 
 Usage
 -----
+
+::
+
+    nst --help
+
 
 Download the Vgg-Verydeep-19 pretrained `model` from https://drive.protonmail.com/urls/7RXGN23ZRR#hsw4STil0Hgc.
 

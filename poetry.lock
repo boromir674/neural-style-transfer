@@ -66,6 +66,25 @@ pytz = {version = ">=2015.7", markers = "python_version < \"3.9\""}
 dev = ["freezegun (>=1.0,<2.0)", "pytest (>=6.0)", "pytest-cov"]
 
 [[package]]
+name = "beautifulsoup4"
+version = "4.12.2"
+description = "Screen-scraping library"
+category = "main"
+optional = true
+python-versions = ">=3.6.0"
+files = [
+    {file = "beautifulsoup4-4.12.2-py3-none-any.whl", hash = "sha256:bd2520ca0d9d7d12694a53d44ac482d181b4ec1888909b035a3dbf40d0f57d4a"},
+    {file = "beautifulsoup4-4.12.2.tar.gz", hash = "sha256:492bbc69dca35d12daac71c4db1bfff0c876c00ef4a2ffacce226d4638eb72da"},
+]
+
+[package.dependencies]
+soupsieve = ">1.2"
+
+[package.extras]
+html5lib = ["html5lib"]
+lxml = ["lxml"]
+
+[[package]]
 name = "cachetools"
 version = "4.2.4"
 description = "Extensible memoizing collections and decorators"
@@ -441,6 +460,18 @@ files = [
 ]
 
 [[package]]
+name = "editorconfig"
+version = "0.12.3"
+description = "EditorConfig File Locator and Interpreter for Python"
+category = "main"
+optional = true
+python-versions = "*"
+files = [
+    {file = "EditorConfig-0.12.3-py3-none-any.whl", hash = "sha256:6b0851425aa875b08b16789ee0eeadbd4ab59666e9ebe728e526314c4a2e52c1"},
+    {file = "EditorConfig-0.12.3.tar.gz", hash = "sha256:57f8ce78afcba15c8b18d46b5170848c88d56fd38f05c2ec60dbbfcb8996e89e"},
+]
+
+[[package]]
 name = "exceptiongroup"
 version = "1.1.3"
 description = "Backport of PEP 654 (exception groups)"
@@ -472,54 +503,54 @@ testing = ["hatch", "pre-commit", "pytest", "tox"]
 
 [[package]]
 name = "fonttools"
-version = "4.44.1"
+version = "4.44.0"
 description = "Tools to manipulate font files"
 category = "main"
 optional = true
 python-versions = ">=3.8"
 files = [
-    {file = "fonttools-4.44.1-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:8acf50c20bae9880169ff133768a54f587d956676d28894401835a28f450935e"},
-    {file = "fonttools-4.44.1-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:02939e423540e05843a5c2b84704f45d307144f761a42a299d9b0b481e497225"},
-    {file = "fonttools-4.44.1-cp310-cp310-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:40d96cc1395dbf82dedfd4eb127d320004088df6007383c25db676e5f42fe414"},
-    {file = "fonttools-4.44.1-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:aff3c12fba2525e5b7f7ba73fab10ddac386f8019b6cf2b8701239cf9f3e2a8a"},
-    {file = "fonttools-4.44.1-cp310-cp310-musllinux_1_1_aarch64.whl", hash = "sha256:3675499e11a2332a867c1ce98792d29615ac143186c1c1d3e1bb7a13f1929b52"},
-    {file = "fonttools-4.44.1-cp310-cp310-musllinux_1_1_x86_64.whl", hash = "sha256:fcf6c0c2bf2b0baeb55b5e44e9d6f2b71ede808949b8ab4daca077cc3f9cfff5"},
-    {file = "fonttools-4.44.1-cp310-cp310-win32.whl", hash = "sha256:147c9f5fbe12486fa186b5ccdc64a537d581e4f9bbddfbc40f2a15a55c66f54e"},
-    {file = "fonttools-4.44.1-cp310-cp310-win_amd64.whl", hash = "sha256:0bd45092788dbfb781fae299905695a3fe5c1956a515ee331c9f034da3a9d0e5"},
-    {file = "fonttools-4.44.1-cp311-cp311-macosx_10_9_universal2.whl", hash = "sha256:d22d9a4cb3f0c96991d4dccab66c7377302c9ca09dcf0cbce968d73919585120"},
-    {file = "fonttools-4.44.1-cp311-cp311-macosx_10_9_x86_64.whl", hash = "sha256:0c1ac78c60b155ce709b50e28321baa3813dfae648bf55ac80d5a97c70d088e0"},
-    {file = "fonttools-4.44.1-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:6065578bdf96d4b69dd53d8b49ff02412b2a46d461b0d1ee5eddb81c3a953a46"},
-    {file = "fonttools-4.44.1-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:17702266ba92cef9a0d7418609f8f8b8e019192c62e8014f10b89a485af9d8ce"},
-    {file = "fonttools-4.44.1-cp311-cp311-musllinux_1_1_aarch64.whl", hash = "sha256:c1d22a61a247262f178819f0331e0692e27c88be5770bf1c2404d0d52799f711"},
-    {file = "fonttools-4.44.1-cp311-cp311-musllinux_1_1_x86_64.whl", hash = "sha256:61b794e6a9208e7ee3abf11a9f56b9c1409967817dfd732f97b44812686cab1d"},
-    {file = "fonttools-4.44.1-cp311-cp311-win32.whl", hash = "sha256:a02747ac741abe1fe994ac55b143432637d136e4a5a472e7a90574a015b57dc4"},
-    {file = "fonttools-4.44.1-cp311-cp311-win_amd64.whl", hash = "sha256:8dd81470227c53ab78788f1b21b7e655b2c3aa66f0f670d9011f2deb64bed034"},
-    {file = "fonttools-4.44.1-cp312-cp312-macosx_10_9_universal2.whl", hash = "sha256:63efb6b66c275cb2c750576ed743f9995b92bcd733b72699599c6f74dce277c6"},
-    {file = "fonttools-4.44.1-cp312-cp312-macosx_10_9_x86_64.whl", hash = "sha256:25504368ce3dbdc5df1e6bee1980674b60216c543ad2647c85333f8daf5e9dd2"},
-    {file = "fonttools-4.44.1-cp312-cp312-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:cc4acf7f1684d234d788cbb1976fbced4e1ae7c51abaf4314e11d1d86498ba76"},
-    {file = "fonttools-4.44.1-cp312-cp312-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:6698abcbb43f68ecfe473169d5928adf0a09ab8e6439322f80bc10a80ab9195d"},
-    {file = "fonttools-4.44.1-cp312-cp312-musllinux_1_1_aarch64.whl", hash = "sha256:6dce674ba22419a9f3822f9c1b6bd823fce11d3a34372c580216167b6d9e232b"},
-    {file = "fonttools-4.44.1-cp312-cp312-musllinux_1_1_x86_64.whl", hash = "sha256:8493c84ac86fdc5dde68b720959b79865cf5216a5c1ee9b4a161eac8c56dc310"},
-    {file = "fonttools-4.44.1-cp312-cp312-win32.whl", hash = "sha256:a4a8734ddb91647d9545caae4dfb4633045c5dccb2fccb2d6c2a09424d975ef1"},
-    {file = "fonttools-4.44.1-cp312-cp312-win_amd64.whl", hash = "sha256:7debaae9f267702ac4e89944bbfc4e55bc2d0ef891aa6c18d6afd9184a14554a"},
-    {file = "fonttools-4.44.1-cp38-cp38-macosx_10_9_universal2.whl", hash = "sha256:748d21764665209d5e0729ce8386fd01c92258699db732c7dbe4c9abf9e7c392"},
-    {file = "fonttools-4.44.1-cp38-cp38-macosx_10_9_x86_64.whl", hash = "sha256:753de1235ac308111f80eacb9d92b328088adfec7147fd101692cc49ad53a3fe"},
-    {file = "fonttools-4.44.1-cp38-cp38-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:c142c11d28af532c7edddf191367d6acf2a2884bb4e2ba329c265f58ca865d0a"},
-    {file = "fonttools-4.44.1-cp38-cp38-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:6dd10d40028bf71e9604279875e4c258a36b2a42fff349fdf20141813d83cc61"},
-    {file = "fonttools-4.44.1-cp38-cp38-musllinux_1_1_aarch64.whl", hash = "sha256:8e4961e26423ddd713672746c110e708c0094deae74493e21198d85f54f7d88c"},
-    {file = "fonttools-4.44.1-cp38-cp38-musllinux_1_1_x86_64.whl", hash = "sha256:af89a9370dc463ffed3010af6fad1aa58998ce5eb5d94c2c2688768e6b108cc8"},
-    {file = "fonttools-4.44.1-cp38-cp38-win32.whl", hash = "sha256:6d2d0e0d64a21b07c30206d500f8e77f4beaf80e7cc0ffd65a304a9ae1c0e197"},
-    {file = "fonttools-4.44.1-cp38-cp38-win_amd64.whl", hash = "sha256:dc16e26668ec2ae01a37ff8293ce0326cf8c043e24fcf86fc38e6c25ddd98926"},
-    {file = "fonttools-4.44.1-cp39-cp39-macosx_10_9_universal2.whl", hash = "sha256:a04ad39ac67c523c9f8f102706ac05d7e5cee3148a3519c6afc6ffbb3f0af7aa"},
-    {file = "fonttools-4.44.1-cp39-cp39-macosx_10_9_x86_64.whl", hash = "sha256:11e9cba26fd658a491c82fdf5dc5bdb8078ca69ca70ba5724f63a66d486fa8b3"},
-    {file = "fonttools-4.44.1-cp39-cp39-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:9fa904fb50c9f1b3ffbe352c7c4ed35eb16558933f011ff74f86f33504358e4d"},
-    {file = "fonttools-4.44.1-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:caf014bcc24673b681e7f768180f063691b301e2eccd9a53c43b5eebfb448bd8"},
-    {file = "fonttools-4.44.1-cp39-cp39-musllinux_1_1_aarch64.whl", hash = "sha256:97fb6f806694268d0c35abfc1f33662a1a96d12875a790b2b69d7b8d4fadbea5"},
-    {file = "fonttools-4.44.1-cp39-cp39-musllinux_1_1_x86_64.whl", hash = "sha256:ac523156bf227f009102cf33c116bcc18d6b9a05ea9a3a6eaa57e3adb42620a9"},
-    {file = "fonttools-4.44.1-cp39-cp39-win32.whl", hash = "sha256:50aacecec89ca07ba97a63a949f9b273ccbdc105602ec4426c8a9a143f9e6aa3"},
-    {file = "fonttools-4.44.1-cp39-cp39-win_amd64.whl", hash = "sha256:994c62a46cb2cfd670edc360d87c902ee475790fbddb267abd9fd8a83199423a"},
-    {file = "fonttools-4.44.1-py3-none-any.whl", hash = "sha256:e775851c6884c16ed3831e461a0d5e271d9ebcd05204122d3a21ca2465a5d8c1"},
-    {file = "fonttools-4.44.1.tar.gz", hash = "sha256:0d8ed83815a125b25c10404736a2cd43d60eb6479fe2d68373418cd1822ec330"},
+    {file = "fonttools-4.44.0-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:e1cd1c6bb097e774d68402499ff66185190baaa2629ae2f18515a2c50b93db0c"},
+    {file = "fonttools-4.44.0-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:b9eab7f9837fdaa2a10a524fbcc2ec24bf60637c044b6e4a59c3f835b90f0fae"},
+    {file = "fonttools-4.44.0-cp310-cp310-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:0f412954275e594f7a51c16f3b3edd850acb0d842fefc33856b63a17e18499a5"},
+    {file = "fonttools-4.44.0-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:50d25893885e80a5955186791eed5579f1e75921751539cc1dc3ffd1160b48cf"},
+    {file = "fonttools-4.44.0-cp310-cp310-musllinux_1_1_aarch64.whl", hash = "sha256:22ea8aa7b3712450b42b044702bd3a64fd118006bad09a6f94bd1b227088492e"},
+    {file = "fonttools-4.44.0-cp310-cp310-musllinux_1_1_x86_64.whl", hash = "sha256:df40daa6c03b98652ffe8110ae014fe695437f6e1cb5a07e16ea37f40e73ac86"},
+    {file = "fonttools-4.44.0-cp310-cp310-win32.whl", hash = "sha256:bca49da868e8bde569ef36f0cc1b6de21d56bf9c3be185c503b629c19a185287"},
+    {file = "fonttools-4.44.0-cp310-cp310-win_amd64.whl", hash = "sha256:dbac86d83d96099890e731cc2af97976ff2c98f4ba432fccde657c5653a32f1c"},
+    {file = "fonttools-4.44.0-cp311-cp311-macosx_10_9_universal2.whl", hash = "sha256:e8ff7d19a6804bfd561cfcec9b4200dd1788e28f7de4be70189801530c47c1b3"},
+    {file = "fonttools-4.44.0-cp311-cp311-macosx_10_9_x86_64.whl", hash = "sha256:a8a1fa9a718de0bc026979c93e1e9b55c5efde60d76f91561fd713387573817d"},
+    {file = "fonttools-4.44.0-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:c05064f95aacdfc06f21e55096c964b2228d942b8675fa26995a2551f6329d2d"},
+    {file = "fonttools-4.44.0-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:31b38528f25bc662401e6ffae14b3eb7f1e820892fd80369a37155e3b636a2f4"},
+    {file = "fonttools-4.44.0-cp311-cp311-musllinux_1_1_aarch64.whl", hash = "sha256:05d7c4d2c95b9490e669f3cb83918799bf1c838619ac6d3bad9ea017cfc63f2e"},
+    {file = "fonttools-4.44.0-cp311-cp311-musllinux_1_1_x86_64.whl", hash = "sha256:6999e80a125b0cd8e068d0210b63323f17338038c2ecd2e11b9209ec430fe7f2"},
+    {file = "fonttools-4.44.0-cp311-cp311-win32.whl", hash = "sha256:a7aec7f5d14dfcd71fb3ebc299b3f000c21fdc4043079101777ed2042ba5b7c5"},
+    {file = "fonttools-4.44.0-cp311-cp311-win_amd64.whl", hash = "sha256:518a945dbfe337744bfff31423c1430303b8813c5275dffb0f2577f0734a1189"},
+    {file = "fonttools-4.44.0-cp312-cp312-macosx_10_9_universal2.whl", hash = "sha256:59b6ad83cce067d10f4790c037a5904424f45bebb5e7be2eb2db90402f288267"},
+    {file = "fonttools-4.44.0-cp312-cp312-macosx_10_9_x86_64.whl", hash = "sha256:c2de1fb18198acd400c45ffe2aef5420c8d55fde903e91cba705596099550f3b"},
+    {file = "fonttools-4.44.0-cp312-cp312-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:84f308b7a8d28208d54315d11d35f9888d6d607673dd4d42d60b463682ee0400"},
+    {file = "fonttools-4.44.0-cp312-cp312-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:66bc6efd829382f7a7e6cf33c2fb32b13edc8a239eb15f32acbf197dce7a0165"},
+    {file = "fonttools-4.44.0-cp312-cp312-musllinux_1_1_aarch64.whl", hash = "sha256:a8b99713d3a0d0e876b6aecfaada5e7dc9fe979fcd90ef9fa0ba1d9b9aed03f2"},
+    {file = "fonttools-4.44.0-cp312-cp312-musllinux_1_1_x86_64.whl", hash = "sha256:b63da598d9cbc52e2381f922da0e94d60c0429f92207bd3fb04d112fc82ea7cb"},
+    {file = "fonttools-4.44.0-cp312-cp312-win32.whl", hash = "sha256:f611c97678604e302b725f71626edea113a5745a7fb557c958b39edb6add87d5"},
+    {file = "fonttools-4.44.0-cp312-cp312-win_amd64.whl", hash = "sha256:58af428746fa73a2edcbf26aff33ac4ef3c11c8d75bb200eaea2f7e888d2de4e"},
+    {file = "fonttools-4.44.0-cp38-cp38-macosx_10_9_universal2.whl", hash = "sha256:9ee8692e23028564c13d924004495f284df8ac016a19f17a87251210e1f1f928"},
+    {file = "fonttools-4.44.0-cp38-cp38-macosx_10_9_x86_64.whl", hash = "sha256:dab3d00d27b1a79ae4d4a240e8ceea8af0ff049fd45f05adb4f860d93744110d"},
+    {file = "fonttools-4.44.0-cp38-cp38-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:f53526668beccdb3409c6055a4ffe50987a7f05af6436fa55d61f5e7bd450219"},
+    {file = "fonttools-4.44.0-cp38-cp38-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:a3da036b016c975c2d8c69005bdc4d5d16266f948a7fab950244e0f58301996a"},
+    {file = "fonttools-4.44.0-cp38-cp38-musllinux_1_1_aarch64.whl", hash = "sha256:b99fe8ef4093f672d00841569d2d05691e50334d79f4d9c15c1265d76d5580d2"},
+    {file = "fonttools-4.44.0-cp38-cp38-musllinux_1_1_x86_64.whl", hash = "sha256:6d16d9634ff1e5cea2cf4a8cbda9026f766e4b5f30b48f8180f0e99133d3abfc"},
+    {file = "fonttools-4.44.0-cp38-cp38-win32.whl", hash = "sha256:3d29509f6e05e8d725db59c2d8c076223d793e4e35773040be6632a0349f2f97"},
+    {file = "fonttools-4.44.0-cp38-cp38-win_amd64.whl", hash = "sha256:d4fa4f4bc8fd86579b8cdbe5e948f35d82c0eda0091c399d009b2a5a6b61c040"},
+    {file = "fonttools-4.44.0-cp39-cp39-macosx_10_9_universal2.whl", hash = "sha256:c794de4086f06ae609b71ac944ec7deb09f34ecf73316fddc041087dd24bba39"},
+    {file = "fonttools-4.44.0-cp39-cp39-macosx_10_9_x86_64.whl", hash = "sha256:2db63941fee3122e31a21dd0f5b2138ce9906b661a85b63622421d3654a74ae2"},
+    {file = "fonttools-4.44.0-cp39-cp39-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:eb01c49c8aa035d5346f46630209923d4927ed15c2493db38d31da9f811eb70d"},
+    {file = "fonttools-4.44.0-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:46c79af80a835410874683b5779b6c1ec1d5a285e11c45b5193e79dd691eb111"},
+    {file = "fonttools-4.44.0-cp39-cp39-musllinux_1_1_aarch64.whl", hash = "sha256:b6e6aa2d066f8dafd06d8d0799b4944b5d5a1f015dd52ac01bdf2895ebe169a0"},
+    {file = "fonttools-4.44.0-cp39-cp39-musllinux_1_1_x86_64.whl", hash = "sha256:63a3112f753baef8c6ac2f5f574bb9ac8001b86c8c0c0380039db47a7f512d20"},
+    {file = "fonttools-4.44.0-cp39-cp39-win32.whl", hash = "sha256:54efed22b2799a85475e6840e907c402ba49892c614565dc770aa97a53621b2b"},
+    {file = "fonttools-4.44.0-cp39-cp39-win_amd64.whl", hash = "sha256:2e91e19b583961979e2e5a701269d3cfc07418963bee717f8160b0a24332826b"},
+    {file = "fonttools-4.44.0-py3-none-any.whl", hash = "sha256:b9beb0fa6ff3ea808ad4a6962d68ac0f140ddab080957b20d9e268e4d67fb335"},
+    {file = "fonttools-4.44.0.tar.gz", hash = "sha256:4e90dd81b6e0d97ebfe52c0d12a17a9ef7f305d6bfbb93081265057d6092f252"},
 ]
 
 [package.extras]
@@ -624,6 +655,21 @@ files = [
 
 [package.dependencies]
 six = "*"
+
+[[package]]
+name = "griffe"
+version = "0.38.0"
+description = "Signatures for entire Python programs. Extract the structure, the frame, the skeleton of your project, to generate API documentation or find breaking changes in your API."
+category = "main"
+optional = true
+python-versions = ">=3.8"
+files = [
+    {file = "griffe-0.38.0-py3-none-any.whl", hash = "sha256:6a5bc457320e8e199006aa5fbb03e162f5e21abe31aa6221f7a5c37ea0724c71"},
+    {file = "griffe-0.38.0.tar.gz", hash = "sha256:9b97487b583042b543d1e28196caee638ecd766c8c4c98135071806cb5333ac2"},
+]
+
+[package.dependencies]
+colorama = ">=0.4"
 
 [[package]]
 name = "grpcio"
@@ -844,6 +890,21 @@ MarkupSafe = ">=2.0"
 
 [package.extras]
 i18n = ["Babel (>=2.7)"]
+
+[[package]]
+name = "jsbeautifier"
+version = "1.14.11"
+description = "JavaScript unobfuscator and beautifier."
+category = "main"
+optional = true
+python-versions = "*"
+files = [
+    {file = "jsbeautifier-1.14.11.tar.gz", hash = "sha256:6b632581ea60dd1c133cd25a48ad187b4b91f526623c4b0fb5443ef805250505"},
+]
+
+[package.dependencies]
+editorconfig = ">=0.12.2"
+six = ">=1.13.0"
 
 [[package]]
 name = "keras-preprocessing"
@@ -1184,6 +1245,22 @@ i18n = ["babel (>=2.9.0)"]
 min-versions = ["babel (==2.9.0)", "click (==7.0)", "colorama (==0.4)", "ghp-import (==1.0)", "importlib-metadata (==4.3)", "jinja2 (==2.11.1)", "markdown (==3.2.1)", "markupsafe (==2.0.1)", "mergedeep (==1.3.4)", "packaging (==20.5)", "pathspec (==0.11.1)", "platformdirs (==2.2.0)", "pyyaml (==5.1)", "pyyaml-env-tag (==0.1)", "typing-extensions (==3.10)", "watchdog (==2.0)"]
 
 [[package]]
+name = "mkdocs-autorefs"
+version = "0.5.0"
+description = "Automatically link across pages in MkDocs."
+category = "main"
+optional = true
+python-versions = ">=3.8"
+files = [
+    {file = "mkdocs_autorefs-0.5.0-py3-none-any.whl", hash = "sha256:7930fcb8ac1249f10e683967aeaddc0af49d90702af111a5e390e8b20b3d97ff"},
+    {file = "mkdocs_autorefs-0.5.0.tar.gz", hash = "sha256:9a5054a94c08d28855cfab967ada10ed5be76e2bfad642302a610b252c3274c0"},
+]
+
+[package.dependencies]
+Markdown = ">=3.3"
+mkdocs = ">=1.1"
+
+[[package]]
 name = "mkdocs-click"
 version = "0.8.1"
 description = "An MkDocs extension to generate documentation for Click command line applications"
@@ -1198,6 +1275,21 @@ files = [
 [package.dependencies]
 click = ">=8.1"
 markdown = ">=3.3"
+
+[[package]]
+name = "mkdocs-gen-files"
+version = "0.5.0"
+description = "MkDocs plugin to programmatically generate documentation pages during the build"
+category = "main"
+optional = true
+python-versions = ">=3.7"
+files = [
+    {file = "mkdocs_gen_files-0.5.0-py3-none-any.whl", hash = "sha256:7ac060096f3f40bd19039e7277dd3050be9a453c8ac578645844d4d91d7978ea"},
+    {file = "mkdocs_gen_files-0.5.0.tar.gz", hash = "sha256:4c7cf256b5d67062a788f6b1d035e157fc1a9498c2399be9af5257d4ff4d19bc"},
+]
+
+[package.dependencies]
+mkdocs = ">=1.0.3"
 
 [[package]]
 name = "mkdocs-material"
@@ -1240,6 +1332,74 @@ files = [
     {file = "mkdocs_material_extensions-1.3-py3-none-any.whl", hash = "sha256:0297cc48ba68a9fdd1ef3780a3b41b534b0d0df1d1181a44676fda5f464eeadc"},
     {file = "mkdocs_material_extensions-1.3.tar.gz", hash = "sha256:f0446091503acb110a7cab9349cbc90eeac51b58d1caa92a704a81ca1e24ddbd"},
 ]
+
+[[package]]
+name = "mkdocs-mermaid2-plugin"
+version = "1.1.1"
+description = "A MkDocs plugin for including mermaid graphs in markdown sources"
+category = "main"
+optional = true
+python-versions = ">=3.6"
+files = [
+    {file = "mkdocs-mermaid2-plugin-1.1.1.tar.gz", hash = "sha256:bea5f3cbe6cb76bad21b81e49a01e074427ed466666c5d404e62fe8698bc2d7c"},
+    {file = "mkdocs_mermaid2_plugin-1.1.1-py3-none-any.whl", hash = "sha256:4e25876b59d1e151ca33a467207b346404b4a246f4f24af5e44c32408e175882"},
+]
+
+[package.dependencies]
+beautifulsoup4 = ">=4.6.3"
+jsbeautifier = "*"
+mkdocs = ">=1.0.4"
+pymdown-extensions = ">=8.0"
+requests = "*"
+setuptools = ">=18.5"
+
+[package.extras]
+test = ["mkdocs-material"]
+
+[[package]]
+name = "mkdocstrings"
+version = "0.24.0"
+description = "Automatic documentation from sources, for MkDocs."
+category = "main"
+optional = true
+python-versions = ">=3.8"
+files = [
+    {file = "mkdocstrings-0.24.0-py3-none-any.whl", hash = "sha256:f4908560c10f587326d8f5165d1908817b2e280bbf707607f601c996366a2264"},
+    {file = "mkdocstrings-0.24.0.tar.gz", hash = "sha256:222b1165be41257b494a9d29b14135d2b7ca43f38161d5b10caae03b87bd4f7e"},
+]
+
+[package.dependencies]
+click = ">=7.0"
+importlib-metadata = {version = ">=4.6", markers = "python_version < \"3.10\""}
+Jinja2 = ">=2.11.1"
+Markdown = ">=3.3"
+MarkupSafe = ">=1.1"
+mkdocs = ">=1.4"
+mkdocs-autorefs = ">=0.3.1"
+platformdirs = ">=2.2.0"
+pymdown-extensions = ">=6.3"
+typing-extensions = {version = ">=4.1", markers = "python_version < \"3.10\""}
+
+[package.extras]
+crystal = ["mkdocstrings-crystal (>=0.3.4)"]
+python = ["mkdocstrings-python (>=0.5.2)"]
+python-legacy = ["mkdocstrings-python-legacy (>=0.2.1)"]
+
+[[package]]
+name = "mkdocstrings-python"
+version = "1.7.4"
+description = "A Python handler for mkdocstrings."
+category = "main"
+optional = true
+python-versions = ">=3.8"
+files = [
+    {file = "mkdocstrings_python-1.7.4-py3-none-any.whl", hash = "sha256:70eacbe5f2d5071f2e525ba0b35bc447d398437dfbcd90c63fe6e977551cfe26"},
+    {file = "mkdocstrings_python-1.7.4.tar.gz", hash = "sha256:c2fc34efd70000ec31aee247910006e8dd9d1b9f3957bf46880c3f6e51a8f0d5"},
+]
+
+[package.dependencies]
+griffe = ">=0.37"
+mkdocstrings = ">=0.20"
 
 [[package]]
 name = "numpy"
@@ -2013,6 +2173,18 @@ files = [
 ]
 
 [[package]]
+name = "soupsieve"
+version = "2.5"
+description = "A modern CSS selector implementation for Beautiful Soup."
+category = "main"
+optional = true
+python-versions = ">=3.8"
+files = [
+    {file = "soupsieve-2.5-py3-none-any.whl", hash = "sha256:eaa337ff55a1579b6549dc679565eac1e3d000563bcb1c8ab0d0fefbc0c2cdc7"},
+    {file = "soupsieve-2.5.tar.gz", hash = "sha256:5663d5a7b3bfaeee0bc4372e7fc48f9cff4940b3eec54a6451cc5299f1097690"},
+]
+
+[[package]]
 name = "tensorboard"
 version = "2.2.2"
 description = "TensorBoard lets you watch Tensors Flow"
@@ -2327,11 +2499,11 @@ docs = ["furo", "jaraco.packaging (>=9.3)", "jaraco.tidelift (>=1.4)", "rst.link
 testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "pytest (>=6)", "pytest-black (>=0.3.7)", "pytest-checkdocs (>=2.4)", "pytest-cov", "pytest-enabler (>=2.2)", "pytest-ignore-flaky", "pytest-mypy (>=0.9.1)", "pytest-ruff"]
 
 [extras]
-docs = ["mkdocs", "mkdocs-click", "mkdocs-material", "pymdown-extensions"]
+docs = ["mkdocs", "mkdocs-click", "mkdocs-gen-files", "mkdocs-material", "mkdocs-mermaid2-plugin", "mkdocstrings", "mkdocstrings-python", "pymdown-extensions"]
 gui = ["matplotlib"]
 test = ["pytest", "pytest-click", "pytest-cov", "pytest-explicit", "pytest-xdist"]
 
 [metadata]
 lock-version = "2.0"
 python-versions = "~3.8"
-content-hash = "bf59f6f417576013cb78f34822de2b15db5309de9a043b7dce250f2718ecd128"
+content-hash = "a15ca2d0dbc9a9f3a50a48edfa534a3cf7c172138954b60970f8ddb0f7866766"

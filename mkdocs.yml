@@ -1,0 +1,30 @@
+site_name: Artificial Artwork
+repo_name: neural-style-transfer
+plugins:
+  - search
+  - mermaid2
+  - mkdocstrings
+  # - mkdocstrings:
+  #     default_handler: python
+  #     handlers:
+  #       python:
+  #         paths: [src]
+  - gen-files:
+      scripts:
+        - scripts/gen_api_refs_pages.py 
+markdown_extensions:
+  - mkdocs-click
+  - pymdownx.highlight
+  - pymdownx.superfences
+
+nav:
+  - "Home": index.md
+  - "CLI": cli.md
+  - "Docker": build-process_DAG.md
+  - Code Reference:
+    - artificial_artwork:
+      - nst_math: reference/artificial_artwork/nst_math.md
+# rest of the navigation...
+
+
+# LEGACY
