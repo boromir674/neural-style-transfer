@@ -14,6 +14,7 @@ plugins:
         - scripts/gen_api_refs_pages.py 
   - literate-nav:
       nav_file: SUMMARY.md
+  - section-index
 
 markdown_extensions:
   - mkdocs-click

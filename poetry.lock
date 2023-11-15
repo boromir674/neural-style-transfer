@@ -1372,6 +1372,21 @@ setuptools = ">=18.5"
 test = ["mkdocs-material"]
 
 [[package]]
+name = "mkdocs-section-index"
+version = "0.3.8"
+description = "MkDocs plugin to allow clickable sections that lead to an index page"
+category = "main"
+optional = true
+python-versions = ">=3.7"
+files = [
+    {file = "mkdocs_section_index-0.3.8-py3-none-any.whl", hash = "sha256:823d298d78bc1e73e23678ff60889f3c369c2167b03dba73fea88bd0e268a60d"},
+    {file = "mkdocs_section_index-0.3.8.tar.gz", hash = "sha256:bbd209f0da79441baf136ef3a9c40665bb9681d1fb62c73ca2f116fd1388a404"},
+]
+
+[package.dependencies]
+mkdocs = ">=1.2"
+
+[[package]]
 name = "mkdocstrings"
 version = "0.24.0"
 description = "Automatic documentation from sources, for MkDocs."
@@ -2514,11 +2529,11 @@ docs = ["furo", "jaraco.packaging (>=9.3)", "jaraco.tidelift (>=1.4)", "rst.link
 testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "pytest (>=6)", "pytest-black (>=0.3.7)", "pytest-checkdocs (>=2.4)", "pytest-cov", "pytest-enabler (>=2.2)", "pytest-ignore-flaky", "pytest-mypy (>=0.9.1)", "pytest-ruff"]
 
 [extras]
-docs = ["mkdocs", "mkdocs-click", "mkdocs-gen-files", "mkdocs-literate-nav", "mkdocs-material", "mkdocs-mermaid2-plugin", "mkdocstrings", "mkdocstrings-python", "pymdown-extensions"]
+docs = ["mkdocs", "mkdocs-click", "mkdocs-gen-files", "mkdocs-literate-nav", "mkdocs-material", "mkdocs-mermaid2-plugin", "mkdocs-section-index", "mkdocstrings", "mkdocstrings-python", "pymdown-extensions"]
 gui = ["matplotlib"]
 test = ["pytest", "pytest-click", "pytest-cov", "pytest-explicit", "pytest-xdist"]
 
 [metadata]
 lock-version = "2.0"
 python-versions = "~3.8"
-content-hash = "7185ee571884082fde50d3c626f87e4a4682bee191512415ae018abbc577aca1"
+content-hash = "6a3ff83d970a7444a5a0b6b5aa5e58c396cdbbf9c4d85838abf83c72780e51a1"
