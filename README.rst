@@ -34,7 +34,7 @@ This Python package runs a Neural Style Tranfer algorithm on input `content` and
     * - code quality
       - |codacy| |code_climate| |maintainability| |scrutinizer|
 
-
+| **Docs**: https://boromir674.github.io/neural-style-transfer/
 
 Overview
 ========

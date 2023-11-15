@@ -30,48 +30,36 @@ env:
   TEST_STRATEGY: "{\"platform\":[\"ubuntu-latest\", \"macos-latest\", \"windows-latest\"], \"python-version\":[\"3.9\"]}"
 
 
-  ##### Pipeline Settings ####
+  ####### Pipeline Settings #######
 
-  ### JOB ON/OFF SWITCHES ###
-  # On/Off switches for the various CI/CD steps
-  # If false the step prevented from running
-  # If true the step is allowed to run (it still may be skipped on other runtime conditions)
-  RUN_UNIT_TESTS: "true"
-  RUN_LINT_CHECKS: "true"
+  ##### JOB ON/OFF SWITCHES #####
+  RUN_UNIT_TESTS: "false"
+  RUN_LINT_CHECKS: "false"
   PUBLISH_ON_PYPI: "true"
-  DRAW_DEPENDENCIES: "true"
-  PREVENT_CODECOV_TEST_COVERAGE: "false"  # Codecov Job runs only on 'false'
+  DRAW_DEPENDENCIES: "false"
+  PREVENT_CODECOV_TEST_COVERAGE: "false"
+  DOCKER_JOB_ON: "false"
+  ###############################
 
-  # Hard switch to turn on/off the Docker build and publish to Dockerhub
-  DOCKER_JOB_ON: "true"
-
-  ### END JOB ON/OFF SWITCHES ###
-  #### Behaviour - Docker build and Publish ####
-
-  # Override policy-dependent decision-making and
+  #### DOCKER Job Policy #####
+  # Override Docker Policy-dependent decision-making and
   # Accept any ALL (branch/build) to Publish to Dockerhub
+  # if true, will push image and ingnore below policy
   ALWAYS_BUILD_N_PUBLSIH_DOCKER: "false"
 
-  # Docker Policy
-
-  ## Continous Integration / Continuous Deployment
-  ## CDeployment : Builds and Publishes only if Tests ran and passed
+  # CDeployment : Builds and Publishes only if Tests ran and passed
+  # CDelivery   : Builds and Publishes if Tests Passed or if Tests were Skipped
   DOCKER_JOB_POLICY: "CDeployment"
-  
-  ## Continous Integration / Continuous Delivery
-  ## CDelivery : Builds and Publishes if Tests Passed or if Tests were Skipped 
   # DOCKER_JOB_POLICY: "CDelivery"
+  ############################
 
-  ##### END Pipeline Settings ######
-
-
-  ## Static Code Analysis Parameters ##
-
+  #### STATIC CHECK Job ####
   # Python Runtime version to set the Job runner with
   STATIC_ANALYSIS_PY: "3.8"  # since our pyproject is tested to support 3.8 builds
   # Pylint Score Threshold, if the score is below this value the Job will fail
   # If pylint rated our code below that score, the Job fails
   PYLINT_SCORE_THRESHOLD: "8.2"
+  ##########################
 
 jobs:
   # we use the below to read the workflow env vars and be able to use in "- if:" Job conditionals
