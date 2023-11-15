@@ -22,8 +22,8 @@ This Python package runs a Neural Style Tranfer algorithm on input `content` and
 .. list-table::
     :stub-columns: 1
 
-    * - tests
-      - | |ci_pipeline| |codecov|
+    * - build
+      - | |ci_pipeline| |docs| |codecov|
 
     * - package
       - | |pypi| |wheel| |py_versions| |commits_since|
@@ -169,8 +169,9 @@ Sample commands to install the NST CLI from source, using a terminal:
 
 
 
-
-
+.. |docs| image:: https://readthedocs.org/projects/neural-style-transfer/badge/?version=latest
+    :alt: Documentation Status
+    :target: https://neural-style-transfer.readthedocs.io/en/latest/?badge=latest
 
 
 .. |docker| image:: https://img.shields.io/docker/v/boromir674/neural-style-transfer/latest?logo=docker&logoColor=%23849ED9
