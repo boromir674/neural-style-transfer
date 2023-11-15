@@ -49,6 +49,7 @@ theme:
 
 plugins:
   # Enable jinja inside your markdown files
+  # https://github.com/fralau/mkdocs_macros_plugin
   - macros
   # Authors need installation
   # - git-authors
