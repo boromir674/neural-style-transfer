@@ -5,15 +5,12 @@ version: '3'
 
 services:
 
+  # mkdir art && NST_HOST_MOUNT="$PWD/art" docker-compose up
   nst_demo:
-    build:
-      context: ./
-      target: prod_demo
-      dockerfile: Dockerfile
-
-  # NST_HOST_MOUNT=/custom/nst-output docker-compose up
+    image: boromir674/neural-style-transfer:1.0.2
     volumes:
       - ${NST_HOST_MOUNT:-./nst-algo-output}:/app/demo-output
+    command: [ "demo" ]
 
 
 ## NST Service, where the Pretrained Model Weights are made available to it (so that
@@ -61,3 +58,15 @@ services:
   #     AA_VGG_19: pretrained_model_bundle/imagenet-vgg-verydeep-19.mat
   #   volumes:
   #     - ./pretrained_model_bundle:/app/pretrained_model_bundle
+
+
+  # mkdir art && NST_HOST_MOUNT="$PWD/art" docker-compose up
+  # nst_demo_dev:
+  #   build:
+  #     context: ./
+  #     # target: default_with_demo
+  #     dockerfile: Dockerfile
+  # # OR just build: .
+
+  #   volumes:
+  #     - ${NST_HOST_MOUNT:-./nst-algo-output}:/app/demo-output

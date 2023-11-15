@@ -50,16 +50,53 @@ Key features of the package:
 * Persisting of generated images
 
 
+Quick-start
+-----------
 
-Installation
-------------
+| Run a demo NST, on sample `Content` and `Style` Images:
 
 ::
 
-    pip install artificial-artwork
+    mkdir art
+    export NST_HOST_MOUNT="$PWD/art"
+
+    docker-compose up
+
+    # Process runs, in containerized environment, and exits.
 
 
-Currently, one pre-built wheel, for python3.8, is included, along with the source distribution.
+| Check out your `generated` artificial artwork!
+
+::
+    
+    ls -l art/blue-red_w300-h225.jpg+canoe_water_w300-h225.jpg-100.png
+    xdg-open art/blue-red_w300-h225.jpg+canoe_water_w300-h225.jpg-100.png
+
+
+Usage
+-----
+
+Run the `nst` CLI with the `--help` option to see the available options.
+
+::
+
+    docker run boromir674/neural-style-transfer:1.0.2 --help
+
+
+Development
+-----------
+
+Installation
+""""""""""""
+
+Install `nst` CLI and `artificial_artwork` python package from `pypi``:
+
+::
+
+    pip install artificial_artwork
+
+
+Only python3.8 wheel is included atm.
 
 
 Sample commands to install the NST CLI from source, using a terminal:
@@ -67,80 +104,13 @@ Sample commands to install the NST CLI from source, using a terminal:
 ::
 
     git clone https://github.com/boromir674/neural-style-transfer.git
-
+    
     pip install ./neural-style-transfer
 
 
 | The Neural Style Transfer - CLI heavely depends on Tensorflow (tf) and therefore it is crucial that tf is installed correctly in your Python environment.
 
-Usage
------
 
-::
-
-    nst --help
-
-
-Download the Vgg-Verydeep-19 pretrained `model` from https://drive.protonmail.com/urls/7RXGN23ZRR#hsw4STil0Hgc.
-
-Exctract the model (weights and layer architecture).
-
-For example use `tar -xvf imagenet-vgg-verydeep-19.tar` to extract in the current directory.
-
-Indicate to the program where to find the model:
-
-::
-
-    export AA_VGG_19=$PWD/imagenet-vgg-verydeep-19.mat
-
-We have included one 'content' and one 'style' image in the source repository, to facilitate testing.
-You can use these images to quickly try running the program.
-
-For example, you can get the code with `git clone git@github.com:boromir674/neural-style-transfer.git`,
-then `cd neural-style-transfer`.
-
-Assuming you have installed using a symbolic link in your PATH (as shown above), or if you are still
-operating withing your virtual environment, then you can create artificial artwork with the following command.
-
-The algorithm will apply the style to the content iteratively.
-It will iterate 100 times. 
-
-::
-
-    # Create a directory where to store the artificial artwork
-    mkdir nst_output
-
-    # Run a Neural Style Algorithm for 100 iterations and store output to nst_output directory
-    neural-style-transfer tests/data/canoe_water.jpg tests/data/blue-red-w400-h300.jpg --location nst_output
-
-
-Note we are using as 'content' and 'style' images jpg files included in the distribution (artificial-artwork package).
-We are using a photo of a canoe on water and an abstract painting with prevalence of blue and red color shades.
-
-Also note that to demonstrate quicker, both images have been already resized to just 400 pixels of width and 300 of height each.
-
-Navigating to `nst_output` you can find multiple image files generated from running the algorithm. Each file corresponds to the
-image generated on a different iteration while running the algorithm. The bigger the iteration the more "style" has been applied.
-
-Check out your artificial artwork!
-
-
-Docker image
-------------
-
-We have included a docker file that we use to build an image where both the `artificial_artwork` package (source code)
-and the pretrained model are present. That way you can immediately start creating artwork!
-
-::
-
-    docker pull boromir674/neural-style-transfer
-
-    export NST_OUTPUT=/home/$USER/nst-output
-
-    CONTENT=/path/to/content-image.jpg
-    STYLE=/path/to/style-image.jpg
-
-    docker run -it --rm -v $NST_OUTPUT:/nst-output boromir674/neural-style-transfer $STYLE $CONTENT --iteratins 200 --location /nst-output
 
 .. |ci_pipeline| image:: https://img.shields.io/github/actions/workflow/status/boromir674/neural-style-transfer/test.yaml?branch=master&label=build&logo=github-actions&logoColor=233392FF
     :alt: CI Pipeline Status
