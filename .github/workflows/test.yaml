@@ -30,94 +30,36 @@ env:
   TEST_STRATEGY: "{\"platform\":[\"ubuntu-latest\", \"macos-latest\", \"windows-latest\"], \"python-version\":[\"3.9\"]}"
 
 
-  ##### Pipeline Settings ####
+  ####### Pipeline Settings #######
 
-  # On/Off switches for the various CI/CD steps
-  # If false the step prevented from running
-  # If true the step is allowed to run (it still may be skipped on other runtime conditions)
-  RUN_UNIT_TESTS: "true"
-  RUN_LINT_CHECKS: "true"
+  ##### JOB ON/OFF SWITCHES #####
+  RUN_UNIT_TESTS: "false"
+  RUN_LINT_CHECKS: "false"
   PUBLISH_ON_PYPI: "true"
-  DRAW_DEPENDENCIES: "true"
-  PREVENT_CODECOV_TEST_COVERAGE: "false"  # Codecov Job runs only on 'false'
+  DRAW_DEPENDENCIES: "false"
+  PREVENT_CODECOV_TEST_COVERAGE: "false"
+  DOCKER_JOB_ON: "false"
+  ###############################
 
-  # Hard switch to turn on/off the Docker build and publish to Dockerhub
-  DOCKER_JOB_ON: "true"
-
-
-  #### Behaviour - Docker build and Publich ####
-  
-  # Override policy-dependent decision-making and
+  #### DOCKER Job Policy #####
+  # Override Docker Policy-dependent decision-making and
   # Accept any ALL (branch/build) to Publish to Dockerhub
+  # if true, will push image and ingnore below policy
   ALWAYS_BUILD_N_PUBLSIH_DOCKER: "false"
 
-  # Docker Policy
-
-  ## Continous Integration / Continuous Deployment
-  ## CDeployment : Builds and Publishes only if Tests ran and passed
+  # CDeployment : Builds and Publishes only if Tests ran and passed
+  # CDelivery   : Builds and Publishes if Tests Passed or if Tests were Skipped
   DOCKER_JOB_POLICY: "CDeployment"
-  
-  ## Continous Integration / Continuous Delivery
-  ## CDelivery : Builds and Publishes if Tests Passed or if Tests were Skipped 
   # DOCKER_JOB_POLICY: "CDelivery"
+  ############################
 
-
-  ## Lower level config ##
-
-  # 2 bit state machine
-  # 0 0  pure CI/CD mode, aka Admit if Pass, Require Pass, guarantee quality
-  # 0 1  Always build and publish, aka Admit All
-  # 1 0  CI/CD with Bypass Opt, aka Admit Tested and when Test is OFF, Admit when Test OFF
-  # 1 1  Never build and publish, aka No Admitance, guarantee NO Dockerhub publish
-
-  # alternative 2 bits representations:
-  # 1. Accept all for Docker 1/0 (1bit), Mode (CICD, or CICD + allow if test OFF) (1bit)
-  # 2. No Docker Bypass 0/1 (1 bit), Accept all 0/1 (1 bit). 
-
-  # Define the Policy that our Job uses to decide whether to run the Docker build and publish to Dockerhub
-  
-  # Pol 1: Run Docker build and publish to Dockerhub only if Tests passed (and ran!)
-  # aka: Continous Integration / Continuous Deployment
-  # aka: guranteed quality, everything published is tested
-  # aka: 'required succesful evaluation', 'accept only a Pass'
-
-  # accepted criteria (any of which suffices): [PASS]
-  # if Docker Job is 
-
-  # DOCKER_JOB_POLICY: "CI_CD"
-
-  # Pol 2: Always run Docker build and publish to Dockerhub
-  # aka 'Free Admitance', 'No Entry Barrier', 'Free Entrance'
-  
-  # DOCKER_JOB_POLICY: "ALWAYS_RUN"
-
-  # Pol 3: Run Docker build and publish to Dockerhub, if Tests ran and passed, but also if Tests were skipped
-  # aka: Continous Integration / Continuous Delivery
-  # aka: 'accepted_when_Test_OFF', 'accept a Pass or a Skip'
-  # aka: 
-
-  # accepted criteria (any of which suffices): [PASS, TESTS_SKIPPED]
-
-  # DOCKER_JOB_POLICY: "RUN_ON_TEST_PASS_OR_SKIP"
-
-  # WIP Pol 4: Never run Docker build and publish to Dockerhub
-  # aka: garantee that nothing is published
-  # aka: 'Shutdown', 'No Admitance'
-
-  # DOCKER_JOB_POLICY: "NEVER_RUN"
-
-  #### End Behaviour ####
-
-  ##### END Pipeline Settings ######
-
-
-  ## Static Code Analysis Parameters ##
-
+  #### STATIC CHECK Job ####
   # Python Runtime version to set the Job runner with
   STATIC_ANALYSIS_PY: "3.8"  # since our pyproject is tested to support 3.8 builds
   # Pylint Score Threshold, if the score is below this value the Job will fail
   # If pylint rated our code below that score, the Job fails
   PYLINT_SCORE_THRESHOLD: "8.2"
+  ##########################
 
 jobs:
   # we use the below to read the workflow env vars and be able to use in "- if:" Job conditionals
@@ -200,6 +142,7 @@ jobs:
       matrix: ${{fromJSON(needs.set_github_outputs.outputs.matrix)}}
     outputs:
       SEMVER_PIP_FORMAT: ${{ steps.parse_version.outputs.SEMVER_PIP_FORMAT }}
+      ARTIFACTS: ${{ steps.set_artifacts_ref.outputs.ARTIFACTS }}
     steps:
     - run: echo "[INFO] Platform/OS ${{ matrix.platform }} , Python -> ${{ matrix.python-version }}"
     - uses: actions/checkout@v3
@@ -303,17 +246,19 @@ jobs:
       run: tox -vv -s false
       env:
         PLATFORM: ${{ matrix.platform }}
-    # if sdist tests ran, then we expect file to ahve been created
-    # .tox/${DIST_DIR}/cookiecutter_python-${PKG_VERSION}.tar.gz
+    # if sdist tests ran, .tar.gz is in:
+    # .tox/${DIST_DIR}/artificial_artwork-${PKG_VERSION}.tar.gz
 
-    # if wheel tests ran, then we expect a file similar to below, to
-    # have been created. the file depends on the python version
+    # if wheel tests ran, .whl's are in:
+    # .tox/${DIST_DIR}/artificial_artwork-${PKG_VERSION}-py3-none-any.whl
+    
+    # wheel file name depends on the python version
     # compiled (cpu architecture specific code)
 
     # the below exaple is what to expect from 'pure python' build (
     # meaning in theory there is no machine/cpu-specific code, no byte code,
     # no compiled code
-    # .tox/${DIST_DIR}/cookiecutter_python-${PKG_VERSION}-py3-none-any.whl
+    # .tox/${DIST_DIR}/artificial_artwork-${PKG_VERSION}-py3-none-any.whl
 
     - name: "Aggregate Code Coverage & make XML Reports"
       id: produce_coverage_xml_file
@@ -323,7 +268,7 @@ jobs:
         PY_VERSION: ${{ matrix.python-version }}
       run: |
         tox -e coverage --sitepackages -vv -s false
-        
+
         RUNNER_COVERAGE_XML_FILE_PATH="coverage-${PLATFORM}-${PY_VERSION}.xml"
 
         mv ./.tox/coverage.xml "${RUNNER_COVERAGE_XML_FILE_PATH}"
@@ -351,47 +296,36 @@ jobs:
         echo "DIST_DIR=dist" >> $GITHUB_ENV  #  can be uesd in a with body of a next step in the Job, as eg: path: ${{ env.DIST_DIR }}
         mkdir ${DIST_DIR}
         
-        TOXENV_DIST_DIR=".tox/${DIST_DIR}"
+        TOXENV_DIST_DIR=".tox/dist"
+        echo TOXENV_DIST_DIR="${TOXENV_DIST_DIR}" >> $GITHUB_ENV
 
-        # Sanity check of files inside
         echo "[DEBUG] ls -la ${TOXENV_DIST_DIR}"
         ls -la ${TOXENV_DIST_DIR}
+    
+    # move .tar.gz
+    - run: cp "${TOXENV_DIST_DIR}/artificial_artwork-${PKG_VERSION}.tar.gz" "${DIST_DIR}"
+    
+    # move .whl
+    - run: cp "${TOXENV_DIST_DIR}/artificial_artwork-${PKG_VERSION}-py3-none-any.whl" "${DIST_DIR}"
 
-        # Sanity check that among all files there onle one tar.gz and one .whl
-        # if not, Fail Job (aka exit with 1)
+    # - run: tox -e check -vv -s false
 
-        # if [[ $(find ${TOXENV_DIST_DIR} -type f -name "*.tar.gz" | wc -l) -ne 1 ]]; then
-        #   echo "ERROR: Expected to find 1 tar.gz file in ${TOXENV_DIST_DIR}, but found $(find ${TOXENV_DIST_DIR} -type f -name "*.tar.gz" | wc -l)"
-        #   exit 1
-        # fi
-        # if [[ $(find ${TOXENV_DIST_DIR} -type f -name "*.whl" | wc -l) -ne 1 ]]; then
-        #   echo "ERROR: Expected to find 1 .whl file in ${TOXENV_DIST_DIR}, but found $(find ${TOXENV_DIST_DIR} -type f -name "*.whl" | wc -l)"
-        #   exit 1
-        # fi
-
-        # REQUIRED existing 'Source Distribution' (SD) aka .tar.gz file, has already been built from source code
-        # ie previous code/step ran a tox env, such as with cmd `tox -e py38-sdist-linux`, or any `sdist` tox env,
-        # which runs Unit Tests against the .tar.gz (sdist installation), after building it from source code,
-
-        # move .tar.gz
-        mv ".tox/${DIST_DIR}/artificial_artwork-${PKG_VERSION}.tar.gz" "${DIST_DIR}"
-
-        # move .whl
-        # mv ".tox/${DIST_DIR}/artificial_artwork-${PKG_VERSION}-py3-none-any.whl" "${DIST_DIR}"
-
-        # tox -e check -vv -s false
 
     # - name: Install documentation test dependencies
     #   if: ${{ matrix.platform == 'macos-latest' && matrix.python-version != '3.6' }}
     #   run: brew install enchant
+
     # - name: Run Documentation Tests
     #   if: ${{ matrix.platform == 'ubuntu-latest' || matrix.python-version  != '3.6' }}
     #   run: tox -e docs --sitepackages -vv -s false
 
+    - run: echo ARTIFACTS="${{ env.DIST_DIR }}-${{ matrix.platform }}-${{ matrix.python-version }}" >> $GITHUB_OUTPUT
+      id: set_artifacts_ref
+
     - name: Upload Source & Wheel distributions as Artefacts
       uses: actions/upload-artifact@v3
       with:
-        name: ${{ env.DIST_DIR }}-${{ matrix.platform }}-${{ matrix.python-version }}
+        name: ${{ steps.set_artifacts_ref.outputs.ARTIFACTS }}
         path: ${{ env.DIST_DIR }}
         if-no-files-found: error
 
@@ -400,7 +334,7 @@ jobs:
 
   codecov_coverage_host:
     runs-on: ubuntu-latest
-    needs: test_suite
+    needs: [test_suite, set_github_outputs]
     if: ${{ needs.set_github_outputs.outputs.PREVENT_CODECOV_TEST_COVERAGE == 'false' }}
     steps:
     - uses: actions/checkout@v3
@@ -420,7 +354,6 @@ jobs:
           ./codecov -f $file -e "OS=$OS_NAME,PYTHON=$PY_VERSION" --flags unittests --verbose
           echo "Sent to Codecov: $file !"
         done
-
 
 ## DEPLOY to PYPI: PROD and STAGING
 # Automated Upload of Builds (.tar.gz, .whl), triggered by git push (aka git ops)
@@ -443,16 +376,8 @@ jobs:
 # - to trigger the automated deployment, push a git tag, that starts with 'v' (eg: v1.0.0, v1.2.3-dev, etc)
 
 
-
 # PUBLISH DISTRIBUTIONS ON PYPI
-# 1st Job
-# Check if PUBLISH_ON_PYPI switch is ON, else do not attempt to deploy to PyPI
-# Check if git ref is a tag, which starts with 'v', and that tag is on master or dev branches,
-# else Signal that we 'do not handle such cases' (eg we want want to avoid accidental automated deployments to happen)
 
-# 2nd Job
-# If the Signal indicates that conditions are met for an Automated Deployment
-# ...
   check_which_git_branch_we_are_on:
     runs-on: ubuntu-latest
     needs: set_github_outputs
@@ -466,13 +391,13 @@ jobs:
         with:
           reference: "master"
           tag: "${{ github.ref }}"
-      - run: echo "ON_MAIN_BRANCH=${{ steps.main_contains_tag.outputs.retval }}" >> $GITHUB_OUTPUT
+
       - uses: rickstaa/action-contains-tag@v1
         id: release_contains_tag
         with:
           reference: "release"
           tag: "${{ github.ref }}"
-      - run: echo "ON_RELEASE_BRANCH=${{ steps.release_contains_tag.outputs.retval }}" >> $GITHUB_OUTPUT
+
       - name: Pick Production or Test Environment, if tag on master or release branch respectively
         id: set_environment_name
         run: |
@@ -489,199 +414,93 @@ jobs:
             echo "[DEBUG] ${{ github.ref }}"
             DEPLOY=false
           fi
-          echo "SELECTED_ENVIRONMENT=$ENVIRONMENT_NAME" >> $GITHUB_ENV
-          echo "AUTOMATED_DEPLOY=$DEPLOY" >> $GITHUB_ENV
+          echo "SELECTED_ENVIRONMENT=$ENVIRONMENT_NAME" >> $GITHUB_OUTPUT
+          echo "AUTOMATED_DEPLOY=$DEPLOY" >> $GITHUB_OUTPUT
 
-      - run: echo "[DEBUG] Branch name ${GITHUB_REF_NAME}"
-      - run: echo " ==== ${SELECTED_ENVIRONMENT} ===="
-      - run: echo " ==== ${AUTOMATED_DEPLOY} ===="
-
-      - name: Set Output for other Jobs to receive
-        id: set_job_outputs
-        run: |
-          echo " --- Selected ENV NAME: $SELECTED_ENVIRONMENT "
-          echo "ENVIRONMENT_NAME=${SELECTED_ENVIRONMENT}" >> $GITHUB_OUTPUT
-          echo " --- Signal OK for Automated Deployment?: $AUTOMATED_DEPLOY "
-          echo "AUTOMATED_DEPLOY=${AUTOMATED_DEPLOY}" >> $GITHUB_OUTPUT
-
+      - run: echo "ENVIRONMENT_NAME=${{ steps.set_environment_name.outputs.SELECTED_ENVIRONMENT }}" >> $GITHUB_OUTPUT
+        id: select_pypi_env
+      - run: echo "AUTOMATED_DEPLOY=${{ steps.set_environment_name.outputs.AUTOMATED_DEPLOY }}" >> $GITHUB_OUTPUT
+        id: auto_pypi_deploy
     outputs:
-      ENVIRONMENT_NAME: ${{ steps.set_job_outputs.outputs.ENVIRONMENT_NAME }}
-      AUTOMATED_DEPLOY: ${{ steps.set_job_outputs.outputs.AUTOMATED_DEPLOY }}
+      ENVIRONMENT_NAME: ${{ steps.select_pypi_env.outputs.ENVIRONMENT_NAME }}
+      AUTOMATED_DEPLOY: ${{ steps.auto_pypi_deploy.outputs.AUTOMATED_DEPLOY }}
 
   ### PYPI UPLOAD JOB ###
-  pypi_publish:
+  pypi_publ:
     needs: [test_suite, check_which_git_branch_we_are_on]
-    # needs: check_which_git_branch_we_are_on
-    runs-on: ubuntu-latest
-    # if we are on tag starting with "v" and if we are on master or release branch
-    if: ${{ startsWith(github.event.ref, 'refs/tags/v') && needs.check_which_git_branch_we_are_on.outputs.AUTOMATED_DEPLOY == 'true' }}
-    environment:
-      name: ${{ needs.check_which_git_branch_we_are_on.outputs.ENVIRONMENT_NAME }}
-    env:
-      DIST_DIR: dist
-      DISTRO_SEMVER: ${{ needs.test_suite.outputs.SEMVER_PIP_FORMAT }}  # required env var by deploy script (tox -e deploy)
-      TWINE_USERNAME: ${{ vars.TWINE_USERNAME }}
+    name: PyPI Upload
+    uses: boromir674/automated-workflows/.github/workflows/pypi_env.yml@v1.1.0
+    with:
+      distro_name: "artificial_artwork"
+      distro_version: "${{ needs.test_suite.outputs.SEMVER_PIP_FORMAT }}"
+      should_trigger: ${{ needs.check_which_git_branch_we_are_on.outputs.AUTOMATED_DEPLOY == 'true' }}
+      pypi_env: "${{ needs.check_which_git_branch_we_are_on.outputs.ENVIRONMENT_NAME }}"
+      artifacts_path: ${{ needs.test_suite.outputs.ARTIFACTS }}
+      require_wheel: true
+      allow_existing: true
+    secrets:
+      # This magically works, and the environment secret will be loaded
+      # it is really weird to pass a secret here because it feels that is comming from outside,
+      # from the repository secrets, not from the environment. But it doesn't!
       TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
-      PYPI_SERVER: ${{ vars.PYPI_SERVER }}
-    steps:
-    - uses: actions/checkout@v3
-    - name: Download Source & Wheel distributions
-      uses: actions/download-artifact@v3
-      with:
-        path: downloaded-artifacts
-    - name: Get Publishable files from the Artifacts
-      run: |
-        TAG="${GITHUB_REF_NAME}"
-        TAG_SEM_VER="${TAG:1}"  # remove the first character (v)
 
-        # Make sure the distro semver ($DISTRO_SEMVER), which is identical
-        # to the version string in the source code, when its format is
-        # Major.Minor.Patch (and slightly different when its format is M.m.p-prerelase),
-        # is simillarly either identical or slightly different
-        # when compared to the git tag ($TAG_SEM_VER)
 
-        # for now MUST match only the Major.Minor.Patch part
+  #       TAG="${GITHUB_REF_NAME}"
+  #       TAG_SEM_VER="${TAG:1}"  # remove the first character (v)
+
+  #       # for now MUST match only the Major.Minor.Patch part
         
-        # Extract Major.Minor.Patch parts from DISTRO_SEMVER and TAG_SEM_VER
-        DISTRO_MMP=$(echo "$DISTRO_SEMVER" | grep -oE '^[0-9]+\.[0-9]+\.[0-9]+')
-        TAG_MMP=$(echo "$TAG_SEM_VER" | grep -oE '^[0-9]+\.[0-9]+\.[0-9]+')
-        if [ "$DISTRO_MMP" = "$TAG_MMP" ]; then
-            echo "Major.Minor.Patch part of DISTRO_SEMVER matches TAG_SEM_VER"
-        else
-            echo "[ERROR] Major.Minor.Patch part of DISTRO_SEMVER does not match TAG_SEM_VER"
-            echo "DISTRO_SEMVER=$DISTRO_SEMVER"
-            echo "TAG_SEM_VER=$TAG_SEM_VER"
-            echo "DISTRO_MMP=$DISTRO_MMP"
-            echo "TAG_MMP=$TAG_MMP"
-            exit 1
-        fi
-        echo "PACKAGE_DIST_VERSION=$DISTRO_SEMVER" >> $GITHUB_ENV
-    - run: mkdir ${DIST_DIR}
-    - run: |
-        # Get Source Distribution (tar.gz of source code)
-        source_distributions=$(find downloaded-artifacts -type f -name artificial_artwork*.tar.gz)
-        source_distributions_array=($source_distributions)
-        source_distribution=${source_distributions_array[0]}  # a *.tar.gz file path
-        # Extract the base name (without the path)
-        source_distribution_name=$(basename "$source_distribution")
-        # Check if all source distribution (.tar.gz) files have the same name
-        for file in "${source_distributions_array[@]}"; do
-          if [ "$source_distribution_name" != "$(basename "$file")" ]; then
-            echo "Error: Not all Source Distribution .tar.gz files have the same name!"
-            exit 1
-          fi
-        done
-        echo " -- Will Upload : $source_distribution_name -- "
-        echo "source_distribution=$source_distribution" >> $GITHUB_ENV
-        cp "$source_distribution" ${DIST_DIR}
-
-    - run: |
-        # Get all built Wheels and copy to dist folder
-        for f in `find downloaded-artifacts -type f -name artificial_artwork*.whl`; do
-          echo "F: $f";
-          # TODO check for duplicates, which means that our build matrix produces the same wheel (need a different compiler that python such as pypy, cython, etc)
-          cp $f ${DIST_DIR}
-        done
-    - name: Install Dependencies
-      run: pip install tox==3.28
-
-    - run: echo "Publishing $PACKAGE_DIST_VERSION to $PYPI_SERVER PyPI"
-
-    - name: Publish to PyPI
-      # env:
-      #   TWINE_USERNAME: ${{ vars.TWINE_USERNAME }}
-      #   TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
-      #   PYPI_SERVER: ${{ vars.PYPI_SERVER }}
-      # run: tox -vv -s false -e deploy
-      run: tox -vv -s false -e deploy -- upload --non-interactive --skip-existing
-      
-      # runs: twine upload --non-interactive --repository testpypi --skip-existing ./dist/PY_PACKAGE-:Version.tar.gz --verbose
-      
-      # runs: twine upload --non-interactive --skip-existing --repository testpypi --skip-existing ./dist/PY_PACKAGE-:Version.tar.gz --verbose
-    
-    - run: echo "Published :\)"
+  #       # Extract Major.Minor.Patch parts from DISTRO_SEMVER and TAG_SEM_VER
+  #       DISTRO_MMP=$(echo "$DISTRO_SEMVER" | grep -oE '^[0-9]+\.[0-9]+\.[0-9]+')
+  #       TAG_MMP=$(echo "$TAG_SEM_VER" | grep -oE '^[0-9]+\.[0-9]+\.[0-9]+')
+  #       if [ "$DISTRO_MMP" = "$TAG_MMP" ]; then
+  #           echo "Major.Minor.Patch part of DISTRO_SEMVER matches TAG_SEM_VER"
+  #       else
+  #           echo "[ERROR] Major.Minor.Patch part of DISTRO_SEMVER does not match TAG_SEM_VER"
+  #           echo "DISTRO_SEMVER=$DISTRO_SEMVER"
+  #           echo "TAG_SEM_VER=$TAG_SEM_VER"
+  #           echo "DISTRO_MMP=$DISTRO_MMP"
+  #           echo "TAG_MMP=$TAG_MMP"
+  #           exit 1
+  #       fi
+  #       echo "PACKAGE_DIST_VERSION=$DISTRO_SEMVER" >> $GITHUB_ENV
 
 
 ## AUTOMATED DOCKER BUILD and PUBLISH ON DOCKERHUB ##
-  docker_build:
+  read_docker_settings:
     runs-on: ubuntu-latest
-    needs: test_suite
-    # always() is REQUIRED to implement any run if skipped, thing!
-    if: always() && (needs.set_github_outputs.outputs.DOCKER_POLICY == '1' || (
-        (!contains(needs.test_suite.result, 'failure') && !contains(needs.test_suite.result, 'cancelled') && needs.test_suite.result == 'success') ||
-        (needs.set_github_outputs.outputs.DOCKER_POLICY == '2' && !contains(needs.test_suite.result, 'failure') && needs.test_suite.result == 'skipped')
-        ))
-    env:
-      DOCKER_USER: ${{ secrets.DOCKER_USER }}
+    outputs:
+      CASE_POLICY: ${{ steps.derive_docker_policy.outputs.CASE_POLICY }}
     steps:
-    - uses: actions/checkout@v3
-    - name: Build Docker Image
-      run: |
-        echo " DOCKER JOB TRIGGERED "
+      - run: |
+          if [[ $DOCKER_JOB_ON == "true" ]]; then
+            if [[ $ALWAYS_BUILD_N_PUBLSIH_DOCKER == "true" ]]; then
+              DOCKER_POLICY=1
+            elif [[ $DOCKER_JOB_POLICY == "CDeployment" ]]; then
+              DOCKER_POLICY=2
+            elif [[ $DOCKER_JOB_POLICY == "CDelivery" ]]; then
+              DOCKER_POLICY=3
+            fi
+          else
+            DOCKER_POLICY=0
+          fi
+          echo "CASE_POLICY=$DOCKER_POLICY" >> $GITHUB_ENV
+      - run: echo "CASE_POLICY=$CASE_POLICY" >> $GITHUB_OUTPUT
+        id: derive_docker_policy
 
-        # assuming workflow is enabled for branches and v* tags
-        IMAGE_TAG="${GITHUB_REF_NAME}"  # this is branch name or tag name
-
-        # --target prod_install --> Image with NST CLI (no vgg baked in)
-        PREFIX=cli
-
-        IMAGE_SLUG=neural-style-transfer-${PREFIX}
-        IMAGE_REF="${DOCKER_USER}/${IMAGE_SLUG}:${IMAGE_TAG}"
-
-        echo " == Image Tag from Git Ref: $IMAGE_TAG == "
-        echo " == Image Slug: $IMAGE_SLUG == "
-        echo " == Image Ref: $IMAGE_REF == "
-
-        echo "IMAGE_REF=${IMAGE_REF}" >> $GITHUB_ENV
-
-        docker build --target prod_install -t "${IMAGE_REF}" .
-        # docker build --target prod_install -t "${DOCKER_USER}/neural-style-transfer:${IMAGE_TAG}" .
-
-        # build an image that does not have vgg model weights
-        # TODO: add image model weights file in this env somehow
-
-        echo " -- DOCKER BUILD DONE --"
-        echo " -- IMAGE: ${IMAGE_REF}"
-
-    - name: Login to Dockerhub, public Image Registry
-      env:
-        DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-      run: echo "${DOCKER_PASSWORD}" | docker login --username "${DOCKER_USER}" --password-stdin
-
-    - name: Publish to DockerHub; Push Docker Image
-      run: |
-        # docker push "${IMAGE_REF}" && job_status=0 || echo "[ERROR] Docker push failed!" && job_status=1
-        # echo "job_status=$job_status" >> $GITHUB_ENV
-
-        push_success=1
-
-        docker push "${IMAGE_REF}" || push_success=0
-
-        if [ $push_success -eq 1 ]; then
-          echo "Docker Image "${IMAGE_REF}" pushed to DockerHub!"
-        else
-          echo "[ERROR] Docker push failed!"
-        fi
-        
-        echo "push_success=$push_success" >> $GITHUB_ENV
-
-    - name: Logout from Dockerhub
-      run: docker logout
-
-    - name: Exit Job, with status code 0 if push was successful
-      run: |
-        # show success message or exit with non-zero if push Failed
-        if [ $push_success -eq 1 ]; then
-          job_status=0
-        else
-          # echo "[ERROR] Docker push failed!"
-          job_status=1
-        fi
-        echo "Exiting with status code: $job_status"
-        exit $job_status
-
-        # [ "$job_status" = 0 ] && echo "Docker Image "${IMAGE_REF}" pushed to DockerHub!" || exit $job_status
-
+  docker_build:
+    needs: [read_docker_settings, test_suite]
+    uses: boromir674/automated-workflows/.github/workflows/docker.yml@v1.1.0
+    if: always()
+    with:
+      DOCKER_USER: ${{ vars.DOCKER_USER }}
+      acceptance_policy: ${{ needs.read_docker_settings.outputs.CASE_POLICY }}
+      tests_pass: ${{ needs.test_suite.result == 'success' }}
+      tests_run: ${{ !contains(fromJSON('["skipped", "cancelled"]'), needs.test_suite.result) }}
+      image_slug: "neural-style-transfer-cli"
+      target_stage: "prod_install"
+    secrets:
+      DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
 
 
 # STATIC CODE ANALYSIS & LINTING

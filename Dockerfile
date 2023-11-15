@@ -119,6 +119,7 @@ ENV PATH="/root/.local/bin:$PATH"
 # END of POC
 
 ## Build Time Args ##
+# not available at run time, like ENV vars
 
 ARG VGG_NAME="imagenet-vgg-verydeep-19.mat"
 
@@ -157,8 +158,8 @@ FROM prod_ready AS prod_demo
 
 ARG REPO_DEMO_IMAGES_LOCATION="tests/data"
 
-ARG DEMO_CONTENT_IMAGE="${REPO_DEMO_IMAGES_LOCATION}/blue-red_w300-h225.jpg"
-ARG DEMO_STYLE_IMAGE="${REPO_DEMO_IMAGES_LOCATION}/canoe_water_w300-h225.jpg"
+ARG DEMO_CONTENT_IMAGE="${REPO_DEMO_IMAGES_LOCATION}/canoe_water_w300-h225.jpg"
+ARG DEMO_STYLE_IMAGE="${REPO_DEMO_IMAGES_LOCATION}/blue-red_w300-h225.jpg"
 
 WORKDIR /app
 
@@ -178,10 +179,14 @@ ENV STYLE_IMAGE_DEMO="/app/${DEMO_STYLE_IMAGE}"
 CMD ["nst", "demo"]
 
 
+FROM prod_ready as default
+
+CMD [ "nst" ]
+
 ### Stage: Default Target (for Production)
 # Just to allow `docker buil` use this as target if not specified
 
-FROM prod_ready as default
+FROM prod_demo as default_with_demo
 
 # Define ENTRYPOINT, so that this is the default 
 # runs the NST Algorithm on the Demo Content and Style Images for a few iterations

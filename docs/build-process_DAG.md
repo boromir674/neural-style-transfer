@@ -4,12 +4,10 @@
 
 Flow Chart, of how exection navigates docker stages (see --target of docker build).
 
-If you run `docker build .` the `target` used by default is the `default` Stage in the Graph.
+If you run `docker build .` the `target` used by default is the `default_with_demo` Stage in the Graph.
 
 **Dockerfile: ./Dockerfile**
 
-Note, The below Graph represents only `FROM first_stage AS second_stage`.
-We will add representation for `COPY --from=other_stage .`, later.
 
 ```mermaid
 graph TB;
@@ -17,7 +15,9 @@ graph TB;
   base --> source
   source --> prod
   base --> prod_install
+  prod -. "COPY" .-> prod_install
   prod_install --> prod_ready
   prod_ready --> prod_demo
   prod_ready --> default
+  prod_demo --> default_with_demo
 ```
