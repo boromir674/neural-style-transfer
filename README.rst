@@ -80,7 +80,7 @@ Run the `nst` CLI with the `--help` option to see the available options.
 
 ::
 
-    docker run boromir674/neural-style-transfer:1.0.2 --help
+    docker run boromir674/neural-style-transfer:1.1.0 --help
 
 
 Development

@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "artificial-artwork"
-version = "1.0.2"
+version = "1.1.0"
 description = "Create artificial artwork by transfering the appearance of one image (eg a famous painting) to another user-supplied image (eg your favourite photograph)."
 authors = ["Konstantinos Lampridis <k.lampridis@hotmail.com>"]
 maintainers = ["Konstantinos Lampridis <k.lampridis@hotmail.com>"]
