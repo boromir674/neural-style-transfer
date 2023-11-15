@@ -21,4 +21,5 @@ nav:
     - "CLI": cli.md
   - Developer:
     - "Docker": build-process_DAG.md
+    - "CICD": cicd.md
   - Code Reference: reference/
