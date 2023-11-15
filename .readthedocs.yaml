@@ -20,8 +20,12 @@ build:
     # post_system_dependencies:
     #   - python3 -m pip install --user poetry
     pre_install:
-      - python3 -m pip install poetry
-      - python3 -m poetry export -o req-docs.txt -E docs
+      - python --version
+      # generate compatible and pinned dependencies in pip format, for python3.8
+      - python -m pip install poetry
+      - python -m poetry export -o req-docs.txt -E docs
+    post_install:
+      - python -m pip install -e .
 
 
 # Build documentation in the "docs/" directory with mkdocs
