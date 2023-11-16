@@ -27,6 +27,7 @@ env:
   # Job Matrix as an env var !
   FULL_MATRIX_STRATEGY: "{\"platform\": [\"ubuntu-latest\", \"macos-latest\", \"windows-latest\"], \"python-version\": [\"3.8\", \"3.9\", \"3.10\", \"3.11\"]}"
   UBUNTU_PY38_STRATEGY: "{\"platform\":[\"ubuntu-latest\"], \"python-version\":[\"3.8\"]}"
+  # UBUNTU_PY38_STRATEGY: "{\"platform\":[\"ubuntu-latest\"], \"python-version\":[\"3.8\"], \"distro\": [\"sdist\", \"wheel\"]}"
   TEST_STRATEGY: "{\"platform\":[\"ubuntu-latest\", \"macos-latest\", \"windows-latest\"], \"python-version\":[\"3.9\"]}"
 
 
@@ -396,7 +397,7 @@ jobs:
 
   ### PYPI UPLOAD JOB ###
   pypi_publ:
-    needs: [test_suite, check_which_git_branch_we_are_on]
+    needs: [sdist_test, wheel_test, check_which_git_branch_we_are_on]
     name: PyPI Upload
     uses: boromir674/automated-workflows/.github/workflows/pypi_env.yml@v1.1.0
     with:
