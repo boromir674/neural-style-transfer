@@ -304,7 +304,7 @@ jobs:
 
   codecov_coverage_host:
     runs-on: ubuntu-latest
-    needs: [test_suite, set_github_outputs]
+    needs: [sdist_test, wheel_test, set_github_outputs]
     if: ${{ needs.set_github_outputs.outputs.PREVENT_CODECOV_TEST_COVERAGE == 'false' }}
     steps:
     - uses: actions/checkout@v3
@@ -314,7 +314,7 @@ jobs:
     - name: Download XML Test Coverage Results, from CI Artifacts
       uses: actions/download-artifact@v3
       with:
-        name: all_coverage_raw
+        name: ${{ vars.COVERAGE_XML_ARTIFACTS }}
     - name: Push to Codecov each XML Coverage Report
       run: |
         for file in coverage*.xml; do
