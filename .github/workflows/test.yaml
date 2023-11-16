@@ -264,7 +264,7 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: ${{ vars.ARTIFACTS_DIR_WHEEL_FILES }}
-        path: ${{ steps.produced_sdist.outputs.SDIST_NAME }}
+        path: ${{ steps.produced_wheel.outputs.SDIST_NAME }}
         if-no-files-found: error
 
     # XML COVERAGE ARTIFACTS
@@ -273,7 +273,7 @@ jobs:
 
     - name: "Aggregate Code Coverage & make XML Reports"
       run: tox -e coverage --sitepackages -vv -s false
-    - run: mv ./.tox/coverage.xml "${CI_COVERAGE_XML}"
+    - run: mv ./.tox/coverage.xml "${{ steps.set_coverage_xml_name.outputs.CI_COVERAGE_XML }}"
 
     - name: "Upload Test Coverage as Artifacts"
       uses: actions/upload-artifact@v3
