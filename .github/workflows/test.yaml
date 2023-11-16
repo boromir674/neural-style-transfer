@@ -158,7 +158,7 @@ jobs:
     - name: Create .tar.gz Source Distribution (aka pip install / python setup.py sdist)
       env:
         PLATFORM: ${{ matrix.platform }}
-      run: tox -vv -s false --notest
+      run: tox -vv -s false --notest -e sdist
 
     # todo: read .tox/dist from env var (see tox docs for 'distdir' property)
     - run: echo TAR_GZ_LOCATION=".tox/dist" >> $GITHUB_ENV
@@ -170,7 +170,7 @@ jobs:
 
     # TEST installed SDIST, by running Unit Tests against it
     - name: Run Unit Tests on Source Distribution (aka .tar.gz package)
-      run: 'tox -vv -s false'
+      run: tox -vv -s false -e sdist
       env:
         PLATFORM: ${{ matrix.platform }}
 
