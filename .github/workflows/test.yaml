@@ -205,7 +205,7 @@ jobs:
 
     - name: "Aggregate Code Coverage & make XML Reports"
       run: tox -e coverage --sitepackages -vv -s false
-    - run: mv ./.tox/coverage.xml "${CI_COVERAGE_XML}"
+    - run: mv ./.tox/coverage.xml "${{ steps.set_coverage_xml_name.outputs.CI_COVERAGE_XML }}"
 
     - name: "Upload Test Coverage as Artifacts"
       uses: actions/upload-artifact@v3
