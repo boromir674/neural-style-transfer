@@ -154,13 +154,9 @@ jobs:
         tox -vv -s false -e check --notest
         .tox/check/bin/pyroma --directory .
 
-    - run: echo TOXENV="{py311, py310, py39, py38}-{sdist}-{linux, macos, windows}" >> $GITHUB_OUTPUT
-      id: set_toxenv
-
     # BUILD SDIST
     - name: Create .tar.gz Source Distribution (aka pip install / python setup.py sdist)
       env:
-        TOXENV: ${{ steps.set_toxenv.outputs.TOXENV }}
         PLATFORM: ${{ matrix.platform }}
       run: tox -vv -s false --notest
 
@@ -176,7 +172,6 @@ jobs:
     - name: Run Unit Tests on Source Distribution (aka .tar.gz package)
       run: 'tox -vv -s false'
       env:
-        TOXENV: ${{ steps.set_toxenv.outputs.TOXENV }}
         PLATFORM: ${{ matrix.platform }}
 
     # ARTIFACTS: SDIST FILE
@@ -223,6 +218,7 @@ jobs:
       SDIST_NAME: ${{ steps.produced_sdist.outputs.SDIST_NAME }}
       CI_COVERAGE_XML: ${{ steps.set_coverage_xml_name.outputs.CI_COVERAGE_XML }}
 
+  ## WHEEL ##
   wheel_test:
     runs-on: ${{ matrix.platform }}
     needs: set_github_outputs
@@ -241,7 +237,7 @@ jobs:
     - run: echo WHEELS_LOCATION=wheels >> $GITHUB_ENV
 
     - name: Build Wheel Distribution (aka .whl package)
-      run: 'tox -vv -s false -e "{py311, py310, py39, py38}-{pip_wheel}-{linux, macos, windows}"'
+      run: 'tox -vv -s false -e "pip_wheel"'
       env:
         PLATFORM: ${{ matrix.platform }}
         WHEELS_DEST: ${{ env.WHEELS_LOCATION }}
@@ -256,7 +252,7 @@ jobs:
         .tox/check/bin/twine check "${{ steps.produced_wheel.outputs.WHEEL_NAME }}"
 
     - name: Run Unit Tests on Wheel Distribution (aka .whl package)
-      run: 'tox -vv -s false -e "{py311, py310, py39, py38}-{wheel}-{linux, macos, windows}"'
+      run: 'tox -vv -s false -e wheel'
       env:
         PLATFORM: ${{ matrix.platform }}
         WHEEL_FOR_INSTALL: ${{ steps.produced_wheel.outputs.WHEEL_NAME }}
