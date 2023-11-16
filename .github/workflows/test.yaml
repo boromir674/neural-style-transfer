@@ -34,11 +34,11 @@ env:
 
   ##### JOB ON/OFF SWITCHES #####
   RUN_UNIT_TESTS: "true"
-  RUN_LINT_CHECKS: "true"
+  RUN_LINT_CHECKS: "false"
   PUBLISH_ON_PYPI: "true"
-  DRAW_DEPENDENCIES: "true"
+  DRAW_DEPENDENCIES: "false"
   PREVENT_CODECOV_TEST_COVERAGE: "false"
-  DOCKER_JOB_ON: "true"
+  DOCKER_JOB_ON: "false"
   ###############################
 
   #### DOCKER Job Policy #####
@@ -134,179 +134,159 @@ jobs:
 
 
 # RUN TEST SUITE ON ALL PLATFORMS
-  test_suite:
+  sdist_test:
     runs-on: ${{ matrix.platform }}
     needs: set_github_outputs
     if: ${{ needs.set_github_outputs.outputs.TESTS_ENABLED == 'true' }}
     strategy:
       matrix: ${{fromJSON(needs.set_github_outputs.outputs.matrix)}}
-    outputs:
-      SEMVER_PIP_FORMAT: ${{ steps.parse_version.outputs.SEMVER_PIP_FORMAT }}
-      ARTIFACTS: ${{ steps.set_artifacts_ref.outputs.ARTIFACTS }}
     steps:
-    - run: echo "[INFO] Platform/OS ${{ matrix.platform }} , Python -> ${{ matrix.python-version }}"
     - uses: actions/checkout@v3
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v4
+    - uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.python-version }}
     - run: python -m pip install --upgrade pip && python -m pip install tox==3.28 tox-gh-actions
 
-    # - name: Do Type Checking
-    #   run: tox -e type -vv -s false
-
-    - name: Parse package version from __init__.py to assist building
-      shell: bash
-      id: parse_version
-      run: |
-        # The Developer must have specified the necessary information in their pyproject.toml:
-        # - Pyproject.toml MUST have the `[tool.software-release]` section.
-        #   - The Section MUST have the `version_variable` key
-        #   - The Key value MUST follow format: "<path_to_file_with_sem_ver_value>:<symbol_name>"
-        # - <path_to_file_with_sem_ver_value> MUST be relative to pyproject.toml
-        #    - File MUST have a row starting with the <symbol_name> followed by a "=" and a String Value
-        #      - String Value MUST be quoted, with either double (") or single (') quotes
-        #      - MUST match Reg Ex: \s*=\s*[\'\"]([^\'\"]*)[\'\"]
-
-        # Use Case: Single Source of Truth for Code Sem Ver
-        # A Python Dev wants to have Source of Truth for their Software Semantic Version, to benefit from:
-        #  - Having only one "thing" to maintain, rather than many, reducing work, semantic load, probability of human error
-        
-        # We assume the Dev opts for storing and mainting this information inside a .py file (which belongs to their source distribution)
-        # We assume they simply define a python (str) variable, in global scope, and assign the Sem Ver string directly.
-        # Eg: __version__ = "0.0.1", or __version__ = '1.0.1-dev'
-
-        # That way they can also read the Sem Ver of the software at runtime, by importing the value since it is inside a python file
-        
-        ## EXAMPLE Valid Setup ##
-        
-        ## File pyproject.toml:
-        
-        # [tool.software-release]
-        # version_variable = "src/artificial_artwork/__version__.py:__version__"
-
-        ## File src/artificial_artwork/__version__.py:
-
-        # __version__ = "0.0.1"  # or __version__ = '1.0.1-dev'
-
-        ## EXAMPLE END ##
-
-        # The below Parser requires all above MUST Conditions to be met, and will fail if not.
-        PARSER="scripts/parse_version.py"
-        PARSED_VERSION=$(python "${PARSER}")
-        
-        echo "==== Version Parsed: ${PARSED_VERSION} ===="
-
-        echo "[INFO] String: ${PARSED_VERSION} parsed"
-        echo "[DEBUG] We expect it to be Sem Ver 2.0 compliant"
-
-        # handle cases where user sem ver has prerelease info
-        # these cases result in artifacts (ie products of doing an 'sdist' or 'wheel' build)
-        # having names (in filesystem), that are slightly different then the ones our tool chain
-        # produces when sem ver is stricly only Major.minor.Patch 
-        
-        # ie if user supplied sem ver 1.7.4-rc.1), building a wheel produces a file with '1.7.4rc1' in its name
-        # ie if user supplied sem ver 1.7.4-dev), building a wheel produces a file with '1.7.4-dev0' in its name
-        
-
-        # manually append the 0 to index the release candidate
-        # we account for wheel building that automatically does the above
-
-        # OPT 1, performs inpput validation and shows rich output and troubleshooting messages, in case of error
-        PROCESS_SEM_VER="scripts/process_sem_ver.py"
-        WHEEL_VERSION=$(python "${PROCESS_SEM_VER}" "${PARSED_VERSION}")
-        
-        # OPT 2, the smaller the better
-        # WHEEL_VERSION=$(python -c 'import sys; s = sys.argv[1]; print( s if "-" not in sys.argv[1] else s.replace("-", ".") + "0" ); ' "${PARSED_VERSION}")
-
-        # OPT 3, the smallest, and use shell as entrpoint, but least readable
-        # WHEEL_VERSION=$(echo $PARSED_VERSION | sed -E 's/([^.]*)\.([^.]*)\.([^-]*)-(rc)\.?(.*)/\1.\2.\3\4\5/')
-        # last_two=${WHEEL_VERSION: -2}
-        # if [[ $last_two == "rc" ]]; then
-        #   WHEEL_VERSION="${WHEEL_VERSION}0"
-        # fi
-       
-        echo "==== Distribution Version $WHEEL_VERSION derived from $PARSED_VERSION ===="
-
-        if [[ -z "$WHEEL_VERSION" ]]; then
-          echo "[ERROR] Failed to derive Distribution Version from $PARSED_VERSION"
-          exit 1
-        fi
-
-        # WHEEL_VERSION is required by:
-        #  - 'twine' tool, running in Step below, locate the tar.gz for testing
-        #  - deploy command to locate the tar.gz and wheel(s) file to publish to pypi
-
-        # to be used in the next step
-        echo "PKG_VERSION=$WHEEL_VERSION" >> $GITHUB_ENV
-        echo "SEMVER_PIP_FORMAT=$WHEEL_VERSION" >> $GITHUB_OUTPUT  # to be used in other jobs
 
   ## TEST SUITE: By Default executes only unit-tests (ie no integration, or network-dependent tests)
-    - name: Run Unit Tests
-      run: tox -vv -s false
+    - run: |
+        tox -vv -s false -e check --notest
+        .tox/check/bin/pyroma --directory .
+
+    - run: echo TOXENV="{py311, py310, py39, py38}-{sdist}-{linux, macos, windows}" >> $GITHUB_OUTPUT
+      id: set_toxenv
+
+    # BUILD SDIST
+    - name: Create .tar.gz Source Distribution (aka pip install / python setup.py sdist)
       env:
+        TOXENV: ${{ steps.set_toxenv.outputs.TOXENV }}
         PLATFORM: ${{ matrix.platform }}
-    # if sdist tests ran, .tar.gz is in:
-    # .tox/${DIST_DIR}/artificial_artwork-${PKG_VERSION}.tar.gz
+      run: tox -vv -s false --notest
 
-    # if wheel tests ran, .whl's are in:
-    # .tox/${DIST_DIR}/artificial_artwork-${PKG_VERSION}-py3-none-any.whl
+    # todo: read .tox/dist from env var (see tox docs for 'distdir' property)
+    - run: echo TAR_GZ_LOCATION=".tox/dist" >> $GITHUB_ENV
+    - run: 'echo SDIST_NAME=$(basename $(find ${{ env.TAR_GZ_LOCATION }} -type f -name "artificial_artwork*.tar.gz")) >> $GITHUB_OUTPUT'
+      id: produced_sdist
+
+    - run: .tox/check/bin/pyroma --file "${{ env.TAR_GZ_LOCATION }}/${{ steps.produced_sdist.outputs.SDIST_NAME }}"
+    - run: .tox/check/bin/twine check "${{ env.TAR_GZ_LOCATION }}/${{ steps.produced_sdist.outputs.SDIST_NAME }}"
+
+    # TEST installed SDIST, by running Unit Tests against it
+    - name: Run Unit Tests on Source Distribution (aka .tar.gz package)
+      run: 'tox -vv -s false'
+      env:
+        TOXENV: ${{ steps.set_toxenv.outputs.TOXENV }}
+        PLATFORM: ${{ matrix.platform }}
+
+    # ARTIFACTS: SDIST FILE
+
+    - name: Upload Source & Wheel distributions as Artefacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: ${{ vars.ARTIFACTS_DIR_SDIST_FILES }}
+        path: ${{ env.TAR_GZ_LOCATION }}/${{ steps.produced_sdist.outputs.SDIST_NAME }}
+        if-no-files-found: error
+
+    # ARTIFACTS: RAW COVERAGE FILE
+    # .coverage.sdist
+    # coverage.sdist.xml
+    # - run: ls -l .tox/| grep coverage
+
+    # - run: echo CI_COVERAGE_RAW="coverage-${{ matrix.platform }}-${{ matrix.python-version }}" >> $GITHUB_ENV
+
+    # - run: mv ./.tox/coverage "${CI_COVERAGE_XML}"
+
+    # - name: "Upload RAW Coverage Data as Artefact"
+    #   uses: actions/upload-artifact@v3
+    #   with:
+    #     name: ${{ vars.ARTIFACTS_DIR_RAW_COVERAGE_FILES }}
+    #     path: ${{ env.CI_COVERAGE_XML }}
+    #     if-no-files-found: error
     
-    # wheel file name depends on the python version
-    # compiled (cpu architecture specific code)
-
-    # the below exaple is what to expect from 'pure python' build (
-    # meaning in theory there is no machine/cpu-specific code, no byte code,
-    # no compiled code
-    # .tox/${DIST_DIR}/artificial_artwork-${PKG_VERSION}-py3-none-any.whl
+    # XML COVERAGE ARTIFACTS
+    - run: echo CI_COVERAGE_XML="coverage-${{ matrix.platform }}-${{ matrix.python-version }}-sdist.xml" >> $GITHUB_OUTPUT
+      id: set_coverage_xml_name
 
     - name: "Aggregate Code Coverage & make XML Reports"
-      id: produce_coverage_xml_file
-      env:
-        # just "destructure" (aka extract) needed values from the matrix, to use in step code
-        PLATFORM: ${{ matrix.platform }}
-        PY_VERSION: ${{ matrix.python-version }}
-      run: |
-        tox -e coverage --sitepackages -vv -s false
-
-        RUNNER_COVERAGE_XML_FILE_PATH="coverage-${PLATFORM}-${PY_VERSION}.xml"
-
-        mv ./.tox/coverage.xml "${RUNNER_COVERAGE_XML_FILE_PATH}"
-
-        # leverages ./scripts/post-tests-run.sh which returns the path of the XML Aggregated Coverage DataXML Filecoverage report
-        # chmod +x ./scripts/post-tests-run.sh
-        # RUNNER_COVERAGE_XML_FILE_PATH=$(./scripts/post-tests-run.sh "${PLATFORM}-${PY_VERSION}")
-
-        echo "CI_COVERAGE_XML=$RUNNER_COVERAGE_XML_FILE_PATH" >> $GITHUB_OUTPUT
-        echo "CI_COVERAGE_XML_THIS=$RUNNER_COVERAGE_XML_FILE_PATH" >> $GITHUB_ENV
+      run: tox -e coverage --sitepackages -vv -s false
+    - run: mv ./.tox/coverage.xml "${CI_COVERAGE_XML}"
 
     - name: "Upload Test Coverage as Artifacts"
       uses: actions/upload-artifact@v3
       with:
-        name: all_coverage_raw
-        path: ${{ env.CI_COVERAGE_XML_THIS }}
-        # steps.produce_coverage_xml_file.outputs.retval
-        # path: coverage-${{ matrix.platform }}-${{ matrix.python-version }}.xml
+        name: ${{ vars.RAW_COVERAGE_ARTIFACTS }}
+        path: ${{ steps.set_coverage_xml_name.outputs.CI_COVERAGE_XML }}
         if-no-files-found: error
 
-    - name: Check for compliance with Python Best Practices
-      shell: bash
-      run: |
-        DIST_DIR=dist
-        echo "DIST_DIR=dist" >> $GITHUB_ENV  #  can be uesd in a with body of a next step in the Job, as eg: path: ${{ env.DIST_DIR }}
-        mkdir ${DIST_DIR}
-        
-        TOXENV_DIST_DIR=".tox/dist"
-        echo TOXENV_DIST_DIR="${TOXENV_DIST_DIR}" >> $GITHUB_ENV
+    outputs:
+      SDIST_NAME: ${{ steps.produced_sdist.outputs.SDIST_NAME }}
+      CI_COVERAGE_XML: ${{ steps.set_coverage_xml_name.outputs.CI_COVERAGE_XML }}
 
-        echo "[DEBUG] ls -la ${TOXENV_DIST_DIR}"
-        ls -la ${TOXENV_DIST_DIR}
-    
-    # move .tar.gz
-    - run: cp "${TOXENV_DIST_DIR}/artificial_artwork-${PKG_VERSION}.tar.gz" "${DIST_DIR}"
-    
-    # move .whl
-    - run: cp "${TOXENV_DIST_DIR}/artificial_artwork-${PKG_VERSION}-py3-none-any.whl" "${DIST_DIR}"
+  wheel_test:
+    runs-on: ${{ matrix.platform }}
+    needs: set_github_outputs
+    if: ${{ needs.set_github_outputs.outputs.TESTS_ENABLED == 'true' }}
+    strategy:
+      matrix: ${{fromJSON(needs.set_github_outputs.outputs.matrix)}}
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+    - run: python -m pip install --upgrade pip && python -m pip install tox==3.28 tox-gh-actions
+
+
+    # BUILD wheel(s), install and TEST, by running Unit Tests against the installed distro
+    - run: echo WHEELS_LOCATION=wheels >> $GITHUB_ENV
+
+    - name: Build Wheel Distribution (aka .whl package)
+      run: 'tox -vv -s false -e "{py311, py310, py39, py38}-{pip_wheel}-{linux, macos, windows}"'
+      env:
+        PLATFORM: ${{ matrix.platform }}
+        WHEELS_DEST: ${{ env.WHEELS_LOCATION }}
+
+    - run: 'echo WHEEL_NAME=$(basename $(find "${WHEELS_LOCATION}" -type f -name "artificial_artwork*.whl")) >> $GITHUB_OUTPUT'
+      id: produced_wheel
+
+    - run: cp "${{ env.WHEELS_LOCATION }}/${{ steps.produced_wheel.outputs.WHEEL_NAME }}" ./
+
+    - run: |
+        tox -vv -s false -e check --notest
+        .tox/check/bin/twine check "${{ steps.produced_wheel.outputs.WHEEL_NAME }}"
+
+    - name: Run Unit Tests on Wheel Distribution (aka .whl package)
+      run: 'tox -vv -s false -e "{py311, py310, py39, py38}-{wheel}-{linux, macos, windows}"'
+      env:
+        PLATFORM: ${{ matrix.platform }}
+        WHEEL_FOR_INSTALL: ${{ steps.produced_wheel.outputs.WHEEL_NAME }}
+
+    # ARTIFACTS: WHEEL FILE
+
+    - name: Upload Wheel distribution in Artefacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: ${{ vars.ARTIFACTS_DIR_WHEEL_FILES }}
+        path: ${{ steps.produced_sdist.outputs.SDIST_NAME }}
+        if-no-files-found: error
+
+    # XML COVERAGE ARTIFACTS
+    - run: echo CI_COVERAGE_XML="coverage-${{ matrix.platform }}-${{ matrix.python-version }}-wheel.xml" >> $GITHUB_OUTPUT
+      id: set_coverage_xml_name
+
+    - name: "Aggregate Code Coverage & make XML Reports"
+      run: tox -e coverage --sitepackages -vv -s false
+    - run: mv ./.tox/coverage.xml "${CI_COVERAGE_XML}"
+
+    - name: "Upload Test Coverage as Artifacts"
+      uses: actions/upload-artifact@v3
+      with:
+        name: ${{ vars.RAW_COVERAGE_ARTIFACTS }}
+        path: ${{ steps.set_coverage_xml_name.outputs.CI_COVERAGE_XML }}
+        if-no-files-found: error
+
+    outputs:
+      WHEEL_NAME: ${{ steps.produced_wheel.outputs.WHEEL_NAME }}
+      CI_COVERAGE_XML: ${{ steps.set_coverage_xml_name.outputs.CI_COVERAGE_XML }}
 
     # - run: tox -e check -vv -s false
 
@@ -319,16 +299,6 @@ jobs:
     #   if: ${{ matrix.platform == 'ubuntu-latest' || matrix.python-version  != '3.6' }}
     #   run: tox -e docs --sitepackages -vv -s false
 
-    - run: echo ARTIFACTS="${{ env.DIST_DIR }}-${{ matrix.platform }}-${{ matrix.python-version }}" >> $GITHUB_OUTPUT
-      id: set_artifacts_ref
-
-    - name: Upload Source & Wheel distributions as Artefacts
-      uses: actions/upload-artifact@v3
-      with:
-        name: ${{ steps.set_artifacts_ref.outputs.ARTIFACTS }}
-        path: ${{ env.DIST_DIR }}
-        if-no-files-found: error
-
 
 ### JOB: UPLOAD COVERAGE REPORTS TO CODECOV ###
 
@@ -339,14 +309,13 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Get Codecov binary
-      run: |
-        curl -Os https://uploader.codecov.io/latest/linux/codecov
-        chmod +x codecov
+      run: curl -Os https://uploader.codecov.io/latest/linux/codecov
+    - run: chmod +x codecov
     - name: Download XML Test Coverage Results, from CI Artifacts
       uses: actions/download-artifact@v3
       with:
         name: all_coverage_raw
-    - name: Upload Coverage Reports to Codecov
+    - name: Push to Codecov each XML Coverage Report
       run: |
         for file in coverage*.xml; do
           OS_NAME=$(echo $file | sed -E "s/coverage-(\w\+)-/\1/")
