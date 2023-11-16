@@ -264,7 +264,7 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: ${{ vars.ARTIFACTS_DIR_WHEEL_FILES }}
-        path: ${{ steps.produced_wheel.outputs.SDIST_NAME }}
+        path: ${{ steps.produced_wheel.outputs.WHEEL_NAME }}
         if-no-files-found: error
 
     # XML COVERAGE ARTIFACTS
