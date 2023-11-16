@@ -459,7 +459,7 @@ jobs:
         id: derive_docker_policy
 
   docker_build:
-    needs: [read_docker_settings, test_suite]
+    needs: [read_docker_settings, sdist_test, wheel_test]
     uses: boromir674/automated-workflows/.github/workflows/docker.yml@v1.1.0
     if: always()
     with:
