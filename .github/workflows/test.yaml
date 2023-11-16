@@ -210,7 +210,7 @@ jobs:
     - name: "Upload Test Coverage as Artifacts"
       uses: actions/upload-artifact@v3
       with:
-        name: ${{ vars.RAW_COVERAGE_ARTIFACTS }}
+        name: ${{ vars.COVERAGE_XML_ARTIFACTS }}
         path: ${{ steps.set_coverage_xml_name.outputs.CI_COVERAGE_XML }}
         if-no-files-found: error
 
@@ -278,7 +278,7 @@ jobs:
     - name: "Upload Test Coverage as Artifacts"
       uses: actions/upload-artifact@v3
       with:
-        name: ${{ vars.RAW_COVERAGE_ARTIFACTS }}
+        name: ${{ vars.COVERAGE_XML_ARTIFACTS }}
         path: ${{ steps.set_coverage_xml_name.outputs.CI_COVERAGE_XML }}
         if-no-files-found: error
 
