@@ -236,11 +236,13 @@ jobs:
     # BUILD wheel(s), install and TEST, by running Unit Tests against the installed distro
     - run: echo WHEELS_LOCATION=wheels >> $GITHUB_ENV
 
-    - name: Build Wheel Distribution (aka .whl package)
-      run: 'tox -vv -s false -e "pip_wheel"'
+    - run: echo PY_VER="${MY_PY_VER//./}" >> $GITHUB_OUTPUT
+      id: set_py_ver
       env:
-        PLATFORM: ${{ matrix.platform }}
-        WHEELS_DEST: ${{ env.WHEELS_LOCATION }}
+        MY_PY_VER: ${{ matrix.python-version }}
+
+    - name: Build Wheel Distribution (aka .whl package)
+      run: 'tox -vv -s false -e "py${{ steps.set_py_ver.outputs.PY_VER }}-pip_wheel-linux"'
 
     - run: 'echo WHEEL_NAME=$(basename $(find "${WHEELS_LOCATION}" -type f -name "artificial_artwork*.whl")) >> $GITHUB_OUTPUT'
       id: produced_wheel
@@ -252,9 +254,8 @@ jobs:
         .tox/check/bin/twine check "${{ steps.produced_wheel.outputs.WHEEL_NAME }}"
 
     - name: Run Unit Tests on Wheel Distribution (aka .whl package)
-      run: 'tox -vv -s false -e wheel'
+      run: 'tox -vv -s false -e "py${{ steps.set_py_ver.outputs.PY_VER }}-wheel-linux"'
       env:
-        PLATFORM: ${{ matrix.platform }}
         WHEEL_FOR_INSTALL: ${{ steps.produced_wheel.outputs.WHEEL_NAME }}
 
     # ARTIFACTS: WHEEL FILE
