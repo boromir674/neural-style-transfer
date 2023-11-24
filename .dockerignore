@@ -15,7 +15,6 @@ demo-image*\.png
 
 coverage*\.xml
 \.ruff_cache/
-\.devcontainer/
 
 events.out.tfevents*
 ela
@@ -26,7 +25,7 @@ ela
 
 # Docker
 docker-compose.yml
-.docker
+# .docker
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -99,7 +98,7 @@ package-lock.json
 # Pretrained_Model_LICENSE.txt
 # imagenet-vgg-verydeep-19.mat.tar
 MANIFEST.in
-scripts/
+# scripts/
 requirements/
 codecov-script
 

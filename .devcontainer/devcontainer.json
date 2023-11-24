@@ -5,7 +5,7 @@
 	//Dedicated to Docker-compose
 	//----------------------
 	"dockerComposeFile": [
-		"docker-compose-dev-container.yml",
+		"docker-compose-dev-container.yml"
 		// "docker-compose-tensorboard.yml"
 	],
 	// set the service to connect to, out of all the "composed" services

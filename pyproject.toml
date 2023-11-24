@@ -73,73 +73,28 @@ classifiers = [
 
 [tool.poetry.dependencies]
 # no extensive tests for > 3.8 (ie 3.9, 3.10, 3.11)
-python = "~3.8"
-cython = "^3.0.2"
+# 3.8.0 <= python <3.9.0
+# python = "~3.8"
+python = ">=3.8, <3.12"
 
-tensorflow = "2.2.0"
 click = "^8.1.7"
-software-patterns = "^2.0.0"
-attrs = "^23.1.0"
-numpy = "~1.21.3"
-scipy = "~1.4.1"
-imageio = "~2.10.1"
-protobuf = "^3.19.1"
+software-patterns = "^2.0"
+attrs = "^23.1"
+imageio = "^2.10"
+scipy = "^1.4"
+pytest = {version = "^7.4.3", optional = true}
 
-# Test Suite Runner and Fictures provider
-pytest = {version = "^7.4.2", optional = true}
-# Fixtures Provider and pytest marker provider
-pytest-click = {version = "^1.1.0", optional = true}
-# coverage provider
-pytest-cov = {version = "^4.1.0", optional = true}
-# support mapping marked tests with requiring explicit flags to be picked up
-pytest-explicit = {version = "^1.0.1", optional = true}
-# automatically distribute test cases execution among available CPUs
-pytest-xdist = {version = "^3.3.1", optional = true}
-
-# Support running a tkinter GUI client
-matplotlib = {version = "~3.7", optional = true}
-
-# DOCS
-mkdocs = {version = "^1.5.3", optional = true}
-mkdocs-click = {version = "^0.8.1", optional = true}
-mkdocs-material = {version = "^9.4.8", optional = true}
-pymdown-extensions = {version = "^10.4", optional = true}
-mkdocs-mermaid2-plugin = {version = "^1.1.1", optional = true}
-# mkdocstrings = {version = "^0.24.0", optional = true}
-mkdocs-gen-files = {version = "^0.5.0", optional = true}
-mkdocstrings = {version = "^0.24.0", optional = true}
-mkdocstrings-python = {version = "^1.7.4", optional = true}
-mkdocs-literate-nav = {version = "^0.6.1", optional = true}
-mkdocs-section-index = {version = "^0.3.8", optional = true}
-mkdocs-macros-plugin = {version = "^1.0.5", optional = true}
-
+#    "pytest-cov",
+#    "pytest-explicit",
+#    "pytest-click",
+#    "pytest-xdist",
 
 [tool.poetry.extras]
 test = [
     "pytest",
-    "pytest-cov",
-    "pytest-explicit",
-    "pytest-click",
-    "pytest-xdist",
-]
-gui = [
-    "matplotlib",
-]
-docs = [
-    "mkdocs",
-    "mkdocs-click",
-    "mkdocs-material",
-    "pymdown-extensions",
-    "mkdocs-mermaid2-plugin",
-    "mkdocstrings",
-    "mkdocs-gen-files",
-    "mkdocstrings-python",
-    "mkdocs-literate-nav",
-    "mkdocs-section-index",
-    "mkdocs-macros-plugin",
 ]
 
-# CLI / ENTRYPOINTS
+
 [tool.poetry.scripts]
 nst = 'artificial_artwork.cli:entry_point'
 

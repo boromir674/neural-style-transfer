@@ -40,3 +40,7 @@ dependency-graphs/
 test-results/
 uml-diagrams/
 pydoer-graphs/
+site/
+tensor-logs/
+logs*/
+\.env

@@ -9,7 +9,7 @@ services:
       args:  # build arguments (passed on docker build)
         # Python version to use (ie 3.10, 3.8)
         # python 3.8 is the first runtime that the app is developed to run on
-        VARIANT: "3.8"
+        VARIANT: "3.11"
 
     # hard-coded env variables to inject in the built image/container at runtime
     environment:
