@@ -440,9 +440,7 @@ def toy_nst_algorithm(toy_model_data, toy_network_design, monkeypatch):
         monkeypatch.setattr(vgg, "VggModelHandler", ToyModelHandler)  # Patch/replace-with-mock
 
         # 2nd we patch the AA_VGG_19 env var which the code strictly requires to find
-        import os
-
-        os.environ["AA_VGG_19"] = "unit-tests-toy-value"  # Patch/replace-with-mock
+        monkeypatch.setenv("AA_VGG_19", "unit-tests-toy-value")
 
         # Prod Code uses the 'default' factory (classmetod) method of class
         # NetworkDesign, in order to instantiate a NetworkDesign object
