@@ -9,8 +9,7 @@ from .model_handler_interface import ModelHandlerInterface
 
 
 class ReporterProtocol(Protocol):
-    def get_weights(self, layer_id: str) -> Tuple[NDArray, NDArray]:
-        ...
+    def get_weights(self, layer_id: str) -> Tuple[NDArray, NDArray]: ...
 
 
 class Modelhandler(ModelHandlerInterface):

@@ -1,5 +1,6 @@
 """Bridges the Backend code with the CLI's main (aka run) cmd
 """
+
 import os
 
 from .algorithm import AlogirthmParameters, NSTAlgorithm

@@ -23,8 +23,7 @@ class NSTStyleLayerType(t.Protocol):
 
 
 class NSTLayerSelectionType(t.Protocol):
-    def __iter__(self) -> t.Iterable[t.Tuple[LayerID, NSTStyleLayerType]]:
-        ...
+    def __iter__(self) -> t.Iterable[t.Tuple[LayerID, NSTStyleLayerType]]: ...
 
 
 class NetworkDesignType(t.Protocol):

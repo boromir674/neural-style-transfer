@@ -10,8 +10,7 @@ class MetricsCapable(Protocol):
 
 
 class TerminationConditionProtocol(Protocol):
-    def satisfied(self, progress: Any) -> bool:
-        ...
+    def satisfied(self, progress: Any) -> bool: ...
 
 
 class AbstractTerminationConditionAdapter(ABC):

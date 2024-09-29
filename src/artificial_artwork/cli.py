@@ -17,8 +17,7 @@ class WithStateAttribute(t.Protocol):
 
 
 class HandleAlgorithmProgressUpdatesAble(t.Protocol):
-    def update(self, subject: WithStateAttribute) -> None:
-        ...
+    def update(self, subject: WithStateAttribute) -> None: ...
 
 
 this_file_location = os.path.dirname(os.path.realpath(os.path.abspath(__file__)))
