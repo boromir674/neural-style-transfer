@@ -80,10 +80,12 @@ tensorflow = "2.2.0"
 click = "^8.1.7"
 software-patterns = "^2.0.0"
 attrs = "^23.1.0"
+protobuf = "^3.19.1"
+
+# Only accept Patch/Security/Fix updates
 numpy = "~1.21.3"
 scipy = "~1.4.1"
 imageio = "~2.10.1"
-protobuf = "^3.19.1"
 
 # Test Suite Runner and Fictures provider
 pytest = {version = "^7.4.2", optional = true}
