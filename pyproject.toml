@@ -73,18 +73,19 @@ classifiers = [
 
 [tool.poetry.dependencies]
 # no extensive tests for > 3.8 (ie 3.9, 3.10, 3.11)
-python = "~3.8"
+python = ">=3.10,<3.12"
+# python = "~3.8"
 cython = "^3.0.2"
 
-tensorflow = "2.2.0"
+tensorflow = "^2.2.0"
 click = "^8.1.7"
 software-patterns = "^2.0.0"
 attrs = "^23.1.0"
 protobuf = "^3.19.1"
 
 # Only accept Patch/Security/Fix updates
-numpy = "~1.21.3"
-scipy = "~1.4.1"
+numpy = { version = "~1" }
+scipy = "^1.4.1"
 imageio = "~2.10.1"
 
 # Test Suite Runner and Fictures provider
