@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import argparse
 import re
+import sys
 import typing as t
 from pathlib import Path
 
@@ -12,13 +13,14 @@ def parse_dockerfile(dockerfile_path):
     copies = {}
     # Line match at current line
     current_stage = None
-    stage_name_reg = r'[\w:\.\-]+'
+    stage_name_reg = r'[\w:\.\-_]+'
     stage_reg = re.compile(
         rf'^FROM\s+(?P<stage>{stage_name_reg})\s+[Aa][Ss]\s+(?P<alias>{stage_name_reg})'
     )
 
     copy_from_reg = re.compile(
-        r'^COPY\s+\-\-from=(?P<prev_stage>[\w\.\-:]+)\s+(?P<path>[\w\.\-:/]+)'
+        rf'^COPY\s+\-\-from=(?P<prev_stage>{stage_name_reg})\s+'
+        + r'(?P<path>[\w\.\-:/_\${}]+)\s+'
     )
 
     with open(dockerfile_path, 'r') as f:
@@ -75,16 +77,21 @@ def generate_mermaid_flow_chart(dockerfile_dag):
         for prev_copy in prev_copies:
             prev_stage: str = prev_copy[0]
             # write copied path in arrow text
-            # path_copied: str = prev_copy[1]
-            # chart += f"  {prev_stage} " + dotted_arrow_with_text.format(text=path_copied) + f" {stage}\n"
-            # write COPY (literal) in arrow text
+            path_copied: str = prev_copy[1]
             chart += (
-                f"  {prev_stage} " + dotted_arrow_with_text.format(text='COPY') + f" {stage}\n"
+                f"  {prev_stage} "
+                + dotted_arrow_with_text.format(text=path_copied)
+                + f" {stage}\n"
             )
+            # write COPY (literal) in arrow text
+            # chart += (
+            #     f"  {prev_stage} " + dotted_arrow_with_text.format(text='COPY') + f" {stage}\n"
+            # )
 
     return chart
 
 
+## Embed Mermaid to MARKDOWN ##
 def generate_markdown(dockerfile_path, output_path):
     dockerfile_dag = parse_dockerfile(dockerfile_path)
 
@@ -95,13 +102,21 @@ def generate_markdown(dockerfile_path, output_path):
         f"**Dockerfile: {dockerfile_path}**\n\n"
         f"```mermaid\n{flow_chart}```\n"
     )
-    if output_path is None:
-        print(markdown)
-        return
-    with open(output_path, 'w') as f:
-        f.write(markdown)
+    return markdown
 
-    print(f"Markdown generated and saved to {output_path}")
+
+## Embed Mermaid to RST ##
+def generate_rst(dockerfile_path, output_path):
+    dockerfile_dag = parse_dockerfile(dockerfile_path)
+
+    flow_chart = generate_mermaid_flow_chart(dockerfile_dag)
+
+    TAB = 3 * ' '
+    # "Dockerfile Flow Chart\n"
+    # f"====================\n\n"
+    # f"Dockerfile: {dockerfile_path}\n\n"
+    rst = ".. mermaid::\n\n" + '\n'.join([TAB + x for x in flow_chart.split('\n')])
+    return rst
 
 
 def parse_cli_args() -> t.Tuple[Path, t.Optional[str]]:
@@ -113,7 +128,12 @@ def parse_cli_args() -> t.Tuple[Path, t.Optional[str]]:
     parser.add_argument(
         '-o', '--output', help='Output path. If not specified, print to stdout.'
     )
-
+    parser.add_argument(
+        '--rst',
+        help='Whether to generate RST content. Default MD',
+        action='store_true',
+        default=False,
+    )
     args = parser.parse_args()
 
     dockerfile: Path = Path(args.dockerfile_path)
@@ -121,9 +141,21 @@ def parse_cli_args() -> t.Tuple[Path, t.Optional[str]]:
         # explicitly use cwd to try again to find it
         dockerfile = Path.cwd() / args.dockerfile_path
 
-    return dockerfile, args.output
+    return dockerfile, args
 
 
 if __name__ == '__main__':
-    dockerfile_path, output_path = parse_cli_args()
-    generate_markdown(dockerfile_path, output_path)
+    dockerfile_path, args = parse_cli_args()
+    output_path = args.output
+    if args.rst:
+        content: str = generate_rst(dockerfile_path, output_path)
+    else:
+        content: str = generate_markdown(dockerfile_path, output_path)
+    if output_path is None:
+        print(content)
+        sys.exit(0)
+
+    with open(output_path, 'w') as f:
+        f.write(content)
+
+    print(f"{'RST' if args.rst else 'MARKDOWN'} generated and saved to {output_path}")
