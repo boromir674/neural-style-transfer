@@ -503,7 +503,7 @@ jobs:
       tests_pass: ${{ needs.test_suite.result == 'success' }}
       tests_run: ${{ !contains(fromJSON('["skipped", "cancelled"]'), needs.test_suite.result) }}
       image_slug: "neural-style-transfer-cli"
-      target_stage: "prod_install"
+      target_stage: "install"
     secrets:
       DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
 

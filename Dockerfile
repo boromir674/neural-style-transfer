@@ -1,14 +1,26 @@
-### Start Stage: Use Python 3.8
-FROM python:3.8.12-slim-bullseye as base
 
-FROM base as source
+## Build-time Python Interpreter Version (--build-arg PY_VERSION=3.11.10)
+ARG PY_VERSION=3.11.10
 
+FROM python:${PY_VERSION}-slim-bullseye as base
+# FROM python:${PY_VERSION}-alpine3.20 as base
+
+## Provide Poetry
+FROM base as poetry
+COPY poetry.lock pyproject.toml ./
+ENV POETRY_HOME=/opt/poetry
+RUN python -c 'from urllib.request import urlopen; print(urlopen("https://install.python-poetry.org").read().decode())' | python
+
+
+FROM poetry AS pip_deps_prod
+RUN "$POETRY_HOME/bin/poetry" export -f requirements.txt > requirements.txt
+
+
+FROM scratch as source
 WORKDIR /app
-
+COPY --from=pip_deps_prod requirements.txt .
 # Copy Source Code
 # COPY . .
-
-# TODO improve below (chached wheels could help)
 COPY src src
 COPY CHANGELOG.md .
 COPY pyproject.toml .
@@ -17,59 +29,68 @@ COPY LICENSE .
 COPY README.rst .
 # COPY Pretrained_Model_LICENSE.txt .
 
+## Provides Python Runtime and DISTRO_WHEELS folder
+FROM base as base_env
 
-# BRANCH 1
+# Wheels Directory for Distro and its Dependencies (aka requirements)
+ENV DISTRO_WHEELS=/app/dist
 
-### Prod Build Wheels ###
 
-FROM source AS prod
+### Build Wheels for Prod ###
+FROM base_env AS build_wheels
 
-# Install dependencies
+# RUN apk update && \
+#     apk add --no-cache build-base && \
+#     pip install --upgrade pip && \
+#     rm -rf /var/cache/apk/*
+
+# Install Essential build tools
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends build-essential && \
+    pip install -U pip && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# Essential build-time dependencies
 RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir poetry-core
-
-# Build Wheels for package and its python dependencies
-RUN pip wheel --wheel-dir /app/dist /app
-
-
-FROM base AS prod_install
-
-# this Stage does not need Source Code
+    pip install --no-cache-dir poetry-core && \
+    pip install --no-cache-dir build
 
 WORKDIR /app
+COPY --from=source /app .
 
-# we extract the wheels built in 'prod'
-COPY --from=prod /app/dist dist
+# Build Wheels for package and its python dependencies
+RUN pip wheel --wheel-dir "${DISTRO_WHEELS}" -r ./requirements.txt
+# RUN pip wheel --wheel-dir /app/dist /app
+
+# Build Wheels for Distro's Package
+RUN python -m build --outdir "/tmp/build-wheels" && \
+    mv /tmp/build-wheels/*.whl "${DISTRO_WHEELS}"
+
+CMD [ "ls", "-l", "/app/dist" ]
+
+### Install pre-built wheels
+FROM base_env AS install
+ENV DIST_DIR=dist
+WORKDIR /app
+
+# we copy the wheels built in 'build_wheels' stage
+COPY --from=build_wheels ${DISTRO_WHEELS} ./${DIST_DIR}
+# RUN ls -l dist
 
 # Install wheels for python package and its deps
 # in user site-packages (ie /root/.local/lib/python3.8/site-packages)
-RUN pip install --no-cache-dir --user ./dist/*.whl
-
-# all code-wise has been successfully built (wheels) and installed
-
-# Distribution installed (prod wheels)
-
+RUN pip install --no-cache-dir --user ./${DIST_DIR}/*.whl
+# RUN pip install --no-cache-dir --user ${DISTRO_WHEELS}/*.whl
 # Optionaly, add the CLI executable to the PATH
 # to make the `nst` CLI available in the image
 ENV PATH="/root/.local/bin:$PATH"
 
-## This is a Builder kind of Stage
-## Consider using the docker feature on-build
-
-# build: docker build --target prod_install -t nst_cli .
-# Usable as: docker run -it --rm nst_cli --entrypoint nst
-
-# EG: docker run -it --rm nst_cli nst --help
-
 CMD [ "nst" ]
 
-### END of Prod Build Installation ###
 
-
-
-### Stage: Bake Model Weights into Image ###
-
-FROM prod_install AS prod_ready
+### Non-default Stage: Bake Model Weights into Image ###
+FROM install AS prod_ready
 
 ENV PATH="/root/.local/bin:$PATH"
 # Now the App CLI is available as `nst`
@@ -113,10 +134,6 @@ ENV PATH="/root/.local/bin:$PATH"
 #      --build-arg BUILD_TIME_VGG="/data/repos/neural-style-transfer/pretrained_model_bundle/imagenet-vgg-verydeep-19.mat" \
 #      .
 
-# POC for persisting a variable as env var available in the image after build
-# ARG CONT_IMG_VER
-# ENV CONT_IMG_VER=${CONT_IMG_VER:-v1.0.0}
-# END of POC
 
 ## Build Time Args ##
 # not available at run time, like ENV vars
@@ -178,11 +195,6 @@ ENV STYLE_IMAGE_DEMO="/app/${DEMO_STYLE_IMAGE}"
 # runs the NST Algorithm on the Demo Content and Style Images for a few iterations
 CMD ["nst", "demo"]
 
-
-FROM prod_ready as default
-
-CMD [ "nst" ]
-
 ### Stage: Default Target (for Production)
 # Just to allow `docker buil` use this as target if not specified
 
@@ -195,54 +207,6 @@ ENTRYPOINT [ "nst" ]
 # overwrite: docker run --entrypoint /bin/bash -it --rm nst-prod-runtime
 
 
+FROM prod_ready as default
 
-
-## Notes
-
-# if there is aneed that the image model weight get into the image at build-time
-# then we think of 2 approaches:
-
-# OPT 1
-# A Stage here, where the image is copied from host and then we can build 2 versions
-# for dockerhub, an image with and image without pre-baked starting model weights
-
-# OPT 2
-# or we supply a docker build time argument that lets the user set the path to
-# the model weights, 
-
-
-
-
-# get rid of Stage 1 and keep only requirements.txt from it
-# Get rid of prev image and start fresh
-
-
-# Probably will need tools for building tensorflow, numpy, scipy
-# RUN apt-get update && \
-#     apt-get install -y --no-install-recommends build-essential && \
-#     pip install -U pip && \
-#     apt-get clean && \
-#     rm -rf /var/lib/apt/lists/*
-
-# Research:
-# Do we have both tar.gz and wheel(s)?
-# where are they?
-# ideally, we want to have available here all prebuilt wheels
-# required for our artificial_artwork python package and all its
-# python dependencies, so that we install as many wheels as possible
-# but why, to avoid
-# WORKDIR /app
-
-# ADD imagenet-vgg-verydeep-19.mat.tar .
-
-# COPY requirements/dev.txt reqs.txt
-# RUN pip install -r reqs.txt
-
-# COPY . .
-
-# RUN pip install -e .
-
-# COPY tests tests
-
-# ENTRYPOINT [ "neural-style-transfer" ]
-
+CMD [ "nst" ]
