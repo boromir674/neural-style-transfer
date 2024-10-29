@@ -1,3 +1,4 @@
+from pathlib import Path
 import tkinter as tk
 from tkinter import filedialog
 import threading
@@ -11,8 +12,12 @@ from PIL import Image, ImageTk  # You need to install the Python Imaging Library
 from artificial_artwork._main import create_algo_runner
 from artificial_artwork.image import convert_to_uint8
 
+# runtime directory of this file script
+my_dir: Path = Path(__file__).parent
+
 
 # CONSTANTS
+# Component assets for input at render time
 IMAGE_COMP_ASSETS = {
     'content': {
         'load_button_text': "Select Content Image",
@@ -23,6 +28,9 @@ IMAGE_COMP_ASSETS = {
         'label_text': "Style Image:",
     },
 }
+# Default Content and Style images for quick test/nst-run
+DEFAULT_CONTENT_IMAGE = my_dir / 'tests/data/canoe_water_w300-h225.jpg'
+DEFAULT_STYLE_IMAGE = my_dir / 'tests/data/blue-red_w300-h225.jpg'
 
 # width x height
 WINDOW_GEOMETRY: str = '2600x1800'
@@ -39,18 +47,9 @@ GENERATED_IMAGE_THUMBNAIL_SIZE = (500, 500)
 img_type_2_path = {}
 
 # Helper Functions
-def _build_open_image_dialog_callback(image_file_label, image_type: str):
-    def _open_image_dialog():
-        file_path = filedialog.askopenfilename()
-        if file_path:
-            img_type_2_path[image_type] = file_path
-            image_file_label.config(text=f'{IMAGE_COMP_ASSETS[image_type]["label_text"]} {file_path}')
-    return _open_image_dialog
-
-
-def _build_open_image_dialog_callback_v2(x, image_type: str):
+def _build_open_image_dialog_callback_v2(x, image_type: str, initial_file=None):
     def _open_file_dialog_v2():
-        file_path = filedialog.askopenfilename()
+        file_path = filedialog.askopenfilename(initialfile=initial_file)
         if file_path:
             image_label = x['image_label']
             image_pane = x['image_pane']
@@ -71,16 +70,21 @@ def _build_open_image_dialog_callback_v2(x, image_type: str):
 
 # MAIN
 
+## GLOBAL STATE of the UI
+stop_nst = False  # signal from user's interaction with UI
+nst_running = False  # signal from backend's running state
+
+
 images_components_data = {
     'content': dict(
         IMAGE_COMP_ASSETS['content'],
-        image_dialog_from_label=lambda label_obj: _build_open_image_dialog_callback(label_obj, 'content'),
-        image_dialog=lambda x: _build_open_image_dialog_callback_v2(x, 'content'),
+        # image_dialog_from_label=lambda label_obj: _build_open_image_dialog_callback(label_obj, 'content'),
+        image_dialog=lambda x: _build_open_image_dialog_callback_v2(x, 'content', initial_file=DEFAULT_CONTENT_IMAGE),
     ),
     'style': dict(
         IMAGE_COMP_ASSETS['style'],
-        image_dialog_from_label=lambda label_obj: _build_open_image_dialog_callback(label_obj, 'style'),
-        image_dialog=lambda x: _build_open_image_dialog_callback_v2(x, 'style'),
+        # image_dialog_from_label=lambda label_obj: _build_open_image_dialog_callback(label_obj, 'style'),
+        image_dialog=lambda x: _build_open_image_dialog_callback_v2(x, 'style', initial_file=DEFAULT_STYLE_IMAGE),
     ),
 }
 
