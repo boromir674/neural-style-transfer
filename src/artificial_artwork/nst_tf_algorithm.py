@@ -48,8 +48,9 @@ class NSTAlgorithmRunner:
     # model_design = attr.ib()
     optimization = attr.ib(default=attr.Factory(lambda: Optimization()))
 
+    # attributes populate on each run
     nst_algorithm = attr.ib(init=False, default=None)
-    parameters = attr.ib(init=False, default=None)
+    stop_signal: t.Optional[t.Callable[[], bool]] = attr.ib(init=False, default=None)
 
     nn_builder = attr.ib(init=False, default=None)
     nn_cost_builder = attr.ib(init=False, default=None)
@@ -74,9 +75,11 @@ class NSTAlgorithmRunner:
         self,
         nst_algorithm,
         model_design: ModelDesignType,
+        stop_signal: t.Optional[t.Callable[[], bool]] = None,
     ):
         ## Prepare ##
         self.nst_algorithm = nst_algorithm
+        self.stop_signal = stop_signal
 
         c_image = nst_algorithm.parameters.content_image
         s_image = nst_algorithm.parameters.style_image
@@ -268,7 +271,11 @@ class NSTAlgorithmRunner:
     def _progress(self, generated_image, completed_iterations: int) -> Dict:
         return {
             "metrics": {
+                # src/artificial_artwork/termination_condition_adapter.py
+                # keys defined that match the keys inside the 'new_class' function
+                # allow TerminationCondition integration
                 "iterations": completed_iterations,  # number of iterations completed
+                "stop-signal": self.stop_signal,  # stop signal callback function
             },
             "content_image_path": self.nst_algorithm.parameters.content_image.file_path,
             "style_image_path": self.nst_algorithm.parameters.style_image.file_path,
