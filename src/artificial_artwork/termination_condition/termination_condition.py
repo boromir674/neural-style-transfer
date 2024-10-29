@@ -1,3 +1,4 @@
+from typing import Callable, Optional
 import attr
 from software_patterns import SubclassRegistry
 
@@ -15,6 +16,16 @@ class TerminationFactoryMeta(SubclassRegistry[TerminationConditionInterface]):
 class TerminationFactory(metaclass=TerminationFactoryMeta):
     pass
 
+#####
+# Implement Termination Conditions, by leveraging the Factory Method Pattern
+# encapsulate any internal state, using one or more instance attribute(s) (ie see below 'max_iterations', 'min_improvement')
+# Note: client code needs to know how many args each constructor supports
+
+# Guide:
+# 1. Use decorators as below
+# 2. Inherit from TerminationConditionInterface, providing type for generic T (ie TerminationConditionInterface[int])
+#    Type T corresponds to the 'progress' object in the `satisfied(self, progress: T)` method
+# 4. Implement the `satisfied(self, iterations: T)` -> bool method, return True when the algo should stop
 
 @attr.s
 @TerminationFactory.register_as_subclass("max-iterations")
@@ -42,7 +53,18 @@ class TimeLimit(TerminationConditionInterface[float]):
     def satisfied(self, duration: float) -> bool:
         return self.time_limit <= duration
 
+StopSignal = Optional[Callable[[], bool]]
+@attr.s
+@TerminationFactory.register_as_subclass("stop-signal")
+class RuntimeStopSignal(TerminationConditionInterface[StopSignal]):
 
+    def satisfied(self, stop_signal: StopSignal) -> bool:
+        if stop_signal is None:
+            return False
+        return stop_signal()
+
+
+# Single factory/endpoint for creating TerminationCondition instances
 class TerminationConditionFacility:
     class_registry: SubclassRegistry = TerminationFactory
 
