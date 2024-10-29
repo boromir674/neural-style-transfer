@@ -147,15 +147,14 @@ style_image_pane = tk.Label(root, width=0, height=0, bg="white")  # Set initial 
 style_image_pane.pack()
 
 
-# GENERATED IMAGE UI/UX
+# UI: EPOCHS NUMBER TEXT INPUT
+epochs_label = tk.Label(root, text="Number of Epochs:")
+epochs_label.pack(pady=5)
 
-# Helper Update Callback
-# def update_image_thread(progress, gen_image_pane, _iteration_count_label, fig, combined_subplot):
-#     t = threading.Thread(
-#         target=update_image,
-#         args=(progress, gen_image_pane, _iteration_count_label, fig, combined_subplot)
-#     )
-#     t.start()
+epochs_entry = tk.Entry(root)
+epochs_entry.insert(0, "10")  # Default value of 10
+epochs_entry.pack(pady=5)
+
 
 #### UPDATE UI based on BACKEND progress ####
 
@@ -185,6 +184,7 @@ def update_image_thread(progress, gen_image_pane, _iteration_count_label, fig, c
 
     _iteration_count_label.config(text=f'Iteration Count: {current_iteration_count}')
 
+    # mind that 'cost' might not be reported on every iteration/epoch due to computation cost
     if 'cost' in progress.state.metrics:  # backend has evaluated the costs into scalars (floats)
         # Update metrics
         total_cost_values.append(progress.state.metrics['cost'])
