@@ -281,25 +281,62 @@ def run_nst(fig, combined_subplot, max_iterations):
         backend_object['run'](
             content_image_path,
             style_image_path,
+            stop_signal=lambda: stop_nst  # Pass the stop flag to the NST algorithm
         )
 
-# Define Tread to run the NST Algorithm
+# RUN: Define Tread to run the NST Algorithm
 def start_nst_thread():
-    fig, combined_subplot = initialize_graph(root)
-    nst_thread = threading.Thread(target=run_nst, args=(fig, combined_subplot))
+    fig, combined_subplot = initialize_plot_graphs(root)
+    # Retrieve Max Epocs from value of text box
+    iterations = int(epochs_entry.get())    
+
+    nst_thread = threading.Thread(target=run_nst, args=(fig, combined_subplot, iterations))
     nst_thread.daemon = True  # Set as a daemon thread to exit when the main program exits
     nst_thread.start()
+    
 
+# STOP NST Algorithm at current epoch (aka iteration)
+def stop_nst_algorithm():
+    global stop_nst
+    stop_nst = True
 
-# BUTTON -> Run NST Algorithm on press
+# UI/UX
+# Create a frame to contain Start and Stop buttons
+button_frame = tk.Frame(root)
+button_frame.pack(pady=5)  # Add padding around the frame
+
+# BUTTON -> RUN NST Algorithm on press
 run_nst_btn = tk.Button(
-    root,
+    button_frame,
     text="Run NST Algorithm",
     command=start_nst_thread,
 )
+run_nst_btn.pack(side=tk.LEFT, padx=5)  # Add padding between buttons
 
-run_nst_btn.pack(pady=5)  # Add padding
+# BUTTON -> STOP (Interrupt) NST Algorithm on press
+stop_nst_btn = tk.Button(
+    button_frame,
+    text="Stop NST Algorithm",
+    command=stop_nst_algorithm,
+)
+stop_nst_btn.config(state=tk.DISABLED)
+stop_nst_btn.pack(side=tk.LEFT, padx=5)  # Add padding between buttons
+# # BUTTON -> RUN NST Algorithm on press
+# run_nst_btn = tk.Button(
+#     root,
+#     text="Run NST Algorithm",
+#     command=start_nst_thread,
+# )
+# run_nst_btn.pack(pady=5)  # Add padding
 
+
+# BUTTON -> STOP (Interrupt) NST Algorithm on press
+# stop_nst_btn = tk.Button(
+#     root,
+#     text="Stop NST Algorithm",
+#     command=stop_nst_algorithm
+# )
+# stop_nst_btn.pack(pady=5)  # Add padding
 
 # PLOTTING
 
@@ -311,7 +348,7 @@ iteration_values = []
 
 # Helper Functions
 # Initialize Matplotlib figure and subplot
-def initialize_graph(root):
+def initialize_plot_graphs(root):
     fig, combined_subplot = plt.subplots(figsize=(8, 6))
     combined_subplot.set_title('Metrics Over Iterations')
     combined_subplot.set_xlabel('Iterations')
