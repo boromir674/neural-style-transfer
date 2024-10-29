@@ -204,7 +204,7 @@ class NSTAlgorithmRunner:
         i = 0
         self.time_started = time()
 
-        while not self.nst_algorithm.parameters.termination_condition.satisfied:
+        while not any([x.satisfied for x in self.nst_algorithm.parameters.termination_conditions]):
             # We pass the Curernt Gen Image throguh the Graph and get the next iteration of gen Image
             generated_image = self.iterate(style_network)
             progress = self._progress(generated_image, completed_iterations=i + 1)
