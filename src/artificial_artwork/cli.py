@@ -50,11 +50,13 @@ def entry_point():
 @click.argument("style_image")
 @click.option("--iterations", "-it", type=int, default=100, show_default=True)
 @click.option("--location", "-l", type=str, default=".")
-def run(content_image, style_image, iterations, location):
+@click.option("--auto-resize-style", "-auto", is_flag=True, default=False, show_default=True)
+def run(content_image, style_image, iterations, location, auto_resize_style: bool):
     backend_objs: t.Dict[str, t.Any] = create_algo_runner(
         iterations=iterations,
         output_folder=location,
         noisy_ratio=0.6,
+        auto_resize_style=auto_resize_style,
     )
     run_nst: t.Callable[[str, str], None] = backend_objs["run"]
     # subscribe_callback: t.Callable[[HandleAlgorithmProgressUpdatesAble], None] = backend_objs['subscribe']
