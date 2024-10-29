@@ -58,6 +58,7 @@ class NSTAlgorithmRunner:
     # broadcast facilities to notify observers/listeners
     progress_subject = attr.ib(init=False, default=attr.Factory(Subject))
     persistance_subject = attr.ib(init=False, default=attr.Factory(Subject))
+    running_flag_subject = attr.ib(init=False, default=attr.Factory(Subject))
 
     # references to most recently Evaluated Cost values
     Jt = attr.ib(init=False, default=None)
@@ -204,6 +205,7 @@ class NSTAlgorithmRunner:
         i = 0
         self.time_started = time()
 
+        self._notify_running_state_subscribers()
         while not any([x.satisfied for x in self.nst_algorithm.parameters.termination_conditions]):
             # We pass the Curernt Gen Image throguh the Graph and get the next iteration of gen Image
             generated_image = self.iterate(style_network)
@@ -228,6 +230,7 @@ class NSTAlgorithmRunner:
                 self._print_to_std(progress)
             progress["metrics"]["duration"] = time() - self.time_started  # in seconds
             self._notify_progress(progress)
+            self._notify_running_state_subscribers()
             i += 1
 
         try:
@@ -292,6 +295,10 @@ class NSTAlgorithmRunner:
         self.progress_subject.state = type("SubjectState", (), progress)
         # notify all observers/listeners that have 'subscribed'
         self.progress_subject.notify()
+
+    def _notify_running_state_subscribers(self):
+        self.running_flag_subject.state = type("SubjectState", (), {"is_running": not any([x.satisfied for x in self.nst_algorithm.parameters.termination_conditions])})
+        self.running_flag_subject.notify()  # allow listeners to access x.state.is_running: bool
 
     def _eval_cost(self):
         """Evaluate Total (Style + Constent) Cost"""
