@@ -2,7 +2,8 @@
 """
 
 import os
-
+import typing as t
+import logging
 from .algorithm import AlogirthmParameters, NSTAlgorithm
 from .disk_operations import Disk
 from .nst_image import convert_to_uint8
@@ -13,34 +14,61 @@ from .styling_observer import StylingObserver
 from .termination_condition_adapter_factory import TerminationConditionAdapterFactory
 from .utils import load_pretrained_model_functions, read_images
 
+logger = logging.getLogger(__name__)
 this_file_location = os.path.dirname(os.path.realpath(os.path.abspath(__file__)))
 
 
 __all__ = ["create_algo_runner"]
 
+# CONSTANTS
+DEFAULT_TERMINATION_CONDITION = "max-iterations"
+
 
 def create_algo_runner(
-    iterations=100, output_folder="gui-output-folder", noisy_ratio=0.6  # ratio
+    iterations=100, output_folder="gui-output-folder",
+    noisy_ratio=0.6,  # ratio
+    auto_resize_style=False,
 ):
-    termination_condition = _create_termination_condition(iterations)
+    # Max Epoch Termination Condition: stop when Iterative Algorith reaches a certain number of iterations
+    max_epochs_termination_condition = TerminationConditionAdapterFactory.create(
+        DEFAULT_TERMINATION_CONDITION,
+        iterations,
+    )
+    logger.info("Termination Condition: %s %s", DEFAULT_TERMINATION_CONDITION, iterations)
 
-    algorithm_runner = _create_algo_runner(termination_condition, noisy_ratio=noisy_ratio)
+    # Stop Signal Termination Condition: stop when a (user) signal is received
+    stop_signal_termination_condition = TerminationConditionAdapterFactory.create(
+        "stop-signal",
+    )
+    logger.info("Termination Condition: %s", "stop-signal")
 
-    def run(content_image, style_image):
+    termination_conditions=[max_epochs_termination_condition, stop_signal_termination_condition]
+
+    # Subscribe Termination Conditions to Progress Event Updates to allow them to evaluate if satisfied
+    algorithm_runner = _create_algo_runner(termination_conditions, noisy_ratio=noisy_ratio)
+
+    def run(content_image, style_image, stop_signal: t.Optional[t.Callable[[], bool]] = None):
         algorithm = _read_algorithm_input(
-            content_image, style_image, termination_condition, output_folder
+            # Images CONTENT and STYLE
+            content_image, style_image,
+            # pass Termination Conditions to allow algo to query for finished check
+            termination_conditions,  # ie Max Epochs, Convergence Reached, User Stop Signal
+            output_folder,
+            auto_resize_style=auto_resize_style,
         )
+        # Pretrained Model Weights (NN Layers) and get_weights method
         model_design = _load_algorithm_architecture()
 
-        algorithm_runner.run(algorithm, model_design)
+        algorithm_runner.run(algorithm, model_design, stop_signal=stop_signal)
 
     return {
         "run": run,
-        "subscribe": lambda observer: algorithm_runner.progress_subject.add(observer),
+        "subscribe_to_progress": lambda observer: algorithm_runner.progress_subject.add(observer),
+        "subscribe_to_running_flag": lambda observer: algorithm_runner.running_flag_subject.add(observer),
     }
 
 
-def _create_algo_runner(termination_condition, noisy_ratio=0.6):
+def _create_algo_runner(termination_conditions, noisy_ratio=0.6):
     import tensorflow as tf
 
     from artificial_artwork.image import noisy
@@ -57,7 +85,7 @@ def _create_algo_runner(termination_condition, noisy_ratio=0.6):
     # session_runner = TensorflowSessionRunner.with_default_graph_reset()
     algorithm_runner = NSTAlgorithmRunner(
         tf_session_wrapper,
-        lambda matrix: noisy(matrix, noisy_ratio),
+        lambda matrix: noisy(matrix, noisy_ratio),  # TODO: retire, since it is only used when demo CLI command is called
     )
     # algorithm_runner = NSTAlgorithmRunner.default(
     #     lambda matrix: noisy(matrix, noisy_ratio),
@@ -74,30 +102,20 @@ def _create_algo_runner(termination_condition, noisy_ratio=0.6):
     # '_progress' instance method defined in the
     # artificial_artwork.nst_tf_algorithm.py > NSTAlgorithmRunner class
 
+    # Subscribe the TerminationCondition instances to progress updates from the NST Algo Runner
     algorithm_runner.progress_subject.add(
-        termination_condition,
+        *termination_conditions
     )
-    # Subscribe Persistance so that we keep snaphosts of the generated images in the disk
+
+    # Subscribe Object that persists snapshots of the Generated Image, saving on disk
     algorithm_runner.persistance_subject.add(
         StylingObserver(
             Disk.save_image,
             convert_to_uint8,
-            termination_condition.termination_condition.max_iterations,
+            termination_conditions[0].termination_condition.max_iterations,
         )
     )
     return algorithm_runner
-
-
-DEFAULT_TERMINATION_CONDITION = "max-iterations"
-
-
-def _create_termination_condition(nb_iterations_to_perform):
-    _ = TerminationConditionAdapterFactory.create(
-        DEFAULT_TERMINATION_CONDITION,
-        nb_iterations_to_perform,
-    )
-    print(f" -- Termination Condition: {_.termination_condition}")
-    return _
 
 
 def _load_algorithm_architecture():
@@ -110,13 +128,16 @@ def _load_algorithm_architecture():
             "network_design": NetworkDesign.from_default_vgg(),
         },
     )
+    # Load pretrained model weights (NN layers learned parameters) from disk, into memory
+    # expose pretrained_model.reporter.get_weights(layer_id: str) -> Tuple[NDArray, NDArray]
     model_design.pretrained_model.load_model_layers()
     return model_design
 
 
-def _read_algorithm_input(content_image, style_image, termination_condition, location):
+def _read_algorithm_input(content_image, style_image, termination_conditions, location, auto_resize_style=False):
+
     # Read Images given their file paths in the disk (filesystem)
-    content_image, style_image = read_images(content_image, style_image)
+    content_image, style_image = read_images(content_image, style_image, auto_resize_style=auto_resize_style)
 
     # Compute Termination Condition, given input number of iterations to perform
     # The number of iterations is the number the image will pass through the
@@ -130,7 +151,7 @@ def _read_algorithm_input(content_image, style_image, termination_condition, loc
         AlogirthmParameters(
             content_image,
             style_image,
-            termination_condition,
+            termination_conditions,
             location,
         )
     )
