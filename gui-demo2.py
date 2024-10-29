@@ -201,7 +201,21 @@ def update_image_thread(progress, gen_image_pane, _iteration_count_label, fig, c
             combined_subplot
         )
 
+def update_nst_running_state(running_state_subject):
+    global nst_running
+    nst_running = running_state_subject.state.is_running
+
+    def update_button_states():
+        if nst_running:
+            stop_nst_btn.config(state=tk.NORMAL)
+        else:
+            stop_nst_btn.config(state=tk.DISABLED)
+
+    update_button_states()
+
 ################
+
+# GENERATED IMAGE UI/UX
 
 # LABEL -> Text to display above Live Updated Generated Image
 generated_image_label = tk.Label(root, text="Generated Image:")
@@ -223,26 +237,42 @@ iteration_count_label.pack(pady=5)
 
 # Run NST Computations in a non-blocking way
 
-def run_nst(fig, combined_subplot):
+def run_nst(fig, combined_subplot, max_iterations):
     # Run tf.compat.v1.reset_default_graph()
     # and tf.compat.v1.disable_eager_execution()
     # Initialize Session as tf.compat.v1.InteractiveSession()
+
+    global stop_nst  # Reference the stop_nst boolean from the global state
+    stop_nst = False  # user does not want to stop the algo: Reset the state on start
+
     backend_object = create_algo_runner(
-        iterations=100,  # NB of Times to pass Image through the Network
+        iterations=max_iterations,  # NB Epocs: NB of Times to pass Image through the Network
         output_folder='gui-output-folder',  # Output Folder to store gen img snapshots
         noisy_ratio=0.6,
+        auto_resize_style=True,
     )
-    observer = type('Observer', (), {
+    # adapt the UI handler of progress event updates to the backend's observer/listener interface
+    progress_observer = type('ProgressObserver', (), {
         'update': lambda progress: update_image_thread(
-            progress,
-            generated_image_pane,
-            iteration_count_label,
+            # progress.state.matrix, progress.state.metrics
+            progress,  # progress object reported by the backend algo
+            generated_image_pane,  # UI Pane to Live Display the Generated Image per iteration!
+            iteration_count_label,  # UI label to Live Display current epoch/iteration
             fig,  # Pass the Figure to the update function
             combined_subplot,  # Pass the combined subplot to the update function
         ),
-        # 'update': lambda progress: update_image_thread(progress, generated_image_pane, iteration_count_label),
     })
-    backend_object['subscribe'](observer)
+    # subscribe UI Generated Image update function to backend progress event updates
+    backend_object['subscribe_to_progress'](progress_observer)
+
+    # adapt the UI handler of progress event updates to the backend's observer/listener interface
+    running_flag_observer = type('RunningFlagObserver', (), {
+        'update': lambda running_flag: update_nst_running_state(
+            running_flag,
+        ),
+    })
+    # subscribe UI's nst_running state to backend progress event updates
+    backend_object['subscribe_to_running_flag'](running_flag_observer)
 
     content_image_path = img_type_2_path['content']
     style_image_path = img_type_2_path['style']

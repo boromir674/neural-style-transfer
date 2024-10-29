@@ -22,7 +22,7 @@ def create_algo_runner(
 ):
     print("[DEBUG] output type: {}".format(type(output_folder)))
 
-    termination_condition = "max-iterations"
+    termination_condition: str = "max-iterations"
 
     content_img_file = (
         content_img_file
@@ -58,7 +58,7 @@ def create_algo_runner(
     algorithm_parameters = AlogirthmParameters(
         content_image,
         style_image,
-        termination_condition,
+        [termination_condition],
         output_folder,
     )
 
