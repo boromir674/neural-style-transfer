@@ -39,7 +39,7 @@ env:
   PUBLISH_ON_PYPI: "true"
   DRAW_DEPENDENCIES: "true"
   PREVENT_CODECOV_TEST_COVERAGE: "false"
-  DOCKER_JOB_ON: "true"
+  DOCKER_JOB_ON: "false"
   ###############################
 
   #### DOCKER Job Policy #####
