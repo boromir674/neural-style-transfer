@@ -521,6 +521,7 @@ jobs:
       source_code_targets: 'src,tests,scripts'
       python_version: '3.10'
       pylint_threshold: '8.2'
+      bandit: '{"l": 0, "m": 0, "h": 0}'  # No Bandit issues allowed !
 
 # DRAW PYTHON DEPENDENCY GRAPHS
   check_trigger_draw_dependency_graphs:
