@@ -52,7 +52,6 @@ def read_images(content, style, auto_resize_style=False):
             image_manager.content_image.matrix.shape[1],
         )
         if image.size != content_image_dimensions:
-            print(f"[INFO] Resizing STYLE image to fit the CONTENT image")
             logger.info(
                 "Resizing STYLE image to match the CONTENT image: %s",
                 json.dumps(
