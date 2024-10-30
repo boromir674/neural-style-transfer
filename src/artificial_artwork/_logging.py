@@ -25,6 +25,7 @@ Usage:
     Do a 'from . import _logging' in the root __init__.py of your package and
     all submodules 'inherit' the logging configuration
 """
+
 import logging
 from pathlib import Path
 
@@ -33,9 +34,10 @@ LOGS_FILE_NAME: str
 
 try:
     from ._logging_config import FILE_TARGET_LOGS
+
     LOGS_FILE_NAME = FILE_TARGET_LOGS
 except ImportError:
-    LOGS_FILE_NAME = 'nst.log'
+    LOGS_FILE_NAME = "nst.log"
 
 
 # get the Parent Working Directory (ie PWD) of running shell
@@ -47,10 +49,10 @@ file_target_logs_full_path: Path = pwd / LOGS_FILE_NAME
 # set up logging to file for DEBUG Level and above
 logging.basicConfig(
     level=logging.DEBUG,
-    format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
-    datefmt='%m-%d %H:%M',
+    format="%(asctime)s %(name)-12s %(levelname)-8s %(message)s",
+    datefmt="%m-%d %H:%M",
     filename=file_target_logs_full_path,
-    filemode='w',
+    filemode="w",
 )
 
 #### CONSOLE LOGGING
@@ -62,11 +64,11 @@ console.setLevel(logging.DEBUG)
 
 
 # set a format which is simpler for console use
-formatter = logging.Formatter('%(name)-12s: %(levelname)-8s %(message)s')
+formatter = logging.Formatter("%(name)-12s: %(levelname)-8s %(message)s")
 # tell the handler to use this format
 console.setFormatter(formatter)
 # add the handler to the root logger
-logging.getLogger('').addHandler(console)
+logging.getLogger("").addHandler(console)
 
 
 # Now, we can log to the root logger, or any other logger. First the root...

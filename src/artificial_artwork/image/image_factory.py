@@ -43,7 +43,8 @@ class ImageFactory:
         matrix = self.image_processor.process(matrix, pipeline)
         return Image(image_path, matrix)
 
-    def from_array(self, image_array: NDArray, pipeline: List[Callable[[NDArray], NDArray]] = [], **kwargs
+    def from_array(
+        self, image_array: NDArray, pipeline: List[Callable[[NDArray], NDArray]] = [], **kwargs
     ) -> ImageProtocol:
         image_array = self.image_processor.process(image_array, pipeline)
         return Image(file_path=None, matrix=image_array)

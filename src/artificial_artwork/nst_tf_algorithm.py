@@ -206,7 +206,9 @@ class NSTAlgorithmRunner:
         self.time_started = time()
 
         self._notify_running_state_subscribers()
-        while not any([x.satisfied for x in self.nst_algorithm.parameters.termination_conditions]):
+        while not any(
+            [x.satisfied for x in self.nst_algorithm.parameters.termination_conditions]
+        ):
             # We pass the Curernt Gen Image throguh the Graph and get the next iteration of gen Image
             generated_image = self.iterate(style_network)
             progress = self._progress(generated_image, completed_iterations=i + 1)
@@ -301,7 +303,15 @@ class NSTAlgorithmRunner:
         self.progress_subject.notify()
 
     def _notify_running_state_subscribers(self):
-        self.running_flag_subject.state = type("SubjectState", (), {"is_running": not any([x.satisfied for x in self.nst_algorithm.parameters.termination_conditions])})
+        self.running_flag_subject.state = type(
+            "SubjectState",
+            (),
+            {
+                "is_running": not any(
+                    [x.satisfied for x in self.nst_algorithm.parameters.termination_conditions]
+                )
+            },
+        )
         self.running_flag_subject.notify()  # allow listeners to access x.state.is_running: bool
 
     def _eval_cost(self):

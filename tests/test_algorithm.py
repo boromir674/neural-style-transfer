@@ -80,9 +80,7 @@ def create_production_algorithm_runner():
             lambda matrix: noisy(matrix, noisy_ratio),
         )
 
-        algorithm_runner.progress_subject.add(
-            *termination_condition_adapters
-        )
+        algorithm_runner.progress_subject.add(*termination_condition_adapters)
         algorithm_runner.persistance_subject.add(
             StylingObserver(Disk.save_image, convert_to_uint8, max_iterations)
         )
@@ -139,7 +137,9 @@ def test_nst_runner(
 
     termination_condition_adapter = max_iterations_adapter_factory_method(ITERATIONS)
 
-    termination_conditions = [termination_condition_adapter]  # they implement listener interface
+    termination_conditions = [
+        termination_condition_adapter
+    ]  # they implement listener interface
 
     algorithm_runner = get_algorithm_runner(termination_conditions, ITERATIONS)
 

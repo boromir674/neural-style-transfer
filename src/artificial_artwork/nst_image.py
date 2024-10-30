@@ -47,11 +47,15 @@ class ImageManager:
                 f"Expected type of image to be one of {self._known_types}; found {image_type}"
             )
         if array is not None:
-            image: ImageProtocol = self.image_factory.from_array(array, self.preprocessing_pipeline)
+            image: ImageProtocol = self.image_factory.from_array(
+                array, self.preprocessing_pipeline
+            )
             # manually encapsulate the file_path attribute, since it is not relevant for an in-memory
             image.file_path = file_path
         else:
-            image: ImageProtocol = self.image_factory.from_disk(file_path, self.preprocessing_pipeline)
+            image: ImageProtocol = self.image_factory.from_disk(
+                file_path, self.preprocessing_pipeline
+            )
 
         # dynamically call the appropriate content/style setter method
         setattr(self, f"{image_type}_image", image)

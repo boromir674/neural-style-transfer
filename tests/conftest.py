@@ -25,8 +25,10 @@ def test_root() -> Path:
 @pytest.fixture
 def get_test_data_image() -> t.Callable[[str], Path]:
     """Get the path of an image file in the test data directory."""
+
     def get_image_file_path(file_name: str):
         return tests_root / "data" / file_name
+
     return get_image_file_path
 
 
@@ -112,7 +114,7 @@ def termination_condition_module():
         "max-iterations": MaxIterations,
         "time-limit": TimeLimit,
         "convergence": Convergence,
-        "stop-signal": RuntimeStopSignal
+        "stop-signal": RuntimeStopSignal,
     }
     return type(
         "M",

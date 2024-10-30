@@ -26,7 +26,8 @@ DEFAULT_TERMINATION_CONDITION = "max-iterations"
 
 
 def create_algo_runner(
-    iterations=100, output_folder="gui-output-folder",
+    iterations=100,
+    output_folder="gui-output-folder",
     noisy_ratio=0.6,  # ratio
     auto_resize_style=False,
 ):
@@ -43,7 +44,10 @@ def create_algo_runner(
     )
     logger.info("Termination Condition: %s", "stop-signal")
 
-    termination_conditions=[max_epochs_termination_condition, stop_signal_termination_condition]
+    termination_conditions = [
+        max_epochs_termination_condition,
+        stop_signal_termination_condition,
+    ]
 
     # Subscribe Termination Conditions to Progress Event Updates to allow them to evaluate if satisfied
     algorithm_runner = _create_algo_runner(termination_conditions, noisy_ratio=noisy_ratio)
@@ -51,7 +55,8 @@ def create_algo_runner(
     def run(content_image, style_image, stop_signal: t.Optional[t.Callable[[], bool]] = None):
         algorithm = _read_algorithm_input(
             # Images CONTENT and STYLE
-            content_image, style_image,
+            content_image,
+            style_image,
             # pass Termination Conditions to allow algo to query for finished check
             termination_conditions,  # ie Max Epochs, Convergence Reached, User Stop Signal
             output_folder,
@@ -64,8 +69,12 @@ def create_algo_runner(
 
     return {
         "run": run,
-        "subscribe_to_progress": lambda observer: algorithm_runner.progress_subject.add(observer),
-        "subscribe_to_running_flag": lambda observer: algorithm_runner.running_flag_subject.add(observer),
+        "subscribe_to_progress": lambda observer: algorithm_runner.progress_subject.add(
+            observer
+        ),
+        "subscribe_to_running_flag": lambda observer: algorithm_runner.running_flag_subject.add(
+            observer
+        ),
     }
 
 
@@ -86,7 +95,9 @@ def _create_algo_runner(termination_conditions, noisy_ratio=0.6):
     # session_runner = TensorflowSessionRunner.with_default_graph_reset()
     algorithm_runner = NSTAlgorithmRunner(
         tf_session_wrapper,
-        lambda matrix: noisy(matrix, noisy_ratio),  # TODO: retire, since it is only used when demo CLI command is called
+        lambda matrix: noisy(
+            matrix, noisy_ratio
+        ),  # TODO: retire, since it is only used when demo CLI command is called
     )
     # algorithm_runner = NSTAlgorithmRunner.default(
     #     lambda matrix: noisy(matrix, noisy_ratio),
@@ -104,9 +115,7 @@ def _create_algo_runner(termination_conditions, noisy_ratio=0.6):
     # artificial_artwork.nst_tf_algorithm.py > NSTAlgorithmRunner class
 
     # Subscribe the TerminationCondition instances to progress updates from the NST Algo Runner
-    algorithm_runner.progress_subject.add(
-        *termination_conditions
-    )
+    algorithm_runner.progress_subject.add(*termination_conditions)
 
     # Subscribe Object that persists snapshots of the Generated Image, saving on disk
     algorithm_runner.persistance_subject.add(
@@ -135,10 +144,14 @@ def _load_algorithm_architecture():
     return model_design
 
 
-def _read_algorithm_input(content_image, style_image, termination_conditions, location, auto_resize_style=False):
+def _read_algorithm_input(
+    content_image, style_image, termination_conditions, location, auto_resize_style=False
+):
 
     # Read Images given their file paths in the disk (filesystem)
-    content_image, style_image = read_images(content_image, style_image, auto_resize_style=auto_resize_style)
+    content_image, style_image = read_images(
+        content_image, style_image, auto_resize_style=auto_resize_style
+    )
 
     # Compute Termination Condition, given input number of iterations to perform
     # The number of iterations is the number the image will pass through the

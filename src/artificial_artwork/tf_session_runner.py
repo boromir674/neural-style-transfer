@@ -46,13 +46,13 @@ class TensorflowSessionRunner(Proxy):
     @property
     def session(self):
         return self._proxy_subject.interactive_session
-    
+
     def close(self):
         """Close the session and trigger garbage collection to free up resources.
-        
+
         Closes the Tensorflow Interactive Session, which triggers garbage
         collection to free up resources from memory.
-        
+
         Calling this method can prevent Tensorflow Error: "An interactive
         session is already active. This can cause out-of-memory errors or some
         other unexpected errors (due to the unpredictable timing of garbage

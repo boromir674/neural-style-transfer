@@ -17,6 +17,7 @@ class TerminationFactoryMeta(SubclassRegistry[TerminationConditionInterface]):
 class TerminationFactory(metaclass=TerminationFactoryMeta):
     pass
 
+
 #####
 # Implement Termination Conditions, by leveraging the Factory Method Pattern
 # encapsulate any internal state, using one or more instance attribute(s) (ie see below 'max_iterations', 'min_improvement')
@@ -27,6 +28,7 @@ class TerminationFactory(metaclass=TerminationFactoryMeta):
 # 2. Inherit from TerminationConditionInterface, providing type for generic T (ie TerminationConditionInterface[int])
 #    Type T corresponds to the 'progress' object in the `satisfied(self, progress: T)` method
 # 4. Implement the `satisfied(self, iterations: T)` -> bool method, return True when the algo should stop
+
 
 @attr.s
 @TerminationFactory.register_as_subclass("max-iterations")
@@ -54,7 +56,10 @@ class TimeLimit(TerminationConditionInterface[float]):
     def satisfied(self, duration: float) -> bool:
         return self.time_limit <= duration
 
+
 StopSignal = Optional[Callable[[], bool]]
+
+
 @attr.s
 @TerminationFactory.register_as_subclass("stop-signal")
 class RuntimeStopSignal(TerminationConditionInterface[StopSignal]):

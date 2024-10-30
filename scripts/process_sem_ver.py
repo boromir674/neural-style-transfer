@@ -188,39 +188,39 @@ else:  # if Sem Ver 2.0 prerelease separator found in the string
 
 parsed_versions_string = _regex.match(semver)
 
-prerelease = parsed_versions_string.group("pre") or parsed_versions_string.group("dev") or ''
+prerelease = parsed_versions_string.group("pre") or parsed_versions_string.group("dev") or ""
 
-sep = ''
+sep = ""
 
-to_add = ''
+to_add = ""
 if prerelease:
-    prerelease = prerelease.replace('.', '').replace('-', '').replace('_', '')
+    prerelease = prerelease.replace(".", "").replace("-", "").replace("_", "")
 
-    if prerelease.startswith('rc'):
-        sep = ''
-    elif prerelease.startswith('dev'):
-        sep = '.'
+    if prerelease.startswith("rc"):
+        sep = ""
+    elif prerelease.startswith("dev"):
+        sep = "."
     else:
         # don't have code hre to handle yet
-        print('ERROR: Our current limitation is that prerelease must start with rc or dev')
-        print(f'Your input: {semver}')
-        print(f'Your input has {prerelease}')
+        print("ERROR: Our current limitation is that prerelease must start with rc or dev")
+        print(f"Your input: {semver}")
+        print(f"Your input has {prerelease}")
         sys.exit(1)
 
-    string = prerelease.replace('rc', '').replace('dev', '')
+    string = prerelease.replace("rc", "").replace("dev", "")
 
     try:
         int(string)
         # last part is a number already, so we keep that as it is
-        to_add = ''
+        to_add = ""
     except ValueError:
-        to_add = '0'
+        to_add = "0"
 
 
 print(
     f'{parsed_versions_string.group("epoch") or ""}'
     f'{parsed_versions_string.group("release")}'
-    f'{sep}{prerelease}{to_add}'
+    f"{sep}{prerelease}{to_add}"
 )
 
 assert sys.argv[1] == semver
