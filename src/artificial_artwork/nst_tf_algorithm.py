@@ -244,6 +244,10 @@ class NSTAlgorithmRunner:
 
         print(" --- Finished Learning Algorithm :) ---")
 
+        # prevent out-of-memory errors or other unexpected errors (due to the
+        # unpredictable timing of garbage collection) in some cases
+        self.session_runner.close()  # trigger garbage collection / memory release
+
     def iterate(self, image_model: t.Dict[str, Layer]):
         # Run the session on the train_step to minimize the total cost
         # This is our typical iterative learning loop / iteration, where the
