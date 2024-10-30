@@ -517,7 +517,7 @@ jobs:
     uses: ./.github/workflows/lint.yml
     with:
       run_policy: '2'
-      dedicated_branches: 'master, main, dev'
+      dedicated_branches: 'main, dev'
       source_code_targets: 'src,tests,scripts'
       python_version: '3.10'
       pylint_threshold: '8.2'
