@@ -54,12 +54,14 @@ env:
   # DOCKER_JOB_POLICY: "CDelivery"
   ############################
 
-  #### STATIC CHECK Job ####
+  #### STATIC CODE ANALYSIS Job ####
   # Python Runtime version to set the Job runner with
-  STATIC_ANALYSIS_PY: "3.8"  # since our pyproject is tested to support 3.8 builds
-  # Pylint Score Threshold, if the score is below this value the Job will fail
-  # If pylint rated our code below that score, the Job fails
+  STATIC_ANALYSIS_PY: "3.10"  # since our pyproject is tested to support 3.10 builds
+  ## Pylint Minimum Acceptance Rating/Score ##
   PYLINT_SCORE_THRESHOLD: "8.2"
+
+  ALWAYS_LINT: "false"
+  LINT_JOB_POLICY: '2'  # {2, 3}
   ##########################
 
 jobs:
@@ -508,63 +510,17 @@ jobs:
       DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
 
 
-# STATIC CODE ANALYSIS & LINTING
+### STATIC CODE ANALYSIS & LINTING ###
   lint:
-    name: "Static Code Analysis & Lint"
-    runs-on: ubuntu-latest
+    name: Static Code Analysis
     needs: set_github_outputs
-    if: ${{ needs.set_github_outputs.outputs.RUN_LINT == 'true' }}
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Read Pipe Parameter STATIC_ANALYSIS_PY, to determine Python runtime to use for Static Code Analysis
-        run: echo "MY_STATIC_ANALYSIS_PY_VERSION=$STATIC_ANALYSIS_PY" >> $GITHUB_ENV  #  can be used in a with body of a next step in the Job, as eg: path: ${{ env.DIST_DIR }}
-
-      - name: Set up Python ${{ env.STATIC_ANALYSIS_PY }}
-        uses: actions/setup-python@v4
-        with:
-          python-version: ${{ env.STATIC_ANALYSIS_PY }}
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          python -m pip install tox==3.28
-
-      ## Isort ##
-      - name: "Isort\\: Require Semantic and Alphabetic order of the Python Imports"
-        if: ${{ matrix.platform != 'windows-latest' }}
-        run: tox -e isort -vv -s false
-
-      ## Black ##
-      - name: "Black\\: Require Project Style to be followed by the Python Code"
-        if: ${{ matrix.platform != 'windows-latest' }}
-        run: tox -e black -vv -s false
-
-      ## Pylint ##
-      - name: Run Pylint tool on Python Code Base
-        run: TOXPYTHON="python${STATIC_ANALYSIS_PY}" tox -e pylint -vv -s false | tee pylint-result.txt
-
-      - name: Show Pylint output in Terminal
-        run: cat pylint-result.txt
-
-      - name: "Accept Code if Pylint Score > 8.2/10"
-        if: ${{ matrix.platform != 'windows-latest' }}
-        run: |
-          SCORE=`sed -n 's/^Your code has been rated at \([-0-9.]*\)\/.*/\1/p' pylint-result.txt`
-          echo "SCORE -> $SCORE"
-          # threshold check
-          if awk "BEGIN {exit !($SCORE >= $PYLINT_SCORE_THRESHOLD)}"; then
-            echo "PyLint Passed! | Score: ${SCORE} out of 10 | Threshold: ${PYLINT_SCORE_THRESHOLD}"
-          else
-            echo "PyLint Failed! | Score: ${SCORE} out of 10 | Threshold: ${PYLINT_SCORE_THRESHOLD}"
-            exit 1
-          fi
-
-      ## Pyflakes, Pyroma, McCabe, DodgyRun, Profile Validator ##
-      - name: Check for errors, potential problems, convention violations and complexity, by running tools Pyflakes, Pyroma, McCabe, and DodgyRun
-        if: ${{ matrix.platform != 'windows-latest' }}
-        run: tox -e prospector -vv -s false
-
+    uses: ./.github/workflows/lint.yml
+    with:
+      run_policy: '2'
+      dedicated_branches: 'master, main, dev'
+      source_code_targets: 'src,tests,scripts'
+      python_version: '3.10'
+      pylint_threshold: '8.2'
 
 # DRAW PYTHON DEPENDENCY GRAPHS
   check_trigger_draw_dependency_graphs:
