@@ -36,13 +36,8 @@ FROM base as base_env
 ENV DISTRO_WHEELS=/app/dist
 
 
-### Build Wheels for Prod ###
+##### Build Wheels in dir DISTRO_WHEELS #####
 FROM base_env AS build_wheels
-
-# RUN apk update && \
-#     apk add --no-cache build-base && \
-#     pip install --upgrade pip && \
-#     rm -rf /var/cache/apk/*
 
 # Install Essential build tools
 RUN apt-get update && \
@@ -59,17 +54,17 @@ RUN pip install --no-cache-dir --upgrade pip && \
 WORKDIR /app
 COPY --from=source /app .
 
-# Build Wheels for package and its python dependencies
+# Build package dependencies python wheels
 RUN pip wheel --wheel-dir "${DISTRO_WHEELS}" -r ./requirements.txt
-# RUN pip wheel --wheel-dir /app/dist /app
 
-# Build Wheels for Distro's Package
+# Build package python wheels
 RUN python -m build --outdir "/tmp/build-wheels" && \
     mv /tmp/build-wheels/*.whl "${DISTRO_WHEELS}"
 
 CMD [ "ls", "-l", "/app/dist" ]
 
-### Install pre-built wheels
+
+##### Install wheels from dir DISTRO_WHEELS #####
 FROM base_env AS install
 ENV DIST_DIR=dist
 WORKDIR /app
@@ -81,19 +76,17 @@ COPY --from=build_wheels ${DISTRO_WHEELS} ./${DIST_DIR}
 # Install wheels for python package and its deps
 # in user site-packages (ie /root/.local/lib/python3.8/site-packages)
 RUN pip install --no-cache-dir --user ./${DIST_DIR}/*.whl
-# RUN pip install --no-cache-dir --user ${DISTRO_WHEELS}/*.whl
-# Optionaly, add the CLI executable to the PATH
-# to make the `nst` CLI available in the image
-ENV PATH="/root/.local/bin:$PATH"
 
+# add 'nst' CLI executable in PATH
+ENV PATH="/root/.local/bin:$PATH"
 CMD [ "nst" ]
 
 
 ### Non-default Stage: Bake Model Weights into Image ###
 FROM install AS prod_ready
 
+# add 'nst' CLI executable in PATH
 ENV PATH="/root/.local/bin:$PATH"
-# Now the App CLI is available as `nst`
 
 
 ## USAGE: as a dev you want to create images with baked in weights
