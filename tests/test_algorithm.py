@@ -44,29 +44,23 @@ def max_iterations_adapter_factory_method():
 
 
 @pytest.fixture
-def algorithm_parameters_class():
+def algorithm():
     from artificial_artwork.algorithm import AlogirthmParameters
-
-    return AlogirthmParameters
-
-
-@pytest.fixture
-def algorithm(algorithm_parameters_class):
     from artificial_artwork.algorithm import NSTAlgorithm
 
     def _create_algorithm(*parameters):
-        return NSTAlgorithm(algorithm_parameters_class(*parameters))
+        return NSTAlgorithm(AlogirthmParameters(*parameters))
 
     return _create_algorithm
 
 
 @pytest.fixture
 def create_algorithm(algorithm, tmpdir):
-    def _create_algorithm(image_manager, termination_condition_adapter):
+    def _create_algorithm(image_manager, termination_condition_adapters):
         return algorithm(
             image_manager.content_image,
             image_manager.style_image,
-            termination_condition_adapter,
+            termination_condition_adapters,
             tmpdir,
         )
 
@@ -82,13 +76,13 @@ def create_production_algorithm_runner():
 
     noisy_ratio = 0.6
 
-    def _create_production_algorithm_runner(termination_condition_adapter, max_iterations):
+    def _create_production_algorithm_runner(termination_condition_adapters, max_iterations):
         algorithm_runner = NSTAlgorithmRunner.default(
             lambda matrix: noisy(matrix, noisy_ratio),
         )
 
         algorithm_runner.progress_subject.add(
-            termination_condition_adapter,
+            *termination_condition_adapters
         )
         algorithm_runner.persistance_subject.add(
             StylingObserver(Disk.save_image, convert_to_uint8, max_iterations)
@@ -100,9 +94,9 @@ def create_production_algorithm_runner():
 
 @pytest.fixture
 def get_algorithm_runner(create_production_algorithm_runner):
-    def _get_algorithm_runner(termination_condition_adapter, max_iterations):
+    def _get_algorithm_runner(termination_condition_adapters, max_iterations):
         algorithm_runner = create_production_algorithm_runner(
-            termination_condition_adapter,
+            termination_condition_adapters,
             max_iterations,
         )
         return algorithm_runner
@@ -128,7 +122,7 @@ def test_nst_runner(
     max_iterations_adapter_factory_method,
     image_manager,
     test_image,
-    model,
+    model,  # Tiny Neural Network with 1 Layer
     tmpdir,
 ):
     """Test nst algorithm runner.
@@ -146,9 +140,11 @@ def test_nst_runner(
 
     termination_condition_adapter = max_iterations_adapter_factory_method(ITERATIONS)
 
-    algorithm_runner = get_algorithm_runner(termination_condition_adapter, ITERATIONS)
+    termination_conditions = [termination_condition_adapter]  # they implement listener interface
 
-    algorithm = create_algorithm(image_manager, termination_condition_adapter)
+    algorithm_runner = get_algorithm_runner(termination_conditions, ITERATIONS)
+
+    algorithm = create_algorithm(image_manager, termination_conditions)
 
     model_design = get_model_design(
         model.pretrained_model.handler,

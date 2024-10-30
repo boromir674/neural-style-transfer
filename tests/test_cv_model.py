@@ -9,7 +9,7 @@ from artificial_artwork.pretrained_model.model_handler_interface import (
 from artificial_artwork.production_networks import NetworkDesign
 
 
-class TestPreTrainedModel(t.Protocol):
+class PreTrainedModelForTesting(t.Protocol):
     # property/attribute for doing assertions
     expected_layers: t.Tuple[str]  # ie (conv1_1, conv1_2, .., avgpool5)
 
@@ -18,7 +18,7 @@ class TestPreTrainedModel(t.Protocol):
 
 
 class NSTTestingModelProtocol(t.Protocol):
-    pretrained_model: TestPreTrainedModel
+    pretrained_model: PreTrainedModelForTesting
     network_design: NetworkDesign
 
 

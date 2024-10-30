@@ -113,11 +113,22 @@ def test_uint8_convertion(test_image, expected_image, image_operations):
     assert np.nanmax(runtime_image) < np.power(2.0, 8)
     assert runtime_image.tolist() == expected_image
 
-
 @pytest.mark.parametrize(
     "test_image",
     [
         ([[np.nan, np.nan], [np.nan, np.nan]],),
+    ],
+)
+def test_all_nan_image_raises_error(test_image, image_operations):
+    with pytest.warns(RuntimeWarning, match=r"All-NaN slice encountered"):
+        with pytest.raises(ValueError, match=r"Minimum image value is not finite"):
+            runtime_image = image_operations.convert_to_uint8(
+                np.array([[np.nan, np.nan], [np.nan, np.nan]], dtype=np.float32)
+            )
+
+@pytest.mark.parametrize(
+    "test_image",
+    [
         ([[1, -float("inf")], [2, 3]],),
     ],
 )
@@ -126,7 +137,6 @@ def test_non_finite_minimum_value(test_image, image_operations):
         runtime_image = image_operations.convert_to_uint8(
             np.array(test_image, dtype=np.float32)
         )
-
 
 @pytest.mark.parametrize(
     "test_image",
