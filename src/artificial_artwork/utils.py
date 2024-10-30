@@ -1,10 +1,10 @@
-import sys
 import json
+import logging
+import sys
+
 import numpy as np
 
 from .nst_image import ImageManager
-
-import logging
 
 logger = logging.getLogger(__name__)
 

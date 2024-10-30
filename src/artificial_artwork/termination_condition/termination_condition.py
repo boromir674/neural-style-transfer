@@ -1,4 +1,5 @@
 from typing import Callable, Optional
+
 import attr
 from software_patterns import SubclassRegistry
 

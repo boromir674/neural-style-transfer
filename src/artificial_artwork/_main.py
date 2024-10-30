@@ -1,9 +1,10 @@
 """Bridges the Backend code with the CLI's main (aka run) cmd
 """
 
+import logging
 import os
 import typing as t
-import logging
+
 from .algorithm import AlogirthmParameters, NSTAlgorithm
 from .disk_operations import Disk
 from .nst_image import convert_to_uint8

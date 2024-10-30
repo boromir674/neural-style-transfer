@@ -101,10 +101,10 @@ def termination_condition_module():
     from artificial_artwork.termination_condition.termination_condition import (
         Convergence,
         MaxIterations,
+        RuntimeStopSignal,
         TerminationConditionFacility,
         TerminationConditionInterface,
         TimeLimit,
-        RuntimeStopSignal,
     )
 
     # all tests require that the Facility already contains all implementations of TerminationCondition

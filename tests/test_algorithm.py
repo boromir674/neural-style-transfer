@@ -45,8 +45,7 @@ def max_iterations_adapter_factory_method():
 
 @pytest.fixture
 def algorithm():
-    from artificial_artwork.algorithm import AlogirthmParameters
-    from artificial_artwork.algorithm import NSTAlgorithm
+    from artificial_artwork.algorithm import AlogirthmParameters, NSTAlgorithm
 
     def _create_algorithm(*parameters):
         return NSTAlgorithm(AlogirthmParameters(*parameters))
