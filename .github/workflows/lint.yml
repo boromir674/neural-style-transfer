@@ -284,7 +284,7 @@ jobs:
 
       ## Pylint (legacy) ##
       - name: Run Pylint tool on Python Code Base
-        run: tox -e pylint -vv -s false | tee pylint-result.txt
+        run: TOXPYTHON=python tox -e pylint -vv -s false | tee pylint-result.txt
 
       - run: cat pylint-result.txt
 
