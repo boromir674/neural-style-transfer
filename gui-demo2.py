@@ -1,3 +1,4 @@
+from pathlib import Path
 import tkinter as tk
 from tkinter import filedialog
 import threading
@@ -11,8 +12,12 @@ from PIL import Image, ImageTk  # You need to install the Python Imaging Library
 from artificial_artwork._main import create_algo_runner
 from artificial_artwork.image import convert_to_uint8
 
+# runtime directory of this file script
+my_dir: Path = Path(__file__).parent
+
 
 # CONSTANTS
+# Component assets for input at render time
 IMAGE_COMP_ASSETS = {
     'content': {
         'load_button_text': "Select Content Image",
@@ -23,6 +28,9 @@ IMAGE_COMP_ASSETS = {
         'label_text': "Style Image:",
     },
 }
+# Default Content and Style images for quick test/nst-run
+DEFAULT_CONTENT_IMAGE = my_dir / 'tests/data/canoe_water_w300-h225.jpg'
+DEFAULT_STYLE_IMAGE = my_dir / 'tests/data/blue-red_w300-h225.jpg'
 
 # width x height
 WINDOW_GEOMETRY: str = '2600x1800'
@@ -39,18 +47,9 @@ GENERATED_IMAGE_THUMBNAIL_SIZE = (500, 500)
 img_type_2_path = {}
 
 # Helper Functions
-def _build_open_image_dialog_callback(image_file_label, image_type: str):
-    def _open_image_dialog():
-        file_path = filedialog.askopenfilename()
-        if file_path:
-            img_type_2_path[image_type] = file_path
-            image_file_label.config(text=f'{IMAGE_COMP_ASSETS[image_type]["label_text"]} {file_path}')
-    return _open_image_dialog
-
-
-def _build_open_image_dialog_callback_v2(x, image_type: str):
+def _build_open_image_dialog_callback_v2(x, image_type: str, initial_file=None):
     def _open_file_dialog_v2():
-        file_path = filedialog.askopenfilename()
+        file_path = filedialog.askopenfilename(initialfile=initial_file)
         if file_path:
             image_label = x['image_label']
             image_pane = x['image_pane']
@@ -71,16 +70,21 @@ def _build_open_image_dialog_callback_v2(x, image_type: str):
 
 # MAIN
 
+## GLOBAL STATE of the UI
+stop_nst = False  # signal from user's interaction with UI
+nst_running = False  # signal from backend's running state
+
+
 images_components_data = {
     'content': dict(
         IMAGE_COMP_ASSETS['content'],
-        image_dialog_from_label=lambda label_obj: _build_open_image_dialog_callback(label_obj, 'content'),
-        image_dialog=lambda x: _build_open_image_dialog_callback_v2(x, 'content'),
+        # image_dialog_from_label=lambda label_obj: _build_open_image_dialog_callback(label_obj, 'content'),
+        image_dialog=lambda x: _build_open_image_dialog_callback_v2(x, 'content', initial_file=DEFAULT_CONTENT_IMAGE),
     ),
     'style': dict(
         IMAGE_COMP_ASSETS['style'],
-        image_dialog_from_label=lambda label_obj: _build_open_image_dialog_callback(label_obj, 'style'),
-        image_dialog=lambda x: _build_open_image_dialog_callback_v2(x, 'style'),
+        # image_dialog_from_label=lambda label_obj: _build_open_image_dialog_callback(label_obj, 'style'),
+        image_dialog=lambda x: _build_open_image_dialog_callback_v2(x, 'style', initial_file=DEFAULT_STYLE_IMAGE),
     ),
 }
 
@@ -143,15 +147,14 @@ style_image_pane = tk.Label(root, width=0, height=0, bg="white")  # Set initial 
 style_image_pane.pack()
 
 
-# GENERATED IMAGE UI/UX
+# UI: EPOCHS NUMBER TEXT INPUT
+epochs_label = tk.Label(root, text="Number of Epochs:")
+epochs_label.pack(pady=5)
 
-# Helper Update Callback
-# def update_image_thread(progress, gen_image_pane, _iteration_count_label, fig, combined_subplot):
-#     t = threading.Thread(
-#         target=update_image,
-#         args=(progress, gen_image_pane, _iteration_count_label, fig, combined_subplot)
-#     )
-#     t.start()
+epochs_entry = tk.Entry(root)
+epochs_entry.insert(0, "10")  # Default value of 10
+epochs_entry.pack(pady=5)
+
 
 #### UPDATE UI based on BACKEND progress ####
 
@@ -181,6 +184,7 @@ def update_image_thread(progress, gen_image_pane, _iteration_count_label, fig, c
 
     _iteration_count_label.config(text=f'Iteration Count: {current_iteration_count}')
 
+    # mind that 'cost' might not be reported on every iteration/epoch due to computation cost
     if 'cost' in progress.state.metrics:  # backend has evaluated the costs into scalars (floats)
         # Update metrics
         total_cost_values.append(progress.state.metrics['cost'])
@@ -197,7 +201,21 @@ def update_image_thread(progress, gen_image_pane, _iteration_count_label, fig, c
             combined_subplot
         )
 
+def update_nst_running_state(running_state_subject):
+    global nst_running
+    nst_running = running_state_subject.state.is_running
+
+    def update_button_states():
+        if nst_running:
+            stop_nst_btn.config(state=tk.NORMAL)
+        else:
+            stop_nst_btn.config(state=tk.DISABLED)
+
+    update_button_states()
+
 ################
+
+# GENERATED IMAGE UI/UX
 
 # LABEL -> Text to display above Live Updated Generated Image
 generated_image_label = tk.Label(root, text="Generated Image:")
@@ -219,26 +237,42 @@ iteration_count_label.pack(pady=5)
 
 # Run NST Computations in a non-blocking way
 
-def run_nst(fig, combined_subplot):
+def run_nst(fig, combined_subplot, max_iterations):
     # Run tf.compat.v1.reset_default_graph()
     # and tf.compat.v1.disable_eager_execution()
     # Initialize Session as tf.compat.v1.InteractiveSession()
+
+    global stop_nst  # Reference the stop_nst boolean from the global state
+    stop_nst = False  # user does not want to stop the algo: Reset the state on start
+
     backend_object = create_algo_runner(
-        iterations=100,  # NB of Times to pass Image through the Network
+        iterations=max_iterations,  # NB Epocs: NB of Times to pass Image through the Network
         output_folder='gui-output-folder',  # Output Folder to store gen img snapshots
         noisy_ratio=0.6,
+        auto_resize_style=True,
     )
-    observer = type('Observer', (), {
+    # adapt the UI handler of progress event updates to the backend's observer/listener interface
+    progress_observer = type('ProgressObserver', (), {
         'update': lambda progress: update_image_thread(
-            progress,
-            generated_image_pane,
-            iteration_count_label,
+            # progress.state.matrix, progress.state.metrics
+            progress,  # progress object reported by the backend algo
+            generated_image_pane,  # UI Pane to Live Display the Generated Image per iteration!
+            iteration_count_label,  # UI label to Live Display current epoch/iteration
             fig,  # Pass the Figure to the update function
             combined_subplot,  # Pass the combined subplot to the update function
         ),
-        # 'update': lambda progress: update_image_thread(progress, generated_image_pane, iteration_count_label),
     })
-    backend_object['subscribe'](observer)
+    # subscribe UI Generated Image update function to backend progress event updates
+    backend_object['subscribe_to_progress'](progress_observer)
+
+    # adapt the UI handler of progress event updates to the backend's observer/listener interface
+    running_flag_observer = type('RunningFlagObserver', (), {
+        'update': lambda running_flag: update_nst_running_state(
+            running_flag,
+        ),
+    })
+    # subscribe UI's nst_running state to backend progress event updates
+    backend_object['subscribe_to_running_flag'](running_flag_observer)
 
     content_image_path = img_type_2_path['content']
     style_image_path = img_type_2_path['style']
@@ -247,25 +281,62 @@ def run_nst(fig, combined_subplot):
         backend_object['run'](
             content_image_path,
             style_image_path,
+            stop_signal=lambda: stop_nst  # Pass the stop flag to the NST algorithm
         )
 
-# Define Tread to run the NST Algorithm
+# RUN: Define Tread to run the NST Algorithm
 def start_nst_thread():
-    fig, combined_subplot = initialize_graph(root)
-    nst_thread = threading.Thread(target=run_nst, args=(fig, combined_subplot))
+    fig, combined_subplot = initialize_plot_graphs(root)
+    # Retrieve Max Epocs from value of text box
+    iterations = int(epochs_entry.get())    
+
+    nst_thread = threading.Thread(target=run_nst, args=(fig, combined_subplot, iterations))
     nst_thread.daemon = True  # Set as a daemon thread to exit when the main program exits
     nst_thread.start()
+    
 
+# STOP NST Algorithm at current epoch (aka iteration)
+def stop_nst_algorithm():
+    global stop_nst
+    stop_nst = True
 
-# BUTTON -> Run NST Algorithm on press
+# UI/UX
+# Create a frame to contain Start and Stop buttons
+button_frame = tk.Frame(root)
+button_frame.pack(pady=5)  # Add padding around the frame
+
+# BUTTON -> RUN NST Algorithm on press
 run_nst_btn = tk.Button(
-    root,
+    button_frame,
     text="Run NST Algorithm",
     command=start_nst_thread,
 )
+run_nst_btn.pack(side=tk.LEFT, padx=5)  # Add padding between buttons
 
-run_nst_btn.pack(pady=5)  # Add padding
+# BUTTON -> STOP (Interrupt) NST Algorithm on press
+stop_nst_btn = tk.Button(
+    button_frame,
+    text="Stop NST Algorithm",
+    command=stop_nst_algorithm,
+)
+stop_nst_btn.config(state=tk.DISABLED)
+stop_nst_btn.pack(side=tk.LEFT, padx=5)  # Add padding between buttons
+# # BUTTON -> RUN NST Algorithm on press
+# run_nst_btn = tk.Button(
+#     root,
+#     text="Run NST Algorithm",
+#     command=start_nst_thread,
+# )
+# run_nst_btn.pack(pady=5)  # Add padding
 
+
+# BUTTON -> STOP (Interrupt) NST Algorithm on press
+# stop_nst_btn = tk.Button(
+#     root,
+#     text="Stop NST Algorithm",
+#     command=stop_nst_algorithm
+# )
+# stop_nst_btn.pack(pady=5)  # Add padding
 
 # PLOTTING
 
@@ -277,7 +348,7 @@ iteration_values = []
 
 # Helper Functions
 # Initialize Matplotlib figure and subplot
-def initialize_graph(root):
+def initialize_plot_graphs(root):
     fig, combined_subplot = plt.subplots(figsize=(8, 6))
     combined_subplot.set_title('Metrics Over Iterations')
     combined_subplot.set_xlabel('Iterations')

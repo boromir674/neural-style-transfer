@@ -10,5 +10,5 @@ class NSTAlgorithm:
 class AlogirthmParameters:
     content_image = attr.ib()
     style_image = attr.ib()
-    termination_condition = attr.ib()
+    termination_conditions = attr.ib()
     output_path = attr.ib()

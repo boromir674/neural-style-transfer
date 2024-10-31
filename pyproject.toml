@@ -73,17 +73,20 @@ classifiers = [
 
 [tool.poetry.dependencies]
 # no extensive tests for > 3.8 (ie 3.9, 3.10, 3.11)
-python = "~3.8"
+python = ">=3.10,<3.12"
+# python = "~3.8"
 cython = "^3.0.2"
 
-tensorflow = "2.2.0"
+tensorflow = "^2.2.0"
 click = "^8.1.7"
 software-patterns = "^2.0.0"
 attrs = "^23.1.0"
-numpy = "~1.21.3"
-scipy = "~1.4.1"
-imageio = "~2.10.1"
 protobuf = "^3.19.1"
+
+# Only accept Patch/Security/Fix updates
+numpy = { version = "~1" }
+scipy = "^1.4.1"
+imageio = "~2.10.1"
 
 # Test Suite Runner and Fictures provider
 pytest = {version = "^7.4.2", optional = true}
@@ -202,7 +205,10 @@ profile = 'black'
 [tool.software-release]
 version_variable = "src/artificial_artwork/__version__.py:__version__"
 
+# BANDIT
+
 [tool.bandit]
+exclude_dirs = ["tests/data", "path/to/file"]
 tests = []
 skips = [
     "B101",

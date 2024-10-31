@@ -6,10 +6,10 @@ import pytest
 # and the Toy Weight Matrices come from the Toy Model
 
 
-# when using pytest as Test Runner
-# this test case requires the --run-integration flag to be picked
+# REQUIRES the AA_VGG_19 env var to point to a pretrained model *.mat file
 @pytest.mark.integration
 def test_prod_weight_matrices_memory_consumption_is_expected_one():
+
     # GIVEN the default layers our NST algorithm requires to build as part of
     # its Computational Graph, which require to load weight matrices from the
     # pretrained model (ie A, b matrices)

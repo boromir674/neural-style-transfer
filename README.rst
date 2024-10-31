@@ -91,6 +91,14 @@ Installation
 
 Install `nst` CLI and `artificial_artwork` python package from `pypi``:
 
+Note: Installation on Debian-based Distros for Python 3.11 require `distutils` which is
+not included in python3.11 standard distribution (but included in python3.10).
+
+::
+
+    sudo apt-get install python3.11-distutils
+
+
 ::
 
     pip install artificial_artwork

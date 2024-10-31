@@ -14,8 +14,7 @@ class WithStateAttribute(t.Protocol):
 
 
 class HandleAlgorithmProgressUpdatesAble(t.Protocol):
-    def update(self, subject: WithStateAttribute) -> None:
-        ...
+    def update(self, subject: WithStateAttribute) -> None: ...
 
 
 # Ask user what to do depending on whether the output folder already exists
@@ -107,8 +106,8 @@ def demo(iterations, output_folder):
         output_folder=output_folder,
         # if None then default works only on editable installation
         # ie if code was install with `pip install -e`, or if was added manually to PATH
-        content_img_file=os.environ.get('CONTENT_IMAGE_DEMO'),
-        style_img_file=os.environ.get('STYLE_IMAGE_DEMO'),
+        content_img_file=os.environ.get("CONTENT_IMAGE_DEMO"),
+        style_img_file=os.environ.get("STYLE_IMAGE_DEMO"),
     )
 
     # destructuring the backend objects

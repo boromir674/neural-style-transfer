@@ -8,7 +8,7 @@ def algorithm_parameters():
     return AlogirthmParameters(
         "content_image",
         "style_image",
-        "termination_condition",
+        [],  # some list of termination conditions
         "output_path",
     )
 
@@ -16,5 +16,5 @@ def algorithm_parameters():
 def test_algorithm_parameters(algorithm_parameters):
     assert hasattr(algorithm_parameters, "content_image")
     assert hasattr(algorithm_parameters, "style_image")
-    assert hasattr(algorithm_parameters, "termination_condition")
+    assert hasattr(algorithm_parameters, "termination_conditions")
     assert hasattr(algorithm_parameters, "output_path")

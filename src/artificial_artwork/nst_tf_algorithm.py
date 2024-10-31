@@ -23,8 +23,7 @@ class NSTStyleLayerType(t.Protocol):
 
 
 class NSTLayerSelectionType(t.Protocol):
-    def __iter__(self) -> t.Iterable[t.Tuple[LayerID, NSTStyleLayerType]]:
-        ...
+    def __iter__(self) -> t.Iterable[t.Tuple[LayerID, NSTStyleLayerType]]: ...
 
 
 class NetworkDesignType(t.Protocol):
@@ -49,8 +48,9 @@ class NSTAlgorithmRunner:
     # model_design = attr.ib()
     optimization = attr.ib(default=attr.Factory(lambda: Optimization()))
 
+    # attributes populate on each run
     nst_algorithm = attr.ib(init=False, default=None)
-    parameters = attr.ib(init=False, default=None)
+    stop_signal: t.Optional[t.Callable[[], bool]] = attr.ib(init=False, default=None)
 
     nn_builder = attr.ib(init=False, default=None)
     nn_cost_builder = attr.ib(init=False, default=None)
@@ -58,6 +58,7 @@ class NSTAlgorithmRunner:
     # broadcast facilities to notify observers/listeners
     progress_subject = attr.ib(init=False, default=attr.Factory(Subject))
     persistance_subject = attr.ib(init=False, default=attr.Factory(Subject))
+    running_flag_subject = attr.ib(init=False, default=attr.Factory(Subject))
 
     # references to most recently Evaluated Cost values
     Jt = attr.ib(init=False, default=None)
@@ -75,9 +76,11 @@ class NSTAlgorithmRunner:
         self,
         nst_algorithm,
         model_design: ModelDesignType,
+        stop_signal: t.Optional[t.Callable[[], bool]] = None,
     ):
         ## Prepare ##
         self.nst_algorithm = nst_algorithm
+        self.stop_signal = stop_signal
 
         c_image = nst_algorithm.parameters.content_image
         s_image = nst_algorithm.parameters.style_image
@@ -202,7 +205,10 @@ class NSTAlgorithmRunner:
         i = 0
         self.time_started = time()
 
-        while not self.nst_algorithm.parameters.termination_condition.satisfied:
+        self._notify_running_state_subscribers()
+        while not any(
+            [x.satisfied for x in self.nst_algorithm.parameters.termination_conditions]
+        ):
             # We pass the Curernt Gen Image throguh the Graph and get the next iteration of gen Image
             generated_image = self.iterate(style_network)
             progress = self._progress(generated_image, completed_iterations=i + 1)
@@ -226,6 +232,7 @@ class NSTAlgorithmRunner:
                 self._print_to_std(progress)
             progress["metrics"]["duration"] = time() - self.time_started  # in seconds
             self._notify_progress(progress)
+            self._notify_running_state_subscribers()
             i += 1
 
         try:
@@ -238,6 +245,10 @@ class NSTAlgorithmRunner:
             ) from progress_not_evaluated_error
 
         print(" --- Finished Learning Algorithm :) ---")
+
+        # prevent out-of-memory errors or other unexpected errors (due to the
+        # unpredictable timing of garbage collection) in some cases
+        self.session_runner.close()  # trigger garbage collection / memory release
 
     def iterate(self, image_model: t.Dict[str, Layer]):
         # Run the session on the train_step to minimize the total cost
@@ -269,7 +280,11 @@ class NSTAlgorithmRunner:
     def _progress(self, generated_image, completed_iterations: int) -> Dict:
         return {
             "metrics": {
+                # src/artificial_artwork/termination_condition_adapter.py
+                # keys defined that match the keys inside the 'new_class' function
+                # allow TerminationCondition integration
                 "iterations": completed_iterations,  # number of iterations completed
+                "stop-signal": self.stop_signal,  # stop signal callback function
             },
             "content_image_path": self.nst_algorithm.parameters.content_image.file_path,
             "style_image_path": self.nst_algorithm.parameters.style_image.file_path,
@@ -286,6 +301,18 @@ class NSTAlgorithmRunner:
         self.progress_subject.state = type("SubjectState", (), progress)
         # notify all observers/listeners that have 'subscribed'
         self.progress_subject.notify()
+
+    def _notify_running_state_subscribers(self):
+        self.running_flag_subject.state = type(
+            "SubjectState",
+            (),
+            {
+                "is_running": not any(
+                    [x.satisfied for x in self.nst_algorithm.parameters.termination_conditions]
+                )
+            },
+        )
+        self.running_flag_subject.notify()  # allow listeners to access x.state.is_running: bool
 
     def _eval_cost(self):
         """Evaluate Total (Style + Constent) Cost"""

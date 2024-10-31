@@ -10,7 +10,7 @@ import yaml
 # TYPES of Data as Read from Yaml Config
 
 ## job names are yaml keys
-JobName = t.NewType('JobName', str)
+JobName = t.NewType("JobName", str)
 
 ## each job 'needs' key can be:
 #   - missing -> python None
@@ -33,7 +33,7 @@ JobsNeedsValue = t.List[JobName]
 
 # Parse the GitHub Actions YAML file
 def parse_actions_config(filename: t.Union[str, Path]) -> t.Union[ParsedYaml, None]:
-    with open(filename, 'r') as stream:
+    with open(filename, "r") as stream:
         try:
             return yaml.safe_load(stream)
         except yaml.YAMLError as exc:
@@ -49,12 +49,12 @@ def extract_job_dependencies(config: ParsedYaml) -> t.Dict[str, JobsNeedsValue]:
     # mapping of job names to their dependencies (previous steps in the dependency DAG)
     job_dependencies: t.Dict[str, JobsNeedsValue] = {}
 
-    if not 'jobs' in config:
+    if not "jobs" in config:
         print(f"[WARNGING] No 'jobs' section found in config file")
 
     else:
-        for job_name, job_config in config['jobs'].items():
-            needs: JobNeeds = job_config.get('needs')
+        for job_name, job_config in config["jobs"].items():
+            needs: JobNeeds = job_config.get("needs")
 
             current_job_needs_value: JobsNeedsValue = []
             if isinstance(needs, str):  # single dependency
@@ -71,10 +71,10 @@ def extract_job_dependencies(config: ParsedYaml) -> t.Dict[str, JobsNeedsValue]:
 
 # Generate Mermaid markdown from job dependencies
 def generate_mermaid_markdown(job_dependencies: t.Dict[str, t.List[str]]) -> str:
-    mermaid_code = 'graph LR;\n'
+    mermaid_code = "graph LR;\n"
     for job_name, needs in job_dependencies.items():
         for need in needs:
-            mermaid_code += f'  {need} --> {job_name}\n'
+            mermaid_code += f"  {need} --> {job_name}\n"
     return mermaid_code
 
 
@@ -139,5 +139,5 @@ def arg_parse():
     return args
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

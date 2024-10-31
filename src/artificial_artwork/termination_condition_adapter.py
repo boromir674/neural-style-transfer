@@ -10,8 +10,7 @@ class MetricsCapable(Protocol):
 
 
 class TerminationConditionProtocol(Protocol):
-    def satisfied(self, progress: Any) -> bool:
-        ...
+    def satisfied(self, progress: Any) -> bool: ...
 
 
 class AbstractTerminationConditionAdapter(ABC):
@@ -64,6 +63,7 @@ def new_class(adapter_type: str):
                 "max-iterations": {"key_name": "iterations", "state": 0},
                 "convergence": {"key_name": "cost", "state": float("inf")},
                 "time-limit": {"key_name": "duration", "state": 0},
+                "stop-signal": {"key_name": "stop-signal", "state": lambda: False},
             },
         },
     )
