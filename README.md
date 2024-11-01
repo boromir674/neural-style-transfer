@@ -74,7 +74,7 @@ docker run boromir674/neural-style-transfer:1.0.2 --help
 
 ### Installation
 
-Install `nst` CLI and `artificial_artwork` python package from `pypi``:
+Install `nst` CLI and `artificial_artwork` python package from `pypi`:
 
 Note: Installation on Debian-based Distros for Python 3.11 require `distutils` which is
 not included in python3.11 standard distribution (but included in python3.10).
@@ -101,15 +101,15 @@ pip install ./neural-style-transfer
 > The Neural Style Transfer - CLI heavely depends on Tensorflow (tf) and therefore it is crucial that tf is installed correctly in your Python environment.
 
 
-[ci-pipeline-status]: https://img.shields.io/github/actions/workflow/status/boromir674/neural-style-transfer/test.yaml?branch=master&label=build&logo=github-actions&logoColor=233392FF
+[ci-pipeline-status]: https://img.shields.io/github/actions/workflow/status/boromir674/neural-style-transfer/test.yaml?branch=main&label=build&logo=github-actions&logoColor=233392FF
 [pypi]: https://img.shields.io/pypi/v/artificial-artwork?color=blue&label=pypi&logo=pypi&logoColor=%23849ed9
 [wheel]: https://img.shields.io/pypi/wheel/artificial-artwork?logo=python&logoColor=%23849ed9
 [python-versions]: https://img.shields.io/pypi/pyversions/artificial-artwork?color=blue&logo=python&logoColor=%23849ed9
-[commits-since]: https://img.shields.io/github/commits-since/boromir674/neural-style-transfer/v1.0.1/master?color=blue&logo=Github
+[commits-since]: https://img.shields.io/github/commits-since/boromir674/neural-style-transfer/v2.0.0/main?color=blue&logo=Github
 [docker]: https://img.shields.io/docker/v/boromir674/neural-style-transfer/latest?logo=docker&logoColor=%23849ED9
 [image-size]: https://img.shields.io/docker/image-size/boromir674/neural-style-transfer/latest?logo=docker&logoColor=%23849ED9
 [codacy]: https://app.codacy.com/project/badge/Grade/07b27ac547a94708aefc5e845d2b6d01
 [code-climate]: https://api.codeclimate.com/v1/badges/2ea98633f88b75e87d1a/maintainability
 [maintainability]: https://img.shields.io/codeclimate/tech-debt/boromir674/neural-style-transfer?logo=CodeClimate
-[scrutinizer]: https://img.shields.io/scrutinizer/quality/g/boromir674/neural-style-transfer/master?logo=scrutinizer-ci
+[scrutinizer]: https://img.shields.io/scrutinizer/quality/g/boromir674/neural-style-transfer/main?logo=scrutinizer-ci
 
