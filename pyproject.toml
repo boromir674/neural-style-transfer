@@ -5,7 +5,7 @@ description = "Create artificial artwork by transfering the appearance of one im
 authors = ["Konstantinos Lampridis <k.lampridis@hotmail.com>"]
 maintainers = ["Konstantinos Lampridis <k.lampridis@hotmail.com>"]
 license = "AGPL-3.0-only"
-readme = "README.rst"
+readme = "README.md"
 
 packages = [
     { include = "artificial_artwork", from = "src" },
@@ -19,8 +19,8 @@ include = [
     { path = "src/stubs/*.pyi", format = "sdist" },
     "pyproject.toml",
     "LICENSE",
-    "README.rst",
-    "CHANGELOG.rst",
+    "README.md",
+    "CHANGELOG.md",
 ]
 
 homepage = "https://github.com/boromir674/neural-style-transfer"
