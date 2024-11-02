@@ -435,7 +435,7 @@ jobs:
   pypi_publ:
     needs: [test_suite, check_which_git_branch_we_are_on]
     name: PyPI Upload
-    uses: boromir674/automated-workflows/.github/workflows/pypi_env.yml@v1.1.0
+    uses: boromir674/automated-workflows/.github/workflows/pypi_env.yml@v1.13.1
     with:
       distro_name: "artificial_artwork"
       distro_version: "${{ needs.test_suite.outputs.SEMVER_PIP_FORMAT }}"
