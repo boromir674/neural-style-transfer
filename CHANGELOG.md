@@ -1,5 +1,61 @@
 # Changelog
 
+All notable changes to this project will be documented in this file.
+
+This project adheres to [Semantic Versioning](https://semver.org/).
+
+## 2.0.0 (2024-11-2)
+
+Start official support for Python `3.10` and `3.11`.  
+BREAKING: drop official support for Python `3.8` (through poetry build).
+
+### Changes
+
+#### Feature
+- render inactive the Stop button based subscribed algorithm running/stopped state updates
+- listen to whether the algorithm training/learning loop is running or interrupted
+- provide text box to configure maximum epochs for the Learning Algorithm Loop to run
+- prefill file selection dialogs with test Content and Style images for quicker run
+- resize Style image to match Content, with CLI flag "--auto-resize-style" or "-auto"
+- equip create_algo_runner with automatic Style image resize and listening to user stop signal
+- broadcast algorithm running state, True for running, False for terminated, from nst tf runner
+- add stop_signal callback as nst.run kwarg and notify progress subscribers on every iteration
+- allow automatic resizing of Style to Content image, with Simple Resizing algorithm
+- provide the Stop Signal Termination Condition that interrupts the learning loop
+- implement simple logging solution with File and Console handlers both with DEBUG level
+
+#### Fix
+- prevent out-of-memory errors and unpredictable timing of garbage collection, in some cases
+
+#### CI
+- do not trigger CI/CD Pipeline on push to 'release' branch
+- migrate documentation Readthedocs CI build Job to Python 3.10 (from 3.11)
+- bump PyPI Resuable workflow to v1.13.1
+- migrate Legacy Pylint CI Job to python 3.10
+- continuously run ruff against source code: src dir
+- continuously run bandit against code and fail Job if any issue is found!
+- use python 3.10 in Code Visualization CI Job
+- fix Static Code Analysis (ie isort, black, pyroma) on CI
+- redesign Dockerfile with base Debian/Python3.11 Slim image
+- update visualize-dockerfile.py script
+
+#### Build
+- pin griffe package aparently now required to solve docs dependencies build
+- remove official support for Python 3.8 and 3.9 and support 3.10 and 3.11
+
+#### Docs
+- retire README.rst, in favor of Markdown README.md
+
+#### Refactor
+- eliminate all bandit issues and clean code
+- apply black on source, tests, and scripts python code
+- sort imports semantically and alphabetically
+- rename Algorithm Data class attribute to termination_conditions for better semantics
+
+#### Test
+- expect new class RuntimeStopSignal, integrate with termination conditions & update regressions
+- prevent AA_VGG_19 env var mock from persisting in test session
+
 
 ## 1.1.0 (2023-11-15)
 
