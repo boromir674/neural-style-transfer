@@ -26,7 +26,7 @@ COPY CHANGELOG.md .
 COPY pyproject.toml .
 COPY poetry.lock .
 COPY LICENSE .
-COPY README.rst .
+COPY README.md .
 # COPY Pretrained_Model_LICENSE.txt .
 
 ## Provides Python Runtime and DISTRO_WHEELS folder
