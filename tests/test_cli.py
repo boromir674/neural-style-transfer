@@ -64,7 +64,7 @@ def test_cli_demo(test_suite, toy_nst_algorithm, isolated_cli_runner, monkeypatc
 
 
 @pytest.mark.runner_setup(mix_stderr=False)
-def test_cli_main(test_suite, toy_nst_algorithm, isolated_cli_runner):
+def test_cli_main(test_suite, toy_nst_algorithm, isolated_cli_runner, tmp_path):
     from pathlib import Path
 
     from artificial_artwork.cli import entry_point as main
@@ -81,7 +81,7 @@ def test_cli_main(test_suite, toy_nst_algorithm, isolated_cli_runner):
             "--iterations",
             "6",
             "--location",  # output folder to store snapshots of Gen Image
-            "/tmp",  # TODO use os native pytest fixture for tempdir
+            str(tmp_path),  # temporary directory unique to each test function
         ],
         input=None,
         env=None,

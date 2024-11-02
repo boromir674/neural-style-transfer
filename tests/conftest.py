@@ -1,7 +1,11 @@
 import os
 import typing as t
+from pathlib import Path
 
 import pytest
+
+# runtime directory of the `tests` directory
+tests_root: Path = Path(__file__).parent
 
 
 @pytest.fixture
@@ -10,6 +14,22 @@ def test_suite():
     import os
 
     return os.path.dirname(os.path.realpath(__file__))
+
+
+@pytest.fixture
+def test_root() -> Path:
+    """Root directory Path of the test suite; ie /projects/my-project/tests/"""
+    return tests_root
+
+
+@pytest.fixture
+def get_test_data_image() -> t.Callable[[str], Path]:
+    """Get the path of an image file in the test data directory."""
+
+    def get_image_file_path(file_name: str):
+        return tests_root / "data" / file_name
+
+    return get_image_file_path
 
 
 @pytest.fixture
@@ -83,16 +103,18 @@ def termination_condition_module():
     from artificial_artwork.termination_condition.termination_condition import (
         Convergence,
         MaxIterations,
+        RuntimeStopSignal,
         TerminationConditionFacility,
         TerminationConditionInterface,
         TimeLimit,
     )
 
-    # all tests require that the Facility already contains some implementations of TerminationCondition
+    # all tests require that the Facility already contains all implementations of TerminationCondition
     assert TerminationConditionFacility.class_registry.subclasses == {
         "max-iterations": MaxIterations,
         "time-limit": TimeLimit,
         "convergence": Convergence,
+        "stop-signal": RuntimeStopSignal,
     }
     return type(
         "M",
@@ -230,9 +252,6 @@ def vgg_layers():
     return tuple((layer_id for _, layer_id in VGG_LAYERS))
 
 
-PRODUCTION_IMAGE_MODEL = os.environ.get("AA_VGG_19", "PRETRAINED_MODEL_NOT_FOUND")
-
-
 @pytest.fixture
 def pre_trained_models_1(vgg_layers, toy_model_data, toy_network_design):
     import typing as t
@@ -303,11 +322,6 @@ def pre_trained_models_1(vgg_layers, toy_model_data, toy_network_design):
 
 @pytest.fixture
 def model(pre_trained_models_1):
-    import os
-
-    print(f"\n -- PROD IM MODEL: {PRODUCTION_IMAGE_MODEL}")
-    print(f"Selected Prod?: {os.path.isfile(PRODUCTION_IMAGE_MODEL)}")
-
     return pre_trained_models_1["toy"]
     # return {
     #     True: pre_trained_models_1['vgg'],
@@ -440,9 +454,7 @@ def toy_nst_algorithm(toy_model_data, toy_network_design, monkeypatch):
         monkeypatch.setattr(vgg, "VggModelHandler", ToyModelHandler)  # Patch/replace-with-mock
 
         # 2nd we patch the AA_VGG_19 env var which the code strictly requires to find
-        import os
-
-        os.environ["AA_VGG_19"] = "unit-tests-toy-value"  # Patch/replace-with-mock
+        monkeypatch.setenv("AA_VGG_19", "unit-tests-toy-value")
 
         # Prod Code uses the 'default' factory (classmetod) method of class
         # NetworkDesign, in order to instantiate a NetworkDesign object

@@ -150,6 +150,7 @@ def prod_read_image_from_disk():
 def test_adding_noise_with_the_same_seed_results_in_same_image(
     test_suite,
     prod_read_image_from_disk,
+    tmp_path,
 ):
     import typing as t
     from pathlib import Path
@@ -230,7 +231,7 @@ def test_adding_noise_with_the_same_seed_results_in_same_image(
 
     from artificial_artwork.disk_operations import Disk
 
-    ppath = "/tmp/nst-unit-test-image.png"
+    ppath = str(tmp_path / "nst-unit-test-image.png")
     Disk.save_image(first_noisy_content_image_matrix, ppath, save_format="png")
     first_noisy_content_image_matrix: NDArray = prod_read_image_from_disk(ppath)
 

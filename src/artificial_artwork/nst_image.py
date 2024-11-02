@@ -10,7 +10,7 @@ __all__ = ["ImageManager", "noisy", "convert_to_uint8"]
 
 
 class ImageProtocol(Protocol):
-    path: str
+    file_path: str
     matrix: NDArray
 
 
@@ -41,17 +41,24 @@ class ImageManager:
         for image_type in self._known_types:
             setattr(self, f"_{image_type}_image", None)
 
-    def load_from_disk(self, file_path: str, image_type: str):
+    def load_from_disk(self, file_path: str, image_type: str, array=None):
         if image_type not in self._known_types:
             raise ValueError(
                 f"Expected type of image to be one of {self._known_types}; found {image_type}"
             )
+        if array is not None:
+            image: ImageProtocol = self.image_factory.from_array(
+                array, self.preprocessing_pipeline
+            )
+            # manually encapsulate the file_path attribute, since it is not relevant for an in-memory
+            image.file_path = file_path
+        else:
+            image: ImageProtocol = self.image_factory.from_disk(
+                file_path, self.preprocessing_pipeline
+            )
+
         # dynamically call the appropriate content/style setter method
-        setattr(
-            self,
-            f"{image_type}_image",
-            self.image_factory.from_disk(file_path, self.preprocessing_pipeline),
-        )
+        setattr(self, f"{image_type}_image", image)
 
     def _set_image(self, image, image_type: str):
         # dynamically set appropriate content/style attribute

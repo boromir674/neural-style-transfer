@@ -17,6 +17,8 @@ on:
   push:
     branches:
       - "*"
+      # exclude 'release' branch
+      - "!release"
     tags:
       - v*
 
@@ -27,6 +29,7 @@ env:
   # Job Matrix as an env var !
   FULL_MATRIX_STRATEGY: "{\"platform\": [\"ubuntu-latest\", \"macos-latest\", \"windows-latest\"], \"python-version\": [\"3.8\", \"3.9\", \"3.10\", \"3.11\"]}"
   UBUNTU_PY38_STRATEGY: "{\"platform\":[\"ubuntu-latest\"], \"python-version\":[\"3.8\"]}"
+  SINGLE_TEST_JOB_STRATEGY: "{\"platform\": [\"ubuntu-latest\"], \"python-version\":[\"3.10\"]}"
   TEST_STRATEGY: "{\"platform\":[\"ubuntu-latest\", \"macos-latest\", \"windows-latest\"], \"python-version\":[\"3.9\"]}"
 
 
@@ -53,12 +56,14 @@ env:
   # DOCKER_JOB_POLICY: "CDelivery"
   ############################
 
-  #### STATIC CHECK Job ####
+  #### STATIC CODE ANALYSIS Job ####
   # Python Runtime version to set the Job runner with
-  STATIC_ANALYSIS_PY: "3.8"  # since our pyproject is tested to support 3.8 builds
-  # Pylint Score Threshold, if the score is below this value the Job will fail
-  # If pylint rated our code below that score, the Job fails
+  STATIC_ANALYSIS_PY: "3.10"  # since our pyproject is tested to support 3.10 builds
+  ## Pylint Minimum Acceptance Rating/Score ##
   PYLINT_SCORE_THRESHOLD: "8.2"
+
+  ALWAYS_LINT: "false"
+  LINT_JOB_POLICY: '2'  # {2, 3}
   ##########################
 
 jobs:
@@ -84,9 +89,9 @@ jobs:
           # set the matrix strategy to Full Matrix Stress Test if on master/main or stress-test branch or any tag
           BRANCH_NAME=${GITHUB_REF_NAME}
           if [[ $BRANCH_NAME == "master" || $BRANCH_NAME == "main" || $BRANCH_NAME == "stress-test" || $GITHUB_REF == refs/tags/* ]]; then
-            echo "matrix=$UBUNTU_PY38_STRATEGY" >> $GITHUB_OUTPUT
+            echo "matrix=$SINGLE_TEST_JOB_STRATEGY" >> $GITHUB_OUTPUT
           else
-            echo "matrix=$UBUNTU_PY38_STRATEGY" >> $GITHUB_OUTPUT
+            echo "matrix=$SINGLE_TEST_JOB_STRATEGY" >> $GITHUB_OUTPUT
           fi
           echo "DRAW_DEPS_SVG_GRAPHS=$DRAW_DEPENDENCIES" >> $GITHUB_OUTPUT
           echo "RUN_LINT=$RUN_LINT_CHECKS" >> $GITHUB_OUTPUT
@@ -132,8 +137,7 @@ jobs:
           echo "DOCKER_POLICY: $DOCKER_POLICY"
           echo "============================================"
 
-
-# RUN TEST SUITE ON ALL PLATFORMS
+  # RUN TEST SUITE ON ALL PLATFORMS
   test_suite:
     runs-on: ${{ matrix.platform }}
     needs: set_github_outputs
@@ -151,6 +155,10 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
     - run: python -m pip install --upgrade pip && python -m pip install tox==3.28 tox-gh-actions
+
+    - name: Install dependencies for Python 3.11
+      if: matrix.python-version == '3.11'
+      run: sudo apt-get install python3.11-distutils
 
     # - name: Do Type Checking
     #   run: tox -e type -vv -s false
@@ -241,7 +249,7 @@ jobs:
         echo "PKG_VERSION=$WHEEL_VERSION" >> $GITHUB_ENV
         echo "SEMVER_PIP_FORMAT=$WHEEL_VERSION" >> $GITHUB_OUTPUT  # to be used in other jobs
 
-  ## TEST SUITE: By Default executes only unit-tests (ie no integration, or network-dependent tests)
+    ## TEST SUITE: By Default executes only unit-tests (ie no integration, or network-dependent tests)
     - name: Run Unit Tests
       run: tox -vv -s false
       env:
@@ -429,7 +437,7 @@ jobs:
   pypi_publ:
     needs: [test_suite, check_which_git_branch_we_are_on]
     name: PyPI Upload
-    uses: boromir674/automated-workflows/.github/workflows/pypi_env.yml@v1.1.0
+    uses: boromir674/automated-workflows/.github/workflows/pypi_env.yml@v1.13.1
     with:
       distro_name: "artificial_artwork"
       distro_version: "${{ needs.test_suite.outputs.SEMVER_PIP_FORMAT }}"
@@ -466,7 +474,7 @@ jobs:
   #       echo "PACKAGE_DIST_VERSION=$DISTRO_SEMVER" >> $GITHUB_ENV
 
 
-## AUTOMATED DOCKER BUILD and PUBLISH ON DOCKERHUB ##
+  ## AUTOMATED DOCKER BUILD and PUBLISH ON DOCKERHUB ##
   read_docker_settings:
     runs-on: ubuntu-latest
     outputs:
@@ -498,68 +506,23 @@ jobs:
       tests_pass: ${{ needs.test_suite.result == 'success' }}
       tests_run: ${{ !contains(fromJSON('["skipped", "cancelled"]'), needs.test_suite.result) }}
       image_slug: "neural-style-transfer-cli"
-      target_stage: "prod_install"
+      target_stage: "install"
     secrets:
       DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
 
 
-# STATIC CODE ANALYSIS & LINTING
+  ### STATIC CODE ANALYSIS & LINTING ###
   lint:
-    name: "Static Code Analysis & Lint"
-    runs-on: ubuntu-latest
+    name: Static Code Analysis
     needs: set_github_outputs
-    if: ${{ needs.set_github_outputs.outputs.RUN_LINT == 'true' }}
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Read Pipe Parameter STATIC_ANALYSIS_PY, to determine Python runtime to use for Static Code Analysis
-        run: echo "MY_STATIC_ANALYSIS_PY_VERSION=$STATIC_ANALYSIS_PY" >> $GITHUB_ENV  #  can be used in a with body of a next step in the Job, as eg: path: ${{ env.DIST_DIR }}
-
-      - name: Set up Python ${{ env.STATIC_ANALYSIS_PY }}
-        uses: actions/setup-python@v4
-        with:
-          python-version: ${{ env.STATIC_ANALYSIS_PY }}
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          python -m pip install tox==3.28
-
-      ## Isort ##
-      - name: "Isort\\: Require Semantic and Alphabetic order of the Python Imports"
-        if: ${{ matrix.platform != 'windows-latest' }}
-        run: tox -e isort -vv -s false
-
-      ## Black ##
-      - name: "Black\\: Require Project Style to be followed by the Python Code"
-        if: ${{ matrix.platform != 'windows-latest' }}
-        run: tox -e black -vv -s false
-
-      ## Pylint ##
-      - name: Run Pylint tool on Python Code Base
-        run: TOXPYTHON="python${STATIC_ANALYSIS_PY}" tox -e pylint -vv -s false | tee pylint-result.txt
-
-      - name: Show Pylint output in Terminal
-        run: cat pylint-result.txt
-
-      - name: "Accept Code if Pylint Score > 8.2/10"
-        if: ${{ matrix.platform != 'windows-latest' }}
-        run: |
-          SCORE=`sed -n 's/^Your code has been rated at \([-0-9.]*\)\/.*/\1/p' pylint-result.txt`
-          echo "SCORE -> $SCORE"
-          # threshold check
-          if awk "BEGIN {exit !($SCORE >= $PYLINT_SCORE_THRESHOLD)}"; then
-            echo "PyLint Passed! | Score: ${SCORE} out of 10 | Threshold: ${PYLINT_SCORE_THRESHOLD}"
-          else
-            echo "PyLint Failed! | Score: ${SCORE} out of 10 | Threshold: ${PYLINT_SCORE_THRESHOLD}"
-            exit 1
-          fi
-
-      ## Pyflakes, Pyroma, McCabe, DodgyRun, Profile Validator ##
-      - name: Check for errors, potential problems, convention violations and complexity, by running tools Pyflakes, Pyroma, McCabe, and DodgyRun
-        if: ${{ matrix.platform != 'windows-latest' }}
-        run: tox -e prospector -vv -s false
-
+    uses: ./.github/workflows/lint.yml
+    with:
+      run_policy: '2'
+      dedicated_branches: 'main, dev'
+      source_code_targets: 'src,tests,scripts'
+      python_version: '3.10'
+      pylint_threshold: '8.2'
+      bandit: '{"l": 0, "m": 0, "h": 0}'  # No Bandit issues allowed !
 
 # DRAW PYTHON DEPENDENCY GRAPHS
   check_trigger_draw_dependency_graphs:
@@ -604,10 +567,10 @@ jobs:
     name: Draw Python Dependencies as Graphs, in .svg
     steps:
     - uses: actions/checkout@v3
-    - name: Set up Python 3.8
+    - name: Set up Python 3.10
       uses: actions/setup-python@v4
       with:
-        python-version: '3.8'
+        python-version: '3.10'
     - name: Install tox
       run: |
         python -m pip install --upgrade pip

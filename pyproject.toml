@@ -1,11 +1,11 @@
 [tool.poetry]
 name = "artificial-artwork"
-version = "1.1.0"
+version = "2.0.0"
 description = "Create artificial artwork by transfering the appearance of one image (eg a famous painting) to another user-supplied image (eg your favourite photograph)."
 authors = ["Konstantinos Lampridis <k.lampridis@hotmail.com>"]
 maintainers = ["Konstantinos Lampridis <k.lampridis@hotmail.com>"]
 license = "AGPL-3.0-only"
-readme = "README.rst"
+readme = "README.md"
 
 packages = [
     { include = "artificial_artwork", from = "src" },
@@ -19,8 +19,8 @@ include = [
     { path = "src/stubs/*.pyi", format = "sdist" },
     "pyproject.toml",
     "LICENSE",
-    "README.rst",
-    "CHANGELOG.rst",
+    "README.md",
+    "CHANGELOG.md",
 ]
 
 homepage = "https://github.com/boromir674/neural-style-transfer"
@@ -73,17 +73,20 @@ classifiers = [
 
 [tool.poetry.dependencies]
 # no extensive tests for > 3.8 (ie 3.9, 3.10, 3.11)
-python = "~3.8"
+python = ">=3.10,<3.12"
+# python = "~3.8"
 cython = "^3.0.2"
 
-tensorflow = "2.2.0"
+tensorflow = "^2.2.0"
 click = "^8.1.7"
 software-patterns = "^2.0.0"
 attrs = "^23.1.0"
-numpy = "~1.21.3"
-scipy = "~1.4.1"
-imageio = "~2.10.1"
 protobuf = "^3.19.1"
+
+# Only accept Patch/Security/Fix updates
+numpy = { version = "~1" }
+scipy = "^1.4.1"
+imageio = "~2.10.1"
 
 # Test Suite Runner and Fictures provider
 pytest = {version = "^7.4.2", optional = true}
@@ -105,13 +108,13 @@ mkdocs-click = {version = "^0.8.1", optional = true}
 mkdocs-material = {version = "^9.4.8", optional = true}
 pymdown-extensions = {version = "^10.4", optional = true}
 mkdocs-mermaid2-plugin = {version = "^1.1.1", optional = true}
-# mkdocstrings = {version = "^0.24.0", optional = true}
 mkdocs-gen-files = {version = "^0.5.0", optional = true}
-mkdocstrings = {version = "^0.24.0", optional = true}
-mkdocstrings-python = {version = "^1.7.4", optional = true}
 mkdocs-literate-nav = {version = "^0.6.1", optional = true}
 mkdocs-section-index = {version = "^0.3.8", optional = true}
 mkdocs-macros-plugin = {version = "^1.0.5", optional = true}
+mkdocstrings-python = {version = "^1.12.2", optional = true}
+mkdocstrings = {version = "^0.26.2", optional = true}
+griffe = {version = "^1.5.1", optional = true}
 
 
 [tool.poetry.extras]
@@ -137,6 +140,7 @@ docs = [
     "mkdocs-literate-nav",
     "mkdocs-section-index",
     "mkdocs-macros-plugin",
+    "griffe",
 ]
 
 # CLI / ENTRYPOINTS
@@ -202,7 +206,10 @@ profile = 'black'
 [tool.software-release]
 version_variable = "src/artificial_artwork/__version__.py:__version__"
 
+# BANDIT
+
 [tool.bandit]
+exclude_dirs = ["tests/data", "path/to/file"]
 tests = []
 skips = [
     "B101",
