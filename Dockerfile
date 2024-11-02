@@ -178,14 +178,11 @@ COPY ${DEMO_STYLE_IMAGE} "${REPO_DEMO_IMAGES_LOCATION}/"
 # ie if on host is tests/data/blue-red_w300-h225.jpg
 # then in image it will be /app/tests/data/blue-red_w300-h225.jpg
 
-# Indicate that these are valid Content and Style Images for Demo
-# Show nst where to find the Demo Content and Style Images
+
+# locate Content and Style Images inside docker-image for 'demo' CLI command
 ENV CONTENT_IMAGE_DEMO="/app/${DEMO_CONTENT_IMAGE}"
 ENV STYLE_IMAGE_DEMO="/app/${DEMO_STYLE_IMAGE}"
 
-
-# Define default command, that when run, a python process is spawned, which
-# runs the NST Algorithm on the Demo Content and Style Images for a few iterations
 CMD ["nst", "demo"]
 
 ### Stage: Default Target (for Production)
