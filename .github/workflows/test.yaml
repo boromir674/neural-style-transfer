@@ -39,7 +39,7 @@ env:
   PUBLISH_ON_PYPI: "true"
   DRAW_DEPENDENCIES: "true"
   PREVENT_CODECOV_TEST_COVERAGE: "false"
-  DOCKER_JOB_ON: "false"
+  DOCKER_JOB_ON: "true"
   ###############################
 
   #### DOCKER Job Policy #####
@@ -135,8 +135,7 @@ jobs:
           echo "DOCKER_POLICY: $DOCKER_POLICY"
           echo "============================================"
 
-
-# RUN TEST SUITE ON ALL PLATFORMS
+  # RUN TEST SUITE ON ALL PLATFORMS
   test_suite:
     runs-on: ${{ matrix.platform }}
     needs: set_github_outputs
@@ -248,7 +247,7 @@ jobs:
         echo "PKG_VERSION=$WHEEL_VERSION" >> $GITHUB_ENV
         echo "SEMVER_PIP_FORMAT=$WHEEL_VERSION" >> $GITHUB_OUTPUT  # to be used in other jobs
 
-  ## TEST SUITE: By Default executes only unit-tests (ie no integration, or network-dependent tests)
+    ## TEST SUITE: By Default executes only unit-tests (ie no integration, or network-dependent tests)
     - name: Run Unit Tests
       run: tox -vv -s false
       env:
@@ -473,7 +472,7 @@ jobs:
   #       echo "PACKAGE_DIST_VERSION=$DISTRO_SEMVER" >> $GITHUB_ENV
 
 
-## AUTOMATED DOCKER BUILD and PUBLISH ON DOCKERHUB ##
+  ## AUTOMATED DOCKER BUILD and PUBLISH ON DOCKERHUB ##
   read_docker_settings:
     runs-on: ubuntu-latest
     outputs:
@@ -510,7 +509,7 @@ jobs:
       DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
 
 
-### STATIC CODE ANALYSIS & LINTING ###
+  ### STATIC CODE ANALYSIS & LINTING ###
   lint:
     name: Static Code Analysis
     needs: set_github_outputs
