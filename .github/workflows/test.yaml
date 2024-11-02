@@ -17,6 +17,8 @@ on:
   push:
     branches:
       - "*"
+      # exclude 'release' branch
+      - "!release"
     tags:
       - v*
 
