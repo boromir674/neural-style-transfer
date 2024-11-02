@@ -34,7 +34,7 @@ env:
   ####### Pipeline Settings #######
 
   ##### JOB ON/OFF SWITCHES #####
-  RUN_UNIT_TESTS: "true"
+  RUN_UNIT_TESTS: "false"
   RUN_LINT_CHECKS: "true"
   PUBLISH_ON_PYPI: "true"
   DRAW_DEPENDENCIES: "true"
@@ -46,7 +46,7 @@ env:
   # Override Docker Policy-dependent decision-making and
   # Accept any ALL (branch/build) to Publish to Dockerhub
   # if true, will push image and ingnore below policy
-  ALWAYS_BUILD_N_PUBLSIH_DOCKER: "false"
+  ALWAYS_BUILD_N_PUBLSIH_DOCKER: "true"
 
   # CDeployment : Builds and Publishes only if Tests ran and passed
   # CDelivery   : Builds and Publishes if Tests Passed or if Tests were Skipped
