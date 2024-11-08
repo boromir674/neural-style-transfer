@@ -397,7 +397,7 @@ jobs:
       - uses: rickstaa/action-contains-tag@v1
         id: main_contains_tag
         with:
-          reference: "master"
+          reference: "main"
           tag: "${{ github.ref }}"
 
       - uses: rickstaa/action-contains-tag@v1
